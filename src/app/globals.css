@@ -529,11 +529,11 @@ button {
 
 .categories-grid {
   display: grid;
-  grid-template-columns: repeat(2, minmax(280px, 400px));
+  grid-template-columns: repeat(2, 1fr);
   gap: var(--space-xl);
-  justify-content: center;
-  max-width: 900px;
+  max-width: 1200px;
   margin: 0 auto;
+  padding: 0 var(--space-xl);
 }
 
 .category-card {
@@ -1365,14 +1365,15 @@ button {
 
 .category-card-large {
   display: grid;
-  grid-template-columns: 150px 1fr;
+  grid-template-columns: 180px 1fr;
   align-items: center;
-  gap: var(--space-xl);
-  padding: var(--space-xl);
+  gap: var(--space-2xl);
+  padding: var(--space-2xl);
   background: var(--color-bg);
   border: 2px solid var(--color-border);
-  border-radius: var(--radius-xl);
+  border-radius: var(--radius-2xl);
   transition: all var(--transition-base);
+  min-height: 200px;
 }
 
 .category-card-large:hover {
@@ -1383,8 +1384,8 @@ button {
 
 .category-visual {
   position: relative;
-  width: 120px;
-  height: 120px;
+  width: 160px;
+  height: 160px;
   /* Degradado sutil estilo Apple */
   background: linear-gradient(145deg,
       #f8f9fa 0%,

@@ -1,12 +1,12 @@
 /**
  * ═══════════════════════════════════════════════════════════════════════════
- * QUIZ DE ESTILO (SITEMAP 1.3)
+ * QUIZ DE ESTILO MEXILUX - Estilo Spotify Wrapped 🇲🇽
  * ═══════════════════════════════════════════════════════════════════════════
  * 
- * Quiz rápido para recomendar monturas basadas en:
- * - Tipo de rostro
- * - Estilo de vida
- * - Preferencias estéticas
+ * - Categorización por tipo de rostro
+ * - Resultados personalizados con armazones
+ * - Comparación con celebridades mexicanas
+ * - Diseño tipo Spotify Wrapped para compartir
  */
 
 'use client';
@@ -14,73 +14,118 @@
 import Link from 'next/link';
 import { useState } from 'react';
 
+// Tipos de rostro y sus características
+const FACE_TYPES = {
+    oval: {
+        name: 'Ovalado',
+        emoji: '🥚',
+        description: 'Frente ligeramente más ancha que la mandíbula, pómulos definidos',
+        recommendedShapes: ['Cualquier forma te queda', 'Aviador', 'Cuadrado', 'Cat Eye'],
+        celebrity: {
+            name: 'Eugenio Derbez',
+            title: 'El Versátil',
+            description: 'Como Eugenio, tu rostro equilibrado te permite experimentar con cualquier estilo. Eres adaptable y carismático.',
+            quote: '"La vida es como unas gafas... hay que saber ajustarlas"',
+        },
+        colors: ['Negro clásico', 'Carey', 'Dorado'],
+    },
+    round: {
+        name: 'Redondo',
+        emoji: '🔴',
+        description: 'Mejillas prominentes, frente y mandíbula de anchura similar',
+        recommendedShapes: ['Rectangular', 'Cuadrado', 'Aviador', 'Cat Eye'],
+        celebrity: {
+            name: 'Yalitza Aparicio',
+            title: 'El Carismático',
+            description: 'Como Yalitza, transmites calidez y cercanía. Las monturas angulares realzan tu expresividad natural.',
+            quote: '"La belleza está en la autenticidad"',
+        },
+        colors: ['Negro', 'Azul oscuro', 'Verde bosque'],
+    },
+    square: {
+        name: 'Cuadrado',
+        emoji: '⬛',
+        description: 'Mandíbula angular, frente ancha, rasgos definidos',
+        recommendedShapes: ['Redondo', 'Ovalado', 'Cat Eye', 'Aviador curvo'],
+        celebrity: {
+            name: 'Diego Luna',
+            title: 'El Decidido',
+            description: 'Como Diego, tienes presencia fuerte y determinada. Las monturas redondeadas suavizan y equilibran tus rasgos.',
+            quote: '"La fuerza está en saber elegir"',
+        },
+        colors: ['Plateado', 'Transparente', 'Carey claro'],
+    },
+    heart: {
+        name: 'Corazón',
+        emoji: '💜',
+        description: 'Frente ancha, pómulos altos, barbilla puntiaguda',
+        recommendedShapes: ['Aviador', 'Mariposa', 'Redondo', 'Sin montura inferior'],
+        celebrity: {
+            name: 'Salma Hayek',
+            title: 'El Apasionado',
+            description: 'Como Salma, irradias energía y pasión. Las monturas que equilibran la parte superior de tu rostro te favorecen.',
+            quote: '"El estilo es una forma de decir quién eres"',
+        },
+        colors: ['Dorado rosa', 'Burgundy', 'Nude'],
+    },
+    oblong: {
+        name: 'Alargado',
+        emoji: '📏',
+        description: 'Rostro más largo que ancho, frente alta',
+        recommendedShapes: ['Oversize', 'Cuadrado ancho', 'Aviador grande', 'Wayfarer'],
+        celebrity: {
+            name: 'Gael García Bernal',
+            title: 'El Soñador',
+            description: 'Como Gael, tienes un aire artístico y reflexivo. Las monturas anchas crean proporción y balance.',
+            quote: '"Los sueños se ven mejor con buenos lentes"',
+        },
+        colors: ['Negro mate', 'Tortoise oscuro', 'Azul marino'],
+    },
+};
+
 const QUIZ_STEPS = [
     {
         id: 'face-shape',
-        title: '¿Cuál es la forma de tu rostro?',
-        description: 'Esto nos ayuda a recomendarte monturas que complementen tus facciones',
+        title: '¿Cómo describes tu rostro?',
+        subtitle: 'Mírate al espejo y elige la opción que más se parezca',
+        options: Object.entries(FACE_TYPES).map(([key, face]) => ({
+            value: key,
+            label: face.name,
+            emoji: face.emoji,
+            tip: face.description,
+        })),
+    },
+    {
+        id: 'style',
+        title: '¿Cuál es tu vibe?',
+        subtitle: 'Elige el estilo que más te representa',
         options: [
-            { value: 'oval', label: 'Ovalado', emoji: '🥚', tip: 'Frente ligeramente más ancha que la mandíbula' },
-            { value: 'round', label: 'Redondo', emoji: '🔴', tip: 'Mejillas suaves, frente y mandíbula similares' },
-            { value: 'square', label: 'Cuadrado', emoji: '⬛', tip: 'Mandíbula angular y frente ancha' },
-            { value: 'heart', label: 'Corazón', emoji: '💜', tip: 'Frente ancha y barbilla puntiaguda' },
-            { value: 'oblong', label: 'Alargado', emoji: '📏', tip: 'Rostro más largo que ancho' },
+            { value: 'clasico', label: 'Clásico', emoji: '🎩', tip: 'Elegante, atemporal, sofisticado' },
+            { value: 'moderno', label: 'Moderno', emoji: '⚡', tip: 'Tendencias, vanguardia, innovador' },
+            { value: 'relajado', label: 'Relajado', emoji: '🌊', tip: 'Casual, cómodo, natural' },
+            { value: 'atrevido', label: 'Atrevido', emoji: '🔥', tip: 'Llamativo, único, expresivo' },
+            { value: 'minimalista', label: 'Minimalista', emoji: '⚪', tip: 'Simple, limpio, esencial' },
         ],
     },
     {
-        id: 'lifestyle',
-        title: '¿Cuál describe mejor tu estilo de vida?',
-        description: 'Elegiremos monturas que se adapten a tu día a día',
+        id: 'activity',
+        title: '¿Para qué los usarás más?',
+        subtitle: 'Esto nos ayuda a recomendar el material ideal',
         options: [
-            { value: 'professional', label: 'Profesional', emoji: '👔', tip: 'Oficina, reuniones, presentaciones' },
-            { value: 'active', label: 'Activo/Deportivo', emoji: '⚽', tip: 'Ejercicio, actividades al aire libre' },
-            { value: 'creative', label: 'Creativo', emoji: '🎨', tip: 'Arte, diseño, ambiente casual' },
-            { value: 'casual', label: 'Casual', emoji: '🌴', tip: 'Relajado, día a día, versátil' },
-            { value: 'trendy', label: 'Trendy', emoji: '✨', tip: 'Moda, tendencias, expresión personal' },
-        ],
-    },
-    {
-        id: 'color-preference',
-        title: '¿Qué colores prefieres?',
-        description: 'El color de la montura complementará tu tono de piel y cabello',
-        options: [
-            { value: 'classic', label: 'Clásicos', emoji: '⚫', tip: 'Negro, café, tortoise' },
-            { value: 'metal', label: 'Metálicos', emoji: '🥈', tip: 'Dorado, plateado, oro rosa' },
-            { value: 'bold', label: 'Atrevidos', emoji: '🔴', tip: 'Rojo, azul, verde' },
-            { value: 'transparent', label: 'Transparentes', emoji: '💎', tip: 'Cristal, translúcidos' },
-            { value: 'neutral', label: 'Neutros', emoji: '🤎', tip: 'Beige, nude, grises' },
+            { value: 'trabajo', label: 'Trabajo', emoji: '💼', tip: 'Oficina, videollamadas' },
+            { value: 'deportes', label: 'Deportes', emoji: '🏃', tip: 'Actividades físicas' },
+            { value: 'diario', label: 'Uso diario', emoji: '☀️', tip: 'Todo el día, versátil' },
+            { value: 'ocasiones', label: 'Ocasiones', emoji: '🎉', tip: 'Eventos, salidas' },
+            { value: 'pantallas', label: 'Pantallas', emoji: '💻', tip: 'Computadora, celular' },
         ],
     },
 ];
-
-// Resultados basados en combinaciones
-const RECOMMENDATIONS: Record<string, { title: string; description: string; shapes: string[] }> = {
-    'default': {
-        title: 'Monturas Versátiles',
-        description: 'Basado en tus preferencias, te recomendamos monturas que combinan estilo y comodidad.',
-        shapes: ['rectangular', 'aviador', 'cat-eye'],
-    },
-    'oval-professional-classic': {
-        title: 'Elegancia Clásica',
-        description: 'Tu rostro ovalado es muy versátil. Para un look profesional, las monturas rectangulares en negro o carey son perfectas.',
-        shapes: ['rectangular', 'cuadrado'],
-    },
-    'round-active-bold': {
-        title: 'Deportivo con Personalidad',
-        description: 'Para equilibrar tu rostro redondo y tu estilo activo, te van monturas angulares en colores vibrantes.',
-        shapes: ['rectangular', 'aviador', 'cuadrado'],
-    },
-    'square-creative-transparent': {
-        title: 'Creativo y Moderno',
-        description: 'Suaviza tus rasgos angulares con monturas redondas o cat-eye en tonos transparentes.',
-        shapes: ['redondo', 'cat-eye', 'ovalado'],
-    },
-};
 
 export default function QuizPage() {
     const [currentStep, setCurrentStep] = useState(0);
     const [answers, setAnswers] = useState<Record<string, string>>({});
     const [showResults, setShowResults] = useState(false);
+    const [isAnimating, setIsAnimating] = useState(false);
 
     const totalSteps = QUIZ_STEPS.length;
     const progress = ((currentStep + 1) / totalSteps) * 100;
@@ -94,12 +139,15 @@ export default function QuizPage() {
     };
 
     const handleNext = () => {
-        if (currentStep < totalSteps - 1) {
-            setCurrentStep(prev => prev + 1);
-        } else {
-            // Mostrar resultados
-            setShowResults(true);
-        }
+        setIsAnimating(true);
+        setTimeout(() => {
+            if (currentStep < totalSteps - 1) {
+                setCurrentStep(prev => prev + 1);
+            } else {
+                setShowResults(true);
+            }
+            setIsAnimating(false);
+        }, 300);
     };
 
     const handlePrevious = () => {
@@ -108,68 +156,137 @@ export default function QuizPage() {
         }
     };
 
-    const getRecommendation = () => {
-        const key = `${answers['face-shape']}-${answers['lifestyle']}-${answers['color-preference']}`;
-        return RECOMMENDATIONS[key] || RECOMMENDATIONS['default'];
+    const getFaceResult = () => {
+        const faceKey = answers['face-shape'] as keyof typeof FACE_TYPES;
+        return FACE_TYPES[faceKey] || FACE_TYPES.oval;
+    };
+
+    const handleShare = async () => {
+        const result = getFaceResult();
+        const shareText = `🇲🇽 Descubrí que soy "${result.celebrity.title}" según mi tipo de rostro en Mexilux!\n\n${result.celebrity.quote}\n\n¿Cuál eres tú? 👓`;
+        
+        if (navigator.share) {
+            try {
+                await navigator.share({
+                    title: 'Mi Resultado Mexilux',
+                    text: shareText,
+                    url: 'https://mexilux.com/quiz',
+                });
+            } catch {
+                // User cancelled or error
+            }
+        } else {
+            // Fallback: copy to clipboard
+            navigator.clipboard.writeText(shareText);
+            alert('¡Copiado! Pégalo en tus redes sociales');
+        }
     };
 
     const canProceed = answers[currentQuestion?.id];
 
+    // ═══════════════════════════════════════════════════════════════════════════
+    // PANTALLA DE RESULTADOS - Estilo Spotify Wrapped
+    // ═══════════════════════════════════════════════════════════════════════════
     if (showResults) {
-        const recommendation = getRecommendation();
+        const result = getFaceResult();
 
         return (
-            <main className="quiz-page">
-                <div className="section-container">
-                    <header className="quiz-page-header">
-                        <Link href="/" className="back-link">← Volver al inicio</Link>
-                        <h1>¡Tus resultados están listos!</h1>
-                    </header>
+            <main className="quiz-results-wrapped">
+                {/* Background animado */}
+                <div className="wrapped-background">
+                    <div className="wrapped-gradient" />
+                    <div className="wrapped-particles" />
+                </div>
 
-                    <div className="quiz-results">
-                        <div className="results-card">
-                            <div className="results-icon">🎉</div>
-                            <h2>{recommendation.title}</h2>
-                            <p className="results-description">{recommendation.description}</p>
+                <div className="wrapped-container">
+                    {/* Card principal estilo Wrapped */}
+                    <div className="wrapped-card">
+                        <div className="wrapped-header">
+                            <span className="wrapped-badge">MEXILUX 2024</span>
+                            <span className="wrapped-emoji">{result.emoji}</span>
+                        </div>
 
-                            <div className="recommended-shapes">
-                                <h3>Formas recomendadas para ti:</h3>
-                                <div className="shapes-list">
-                                    {recommendation.shapes.map((shape, idx) => (
-                                        <span key={idx} className="shape-tag">
-                                            {shape.charAt(0).toUpperCase() + shape.slice(1)}
-                                        </span>
-                                    ))}
-                                </div>
+                        <div className="wrapped-celebrity">
+                            <h1 className="wrapped-title">Eres</h1>
+                            <h2 className="wrapped-celebrity-title">{result.celebrity.title}</h2>
+                            <p className="wrapped-celebrity-name">
+                                Como <strong>{result.celebrity.name}</strong>
+                            </p>
+                        </div>
+
+                        <div className="wrapped-quote">
+                            <p>{result.celebrity.quote}</p>
+                        </div>
+
+                        <div className="wrapped-description">
+                            <p>{result.celebrity.description}</p>
+                        </div>
+
+                        {/* Formas recomendadas */}
+                        <div className="wrapped-recommendations">
+                            <h3>Tus monturas ideales</h3>
+                            <div className="wrapped-shapes">
+                                {result.recommendedShapes.map((shape, idx) => (
+                                    <span key={idx} className="wrapped-shape-tag">
+                                        {shape}
+                                    </span>
+                                ))}
                             </div>
+                        </div>
 
-                            <div className="results-summary">
-                                <h4>Tu perfil:</h4>
-                                <ul>
-                                    <li><strong>Rostro:</strong> {answers['face-shape']}</li>
-                                    <li><strong>Estilo:</strong> {answers['lifestyle']}</li>
-                                    <li><strong>Colores:</strong> {answers['color-preference']}</li>
-                                </ul>
+                        {/* Colores */}
+                        <div className="wrapped-colors">
+                            <h3>Colores que te favorecen</h3>
+                            <div className="wrapped-color-list">
+                                {result.colors.map((color, idx) => (
+                                    <span key={idx} className="wrapped-color-tag">
+                                        {color}
+                                    </span>
+                                ))}
                             </div>
+                        </div>
+                    </div>
 
-                            <div className="results-actions">
-                                <Link
-                                    href={`/catalogo?forma=${recommendation.shapes[0]}`}
-                                    className="btn btn-primary"
-                                >
-                                    Ver monturas recomendadas →
-                                </Link>
-                                <button
-                                    onClick={() => {
-                                        setShowResults(false);
-                                        setCurrentStep(0);
-                                        setAnswers({});
-                                    }}
-                                    className="btn btn-outline"
-                                >
-                                    Repetir quiz
-                                </button>
-                            </div>
+                    {/* Acciones */}
+                    <div className="wrapped-actions">
+                        <button className="btn-wrapped-share" onClick={handleShare}>
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                                <path d="M4 12v8a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-8"/>
+                                <polyline points="16 6 12 2 8 6"/>
+                                <line x1="12" y1="2" x2="12" y2="15"/>
+                            </svg>
+                            Compartir mi resultado
+                        </button>
+
+                        <Link href="/catalogo" className="btn-wrapped-primary">
+                            👓 Ver monturas recomendadas
+                        </Link>
+
+                        <button 
+                            className="btn-wrapped-secondary"
+                            onClick={() => {
+                                setShowResults(false);
+                                setCurrentStep(0);
+                                setAnswers({});
+                            }}
+                        >
+                            Repetir quiz
+                        </button>
+                    </div>
+
+                    {/* Stats estilo Wrapped */}
+                    <div className="wrapped-stats">
+                        <div className="wrapped-stat">
+                            <span className="stat-number">156+</span>
+                            <span className="stat-label">Monturas para ti</span>
+                        </div>
+                        <div className="wrapped-stat">
+                            <span className="stat-number">4</span>
+                            <span className="stat-label">Formas ideales</span>
+                        </div>
+                        <div className="wrapped-stat">
+                            <span className="stat-number">∞</span>
+                            <span className="stat-label">Estilo</span>
                         </div>
                     </div>
                 </div>
@@ -177,13 +294,16 @@ export default function QuizPage() {
         );
     }
 
+    // ═══════════════════════════════════════════════════════════════════════════
+    // PANTALLA DEL QUIZ
+    // ═══════════════════════════════════════════════════════════════════════════
     return (
         <main className="quiz-page">
             <div className="section-container">
                 <header className="quiz-page-header">
                     <Link href="/" className="back-link">← Volver al inicio</Link>
-                    <h1>Encuentra tu estilo perfecto</h1>
-                    <p>Responde 3 preguntas y te recomendaremos las monturas ideales para ti</p>
+                    <h1>🇲🇽 ¿Qué tipo de mexicano eres?</h1>
+                    <p>Descubre tu estilo y qué lentes te quedan mejor</p>
                 </header>
 
                 <div className="quiz-wizard">
@@ -193,17 +313,17 @@ export default function QuizPage() {
                             <div
                                 className="progress-fill"
                                 style={{ width: `${progress}%` }}
-                            ></div>
+                            />
                         </div>
                         <span className="progress-text">
-                            Pregunta {currentStep + 1} de {totalSteps}
+                            {currentStep + 1} / {totalSteps}
                         </span>
                     </div>
 
                     {/* Current Step */}
-                    <section className="quiz-step active">
+                    <section className={`quiz-step ${isAnimating ? 'animating-out' : ''}`}>
                         <h2>{currentQuestion.title}</h2>
-                        <p className="step-description">{currentQuestion.description}</p>
+                        <p className="step-description">{currentQuestion.subtitle}</p>
 
                         <div className="quiz-options-grid">
                             {currentQuestion.options.map((option) => (
@@ -240,24 +360,10 @@ export default function QuizPage() {
                             onClick={handleNext}
                             disabled={!canProceed}
                         >
-                            {currentStep === totalSteps - 1 ? 'Ver resultados →' : 'Siguiente →'}
+                            {currentStep === totalSteps - 1 ? '¡Ver mi resultado! 🎉' : 'Siguiente →'}
                         </button>
                     </div>
                 </div>
-
-                {/* Help section */}
-                <section className="quiz-help">
-                    <h3>¿No conoces la forma de tu rostro?</h3>
-                    <p>
-                        Toma una foto de frente mirando directamente a la cámara y compara con las
-                        siluetas. También puedes visitarnos y te ayudamos a identificarlo.
-                    </p>
-                    <div className="help-actions">
-                        <Link href="/citas" className="btn btn-outline btn-sm">
-                            Agendar asesoría gratuita
-                        </Link>
-                    </div>
-                </section>
             </div>
         </main>
     );
