@@ -1461,76 +1461,66 @@ button {
   border-radius: inherit;
 }
 
-/* Degradado Mexicano - Colores vibrantes inspirados en México */
+/* Degradado Mexicano - Estilo Apple (sutil y elegante) */
 .gradient-mexicano {
+  background: linear-gradient(145deg,
+      #f5f5f7 0%,
+      #e8e8ed 30%,
+      #f0f0f5 70%,
+      #e5e5ea 100%);
+  position: relative;
+}
+
+.gradient-mexicano::after {
+  content: '';
+  position: absolute;
+  inset: 0;
   background: linear-gradient(135deg,
-      #1e3a5f 0%,
-      /* Azul oscuro */
-      #2e7d32 25%,
-      /* Verde mexicano */
-      #f5f5f5 50%,
-      /* Blanco */
-      #c62828 75%,
-      /* Rojo mexicano */
-      #ff8f00 100%
-      /* Naranja/oro */
-    );
-  background-size: 200% 200%;
-  animation: gradientShift 8s ease infinite;
+      rgba(45, 125, 50, 0.08) 0%,
+      rgba(30, 58, 95, 0.05) 50%,
+      rgba(198, 40, 40, 0.04) 100%);
+  border-radius: inherit;
 }
 
 .gradient-mexicano .category-gradient-element {
   background: linear-gradient(180deg,
-      rgba(255, 255, 255, 0.3) 0%,
-      transparent 50%);
+      rgba(255, 255, 255, 0.6) 0%,
+      transparent 60%);
 }
 
-/* Degradado Mexicana - Tonos más suaves y elegantes */
+/* Degradado Mexicana - Estilo Apple (sutil y elegante) */
 .gradient-mexicana {
+  background: linear-gradient(145deg,
+      #fafafa 0%,
+      #f0f0f5 30%,
+      #f5f5f7 70%,
+      #ebebf0 100%);
+  position: relative;
+}
+
+.gradient-mexicana::after {
+  content: '';
+  position: absolute;
+  inset: 0;
   background: linear-gradient(135deg,
-      #ff6b6b 0%,
-      /* Rosa coral */
-      #f8b500 20%,
-      /* Dorado */
-      #ffffff 40%,
-      /* Blanco */
-      #4ecdc4 60%,
-      /* Turquesa */
-      #2e7d32 80%,
-      /* Verde */
-      #ff6b6b 100%
-      /* Rosa coral */
-    );
-  background-size: 200% 200%;
-  animation: gradientShift 8s ease infinite;
-  animation-delay: -4s;
+      rgba(78, 205, 196, 0.06) 0%,
+      rgba(248, 181, 0, 0.04) 50%,
+      rgba(255, 107, 107, 0.05) 100%);
+  border-radius: inherit;
 }
 
 .gradient-mexicana .category-gradient-element {
   background: linear-gradient(180deg,
-      rgba(255, 255, 255, 0.4) 0%,
-      transparent 50%);
+      rgba(255, 255, 255, 0.7) 0%,
+      transparent 60%);
 }
 
-@keyframes gradientShift {
-
-  0%,
-  100% {
-    background-position: 0% 50%;
-  }
-
-  50% {
-    background-position: 100% 50%;
-  }
-}
-
-/* Efectos hover para los degradados */
+/* Efectos hover para los degradados - Estilo Apple */
 .category-card-large:hover .gradient-mexicano,
 .category-card-large:hover .gradient-mexicana {
-  animation-duration: 3s;
   box-shadow:
-    0 8px 32px rgba(0, 0, 0, 0.15),
-    inset 0 0 0 1px rgba(255, 255, 255, 0.2);
+    0 4px 20px rgba(0, 0, 0, 0.08),
+    inset 0 0 0 1px rgba(255, 255, 255, 0.5);
 }
 
 /* ─── NOTA INCLUSIVA ───────────────────────────────────────────────────────── */
@@ -1541,11 +1531,8 @@ button {
   gap: var(--space-lg);
   margin-top: var(--space-2xl);
   padding: var(--space-lg) var(--space-xl);
-  background: linear-gradient(135deg,
-      rgba(255, 107, 107, 0.08) 0%,
-      rgba(78, 205, 196, 0.08) 50%,
-      rgba(248, 181, 0, 0.08) 100%);
-  border: 1px solid rgba(78, 205, 196, 0.2);
+  background: var(--color-bg-secondary);
+  border: 1px solid var(--color-border);
   border-radius: var(--radius-xl);
   flex-wrap: wrap;
 }
