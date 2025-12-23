@@ -232,34 +232,98 @@ export default function QuizPage() {
 
                 <div className="wrapped-container">
                     {/* Card principal estilo Wrapped - ref para captura */}
-                    <div className="wrapped-card" ref={cardRef}>
-                        <div className="wrapped-header">
-                            <span className="wrapped-badge">MEXILUX 2024</span>
-                            <span className="wrapped-emoji">{result.emoji}</span>
+                    <div 
+                        className="wrapped-card" 
+                        ref={cardRef}
+                        style={{
+                            background: 'linear-gradient(180deg, #1a1a2e 0%, #16213e 50%, #0f3460 100%)',
+                            padding: '40px 30px',
+                            borderRadius: '32px',
+                        }}
+                    >
+                        <div className="wrapped-header" style={{ textAlign: 'center', marginBottom: '24px' }}>
+                            <span 
+                                className="wrapped-badge"
+                                style={{
+                                    background: 'linear-gradient(135deg, #e94560, #ff6b6b)',
+                                    color: 'white',
+                                    fontSize: '12px',
+                                    fontWeight: 700,
+                                    letterSpacing: '0.2em',
+                                    padding: '8px 20px',
+                                    borderRadius: '20px',
+                                    display: 'inline-block',
+                                    marginBottom: '20px',
+                                }}
+                            >
+                                MEXILUX 2024
+                            </span>
+                            <div style={{ fontSize: '80px', marginTop: '16px' }}>{result.emoji}</div>
                         </div>
 
-                        <div className="wrapped-celebrity">
-                            <h1 className="wrapped-title">Eres</h1>
-                            <h2 className="wrapped-celebrity-title">{result.celebrity.title}</h2>
-                            <p className="wrapped-celebrity-name">
-                                Como <strong>{result.celebrity.name}</strong>
+                        <div className="wrapped-celebrity" style={{ textAlign: 'center', marginBottom: '24px' }}>
+                            <p style={{ fontSize: '18px', color: 'rgba(255,255,255,0.7)', margin: '0 0 8px 0' }}>
+                                Eres
+                            </p>
+                            <h2 
+                                style={{
+                                    fontSize: '42px',
+                                    fontWeight: 800,
+                                    color: '#e94560',
+                                    margin: '0 0 12px 0',
+                                }}
+                            >
+                                {result.celebrity.title}
+                            </h2>
+                            <p style={{ fontSize: '18px', color: 'rgba(255,255,255,0.8)', margin: 0 }}>
+                                Como <strong style={{ color: 'white' }}>{result.celebrity.name}</strong>
                             </p>
                         </div>
 
-                        <div className="wrapped-quote">
-                            <p>{result.celebrity.quote}</p>
+                        <div 
+                            className="wrapped-quote"
+                            style={{
+                                fontStyle: 'italic',
+                                color: 'rgba(255,255,255,0.9)',
+                                padding: '16px 20px',
+                                margin: '20px 0',
+                                borderLeft: '3px solid #e94560',
+                                background: 'rgba(255,255,255,0.05)',
+                                borderRadius: '0 8px 8px 0',
+                            }}
+                        >
+                            <p style={{ margin: 0, fontSize: '16px' }}>{result.celebrity.quote}</p>
                         </div>
 
-                        <div className="wrapped-description">
-                            <p>{result.celebrity.description}</p>
+                        <div className="wrapped-description" style={{ textAlign: 'center', marginBottom: '24px' }}>
+                            <p style={{ color: 'rgba(255,255,255,0.85)', lineHeight: 1.6, margin: 0, fontSize: '15px' }}>
+                                {result.celebrity.description}
+                            </p>
                         </div>
 
                         {/* Formas recomendadas */}
-                        <div className="wrapped-recommendations">
-                            <h3>Tus monturas ideales</h3>
-                            <div className="wrapped-shapes">
+                        <div className="wrapped-recommendations" style={{ marginBottom: '20px', textAlign: 'center' }}>
+                            <h3 style={{ 
+                                fontSize: '12px', 
+                                color: 'rgba(255,255,255,0.6)', 
+                                textTransform: 'uppercase',
+                                letterSpacing: '0.1em',
+                                marginBottom: '12px',
+                            }}>
+                                Tus monturas ideales
+                            </h3>
+                            <div className="wrapped-shapes" style={{ display: 'flex', flexWrap: 'wrap', gap: '8px', justifyContent: 'center' }}>
                                 {result.recommendedShapes.map((shape, idx) => (
-                                    <span key={idx} className="wrapped-shape-tag">
+                                    <span 
+                                        key={idx} 
+                                        style={{
+                                            background: 'rgba(255,255,255,0.15)',
+                                            color: 'white',
+                                            padding: '8px 16px',
+                                            borderRadius: '20px',
+                                            fontSize: '14px',
+                                        }}
+                                    >
                                         {shape}
                                     </span>
                                 ))}
@@ -267,15 +331,47 @@ export default function QuizPage() {
                         </div>
 
                         {/* Colores */}
-                        <div className="wrapped-colors">
-                            <h3>Colores que te favorecen</h3>
-                            <div className="wrapped-color-list">
+                        <div className="wrapped-colors" style={{ textAlign: 'center' }}>
+                            <h3 style={{ 
+                                fontSize: '12px', 
+                                color: 'rgba(255,255,255,0.6)', 
+                                textTransform: 'uppercase',
+                                letterSpacing: '0.1em',
+                                marginBottom: '12px',
+                            }}>
+                                Colores que te favorecen
+                            </h3>
+                            <div className="wrapped-color-list" style={{ display: 'flex', flexWrap: 'wrap', gap: '8px', justifyContent: 'center' }}>
                                 {result.colors.map((color, idx) => (
-                                    <span key={idx} className="wrapped-color-tag">
+                                    <span 
+                                        key={idx}
+                                        style={{
+                                            background: 'linear-gradient(135deg, #e94560, #ff6b6b)',
+                                            color: 'white',
+                                            padding: '8px 16px',
+                                            borderRadius: '20px',
+                                            fontSize: '14px',
+                                        }}
+                                    >
                                         {color}
                                     </span>
                                 ))}
                             </div>
+                        </div>
+
+                        {/* Footer para compartir */}
+                        <div style={{ 
+                            marginTop: '32px', 
+                            paddingTop: '24px', 
+                            borderTop: '1px solid rgba(255,255,255,0.1)',
+                            textAlign: 'center',
+                        }}>
+                            <p style={{ color: '#e94560', fontWeight: 600, fontSize: '18px', margin: '0 0 8px 0' }}>
+                                ¿Cuál eres tú? 👓
+                            </p>
+                            <p style={{ color: 'rgba(255,255,255,0.5)', fontSize: '14px', margin: 0 }}>
+                                mexilux.com/quiz
+                            </p>
                         </div>
                     </div>
 
