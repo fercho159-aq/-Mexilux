@@ -1,0 +1,397 @@
+/* ═══════════════════════════════════════════════════════════════════════════
+   ADMIN DASHBOARD STYLES (Modern SaaS Look)
+   ═══════════════════════════════════════════════════════════════════════════ */
+
+:root {
+    --admin-sidebar-bg: #1e1e2d;
+    --admin-sidebar-text: #a2a3b7;
+    --admin-sidebar-hover: #1b1b29;
+    --admin-sidebar-active: #2b2b40;
+    --admin-bg: #f5f8fa;
+    --admin-card-bg: #ffffff;
+    --admin-text-primary: #3f4254;
+    --admin-text-secondary: #b5b5c3;
+    --admin-border-color: #eff2f5;
+    --admin-primary-color: #3699ff;
+    --admin-success-color: #1bc5bd;
+    --admin-warning-color: #ffa800;
+    --admin-danger-color: #f64e60;
+    --admin-info-color: #8950fc;
+}
+
+/* Hide public site header and footer when in admin */
+.admin-layout~.site-header,
+.admin-layout~.site-footer,
+body:has(.admin-layout) .site-header,
+body:has(.admin-layout) .site-footer {
+    display: none !important;
+}
+
+/* Also hide skip link in admin */
+body:has(.admin-layout) .skip-link {
+    display: none !important;
+}
+
+.admin-layout {
+    min-height: 100vh;
+    background-color: var(--admin-bg);
+    font-family: 'Inter', system-ui, -apple-system, sans-serif;
+    color: var(--admin-text-primary);
+    position: relative;
+    z-index: 1000;
+}
+
+/* ═══════════════════════════════════════════════════════════════════════════
+   SIDEBAR
+   ═══════════════════════════════════════════════════════════════════════════ */
+
+.admin-sidebar {
+    width: 265px;
+    background-color: var(--admin-sidebar-bg);
+    height: 100vh;
+    position: fixed;
+    top: 0;
+    left: 0;
+    z-index: 100;
+    display: flex;
+    flex-direction: column;
+    box-shadow: 0 0 20px 0 rgba(76, 87, 125, 0.02);
+    transition: transform 0.3s ease;
+}
+
+.admin-sidebar-header {
+    height: 70px;
+    display: flex;
+    align-items: center;
+    padding: 0 25px;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+.logo-text {
+    color: #fff;
+    font-size: 1.25rem;
+    font-weight: 700;
+    letter-spacing: 0.5px;
+}
+
+.admin-sidebar-nav {
+    flex: 1;
+    padding: 1.5rem 0;
+    overflow-y: auto;
+}
+
+.admin-nav-section {
+    margin-bottom: 1.5rem;
+}
+
+.admin-nav-title {
+    padding: 0 25px;
+    font-size: 0.75rem;
+    font-weight: 600;
+    color: #5d5f77;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    margin-bottom: 0.75rem;
+}
+
+.admin-nav-link {
+    display: flex;
+    align-items: center;
+    padding: 10px 25px;
+    color: var(--admin-sidebar-text);
+    font-size: 0.9rem;
+    font-weight: 500;
+    text-decoration: none;
+    transition: all 0.2s ease;
+    border-left: 3px solid transparent;
+}
+
+.admin-nav-link:hover {
+    color: #fff;
+    background-color: var(--admin-sidebar-hover);
+}
+
+.admin-nav-link.active {
+    background-color: var(--admin-sidebar-active);
+    color: #ffffff;
+    border-left-color: var(--admin-primary-color);
+}
+
+.nav-icon {
+    margin-right: 12px;
+    font-size: 1.1rem;
+    width: 20px;
+    text-align: center;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.admin-sidebar-footer {
+    padding: 20px 25px;
+    background-color: rgba(0, 0, 0, 0.1);
+    border-top: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+/* User Info in Sidebar */
+.admin-user-info {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin-bottom: 15px;
+}
+
+.admin-user-avatar {
+    width: 40px;
+    height: 40px;
+    border-radius: 8px;
+    background: rgba(255, 255, 255, 0.1);
+    color: #fff;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.2rem;
+}
+
+.admin-user-details {
+    display: flex;
+    flex-direction: column;
+}
+
+.admin-user-name {
+    color: #fff;
+    font-weight: 600;
+    font-size: 0.9rem;
+}
+
+.admin-user-role {
+    color: #7e8299;
+    font-size: 0.75rem;
+}
+
+.admin-logout-btn {
+    width: 100%;
+    padding: 8px;
+    background: transparent;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    color: #7e8299;
+    border-radius: 6px;
+    cursor: pointer;
+    font-size: 0.8rem;
+    transition: all 0.2s;
+}
+
+.admin-logout-btn:hover {
+    background: rgba(255, 255, 255, 0.05);
+    color: #fff;
+    border-color: rgba(255, 255, 255, 0.2);
+}
+
+/* ═══════════════════════════════════════════════════════════════════════════
+   MAIN CONTENT
+   ═══════════════════════════════════════════════════════════════════════════ */
+
+.admin-main {
+    margin-left: 265px;
+    padding: 0;
+    min-height: 100vh;
+}
+
+.admin-content {
+    padding: 30px;
+}
+
+/* Header actions bar */
+.admin-page-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 25px;
+}
+
+.admin-page-title {
+    font-size: 1.25rem;
+    font-weight: 700;
+    color: var(--admin-text-primary);
+    margin: 0;
+}
+
+/* Filters Bar */
+.admin-filters-bar {
+    display: flex;
+    gap: 12px;
+}
+
+.admin-select {
+    padding: 8px 12px;
+    border: 1px solid var(--admin-border-color);
+    border-radius: 6px;
+    background-color: #fff;
+    color: #5e6278;
+    font-size: 0.85rem;
+    min-width: 150px;
+    outline: none;
+    cursor: pointer;
+}
+
+.admin-select:focus {
+    border-color: var(--admin-primary-color);
+}
+
+/* ═══════════════════════════════════════════════════════════════════════════
+   DATA TABLES
+   ═══════════════════════════════════════════════════════════════════════════ */
+
+.admin-card {
+    background: var(--admin-card-bg);
+    border-radius: 12px;
+    box-shadow: 0 0 20px 0 rgba(76, 87, 125, 0.02);
+    border: 1px solid var(--admin-border-color);
+    overflow: hidden;
+}
+
+.admin-table {
+    width: 100%;
+    border-collapse: collapse;
+}
+
+.admin-table th {
+    background-color: #f9f9f9;
+    color: #b5b5c3;
+    font-size: 0.75rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    padding: 16px 20px;
+    text-align: left;
+    border-bottom: 1px solid var(--admin-border-color);
+}
+
+.admin-table td {
+    padding: 16px 20px;
+    vertical-align: middle;
+    border-bottom: 1px solid var(--admin-border-color);
+    color: var(--admin-text-primary);
+    font-size: 0.9rem;
+}
+
+.admin-table tr:last-child td {
+    border-bottom: none;
+}
+
+.admin-table tr:hover td {
+    background-color: #fcfcfc;
+}
+
+/* Table specific cells */
+.col-product {
+    display: flex;
+    align-items: center;
+    gap: 15px;
+}
+
+.product-icon {
+    width: 45px;
+    height: 45px;
+    background-color: #f3f6f9;
+    border-radius: 8px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.5rem;
+    flex-shrink: 0;
+}
+
+.product-info {
+    display: flex;
+    flex-direction: column;
+}
+
+.product-name {
+    font-weight: 600;
+    color: var(--admin-text-primary);
+    margin-bottom: 3px;
+}
+
+.product-slug {
+    font-size: 0.75rem;
+    color: var(--admin-text-secondary);
+}
+
+.text-price {
+    font-weight: 700;
+    color: var(--admin-text-primary);
+}
+
+/* Stock colors */
+.stock-high {
+    color: var(--admin-success-color);
+    font-weight: 500;
+}
+
+.stock-medium {
+    color: var(--admin-warning-color);
+    font-weight: 500;
+}
+
+.stock-low {
+    color: var(--admin-danger-color);
+    font-weight: 500;
+}
+
+/* Status Badges */
+.badge {
+    padding: 5px 10px;
+    border-radius: 6px;
+    font-size: 0.75rem;
+    font-weight: 600;
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+}
+
+.badge-active {
+    background-color: #c9f7f5;
+    color: #1bc5bd;
+}
+
+.badge-draft {
+    background-color: #f3f6f9;
+    color: #b5b5c3;
+}
+
+.badge-out {
+    background-color: #ffe2e5;
+    color: #f64e60;
+}
+
+/* Actions */
+.action-buttons {
+    display: flex;
+    gap: 8px;
+}
+
+.btn-icon {
+    width: 32px;
+    height: 32px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 6px;
+    background-color: #f3f6f9;
+    color: #b5b5c3;
+    border: none;
+    cursor: pointer;
+    transition: all 0.2s;
+    text-decoration: none;
+    font-size: 1rem;
+}
+
+.btn-icon:hover {
+    background-color: var(--admin-primary-color);
+    color: #fff;
+}
+
+.btn-icon.delete:hover {
+    background-color: var(--admin-danger-color);
+}

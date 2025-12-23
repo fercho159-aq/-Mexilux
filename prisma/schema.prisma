@@ -1,0 +1,629 @@
+// ═══════════════════════════════════════════════════════════════════════════
+// MEXILUX - Prisma Schema for PostgreSQL (Neon)
+// ═══════════════════════════════════════════════════════════════════════════
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider  = "postgresql"
+  url       = env("DATABASE_URL")
+  directUrl = env("DIRECT_URL")
+}
+
+// ═══════════════════════════════════════════════════════════════════════════
+// ENUMS
+// ═══════════════════════════════════════════════════════════════════════════
+
+enum currency_type {
+  MXN
+  USD
+}
+
+enum gender_type {
+  male
+  female
+  unisex
+  kids
+}
+
+enum product_status {
+  active
+  draft
+  discontinued
+  out_of_stock
+}
+
+enum order_status {
+  pending_payment
+  payment_confirmed
+  in_production
+  quality_control
+  ready_for_shipping
+  shipped
+  delivered
+  cancelled
+  returned
+}
+
+enum lens_usage_type {
+  single_vision_distance
+  single_vision_near
+  single_vision_computer
+  bifocal
+  progressive
+  non_prescription
+}
+
+enum treatment_category {
+  coating
+  tint
+  photochromic
+  blue_light
+  polarized
+}
+
+enum frame_shape {
+  rectangular
+  round
+  cat_eye
+  aviator
+  square
+  oval
+  geometric
+  browline
+  wrap
+}
+
+enum frame_material {
+  acetate
+  metal
+  titanium
+  tr90
+  wood
+  mixed
+}
+
+enum frame_type {
+  full_rim
+  semi_rimless
+  rimless
+}
+
+enum face_size {
+  small
+  medium
+  large
+}
+
+enum frame_image_type {
+  front
+  side
+  angle
+  folded
+  detail
+  on_model
+}
+
+enum prescription_source {
+  saved
+  manual
+  upload
+  appointment
+}
+
+enum configurator_step {
+  usage_type
+  prescription
+  material
+  treatments
+  review
+}
+
+enum appointment_type {
+  eye_exam
+  contact_lens_fitting
+  follow_up
+  frame_adjustment
+}
+
+enum appointment_status {
+  pending
+  confirmed
+  completed
+  cancelled
+  no_show
+}
+
+// ═══════════════════════════════════════════════════════════════════════════
+// MODELS
+// ═══════════════════════════════════════════════════════════════════════════
+
+model brands {
+  id          String   @id @default(dbgenerated("uuid_generate_v4()")) @db.Uuid
+  name        String   @unique @db.VarChar(100)
+  slug        String   @unique @db.VarChar(100)
+  logo_url    String?
+  description String?
+  is_luxury   Boolean  @default(false)
+  created_at  DateTime @default(now()) @db.Timestamptz(6)
+  updated_at  DateTime @default(now()) @db.Timestamptz(6)
+
+  frames frames[]
+}
+
+model categories {
+  id         String   @id @default(dbgenerated("uuid_generate_v4()")) @db.Uuid
+  name       String   @db.VarChar(100)
+  slug       String   @unique @db.VarChar(100)
+  parent_id  String?  @db.Uuid
+  image_url  String?
+  sort_order Int      @default(0)
+  created_at DateTime @default(now()) @db.Timestamptz(6)
+  updated_at DateTime @default(now()) @db.Timestamptz(6)
+
+  parent           categories?        @relation("CategoryHierarchy", fields: [parent_id], references: [id])
+  children         categories[]       @relation("CategoryHierarchy")
+  frame_categories frame_categories[]
+}
+
+model locations {
+  id              String   @id @default(dbgenerated("uuid_generate_v4()")) @db.Uuid
+  name            String   @db.VarChar(200)
+  address         String
+  city            String?  @db.VarChar(100)
+  state           String?  @db.VarChar(100)
+  postal_code     String?  @db.VarChar(20)
+  phone           String?  @db.VarChar(50)
+  email           String?  @db.VarChar(200)
+  is_active       Boolean  @default(true)
+  operating_hours Json?
+  created_at      DateTime @default(now()) @db.Timestamptz(6)
+  updated_at      DateTime @default(now()) @db.Timestamptz(6)
+
+  optometrists optometrists[]
+  appointments appointments[]
+}
+
+model users {
+  id                           String    @id @default(dbgenerated("uuid_generate_v4()")) @db.Uuid
+  email                        String    @unique @db.VarChar(255)
+  password_hash                String?   @db.VarChar(255)
+  first_name                   String    @db.VarChar(100)
+  last_name                    String    @db.VarChar(100)
+  phone                        String?   @db.VarChar(50)
+  birth_date                   DateTime? @db.Date
+  avatar_url                   String?
+  accessibility_font_size      String    @default("normal") @db.VarChar(20)
+  accessibility_high_contrast  Boolean   @default(false)
+  accessibility_reduce_motion  Boolean   @default(false)
+  email_verified               Boolean   @default(false)
+  is_active                    Boolean   @default(true)
+  created_at                   DateTime  @default(now()) @db.Timestamptz(6)
+  updated_at                   DateTime  @default(now()) @db.Timestamptz(6)
+
+  addresses           addresses[]
+  prescriptions       prescriptions[]
+  carts               carts[]
+  orders              orders[]
+  appointments        appointments[]
+  reviews             reviews[]
+  wishlists           wishlists[]
+  lens_configurations lens_configurations[]
+}
+
+model addresses {
+  id            String   @id @default(dbgenerated("uuid_generate_v4()")) @db.Uuid
+  user_id       String   @db.Uuid
+  label         String   @db.VarChar(50)
+  street        String
+  street_line_2 String?
+  city          String   @db.VarChar(100)
+  state         String   @db.VarChar(100)
+  postal_code   String   @db.VarChar(20)
+  country       String   @default("México") @db.VarChar(100)
+  is_default    Boolean  @default(false)
+  created_at    DateTime @default(now()) @db.Timestamptz(6)
+  updated_at    DateTime @default(now()) @db.Timestamptz(6)
+
+  user users @relation(fields: [user_id], references: [id], onDelete: Cascade)
+}
+
+model prescriptions {
+  id                 String    @id @default(dbgenerated("uuid_generate_v4()")) @db.Uuid
+  user_id            String    @db.Uuid
+  name               String    @db.VarChar(200)
+  right_eye_sphere   Decimal   @db.Decimal(5, 2)
+  right_eye_cylinder Decimal?  @db.Decimal(5, 2)
+  right_eye_axis     Int?
+  right_eye_add      Decimal?  @db.Decimal(4, 2)
+  right_eye_pd       Decimal   @db.Decimal(4, 1)
+  left_eye_sphere    Decimal   @db.Decimal(5, 2)
+  left_eye_cylinder  Decimal?  @db.Decimal(5, 2)
+  left_eye_axis      Int?
+  left_eye_add       Decimal?  @db.Decimal(4, 2)
+  left_eye_pd        Decimal   @db.Decimal(4, 1)
+  total_pd           Decimal   @db.Decimal(4, 1)
+  issue_date         DateTime  @db.Date
+  expiration_date    DateTime  @db.Date
+  doctor_name        String?   @db.VarChar(200)
+  doctor_license     String?   @db.VarChar(100)
+  scanned_image_url  String?
+  notes              String?
+  created_at         DateTime  @default(now()) @db.Timestamptz(6)
+  updated_at         DateTime  @default(now()) @db.Timestamptz(6)
+
+  user                users                 @relation(fields: [user_id], references: [id], onDelete: Cascade)
+  lens_configurations lens_configurations[]
+  appointments        appointments[]
+}
+
+model frames {
+  id                        String         @id @default(dbgenerated("uuid_generate_v4()")) @db.Uuid
+  name                      String         @db.VarChar(200)
+  slug                      String         @unique @db.VarChar(200)
+  short_description         String?
+  full_description          String?
+  brand_id                  String         @db.Uuid
+  shape                     frame_shape
+  material                  frame_material
+  frame_type                frame_type
+  lens_width                Decimal?       @db.Decimal(5, 1)
+  lens_height               Decimal?       @db.Decimal(5, 1)
+  bridge_width              Decimal?       @db.Decimal(5, 1)
+  temple_length             Decimal?       @db.Decimal(5, 1)
+  total_width               Decimal?       @db.Decimal(5, 1)
+  weight                    Decimal?       @db.Decimal(5, 1)
+  gender                    gender_type    @default(unisex)
+  face_size_recommendation  face_size[]    @default([medium])
+  base_price                Decimal        @db.Decimal(10, 2)
+  compare_at_price          Decimal?       @db.Decimal(10, 2)
+  currency                  currency_type  @default(MXN)
+  supports_graduated_lenses Boolean        @default(true)
+  sunglasses_only           Boolean        @default(false)
+  tags                      String[]       @default([])
+  status                    product_status @default(active)
+  is_new                    Boolean        @default(false)
+  is_bestseller             Boolean        @default(false)
+  is_featured               Boolean        @default(false)
+  average_rating            Decimal        @default(0) @db.Decimal(2, 1)
+  review_count              Int            @default(0)
+  created_at                DateTime       @default(now()) @db.Timestamptz(6)
+  updated_at                DateTime       @default(now()) @db.Timestamptz(6)
+
+  brand                brands                 @relation(fields: [brand_id], references: [id], onDelete: Restrict)
+  frame_categories     frame_categories[]
+  frame_color_variants frame_color_variants[]
+  reviews              reviews[]
+  wishlists            wishlists[]
+  cart_items           cart_items[]
+  lens_configurations  lens_configurations[]
+}
+
+model frame_categories {
+  frame_id    String @db.Uuid
+  category_id String @db.Uuid
+
+  frame    frames     @relation(fields: [frame_id], references: [id], onDelete: Cascade)
+  category categories @relation(fields: [category_id], references: [id], onDelete: Cascade)
+
+  @@id([frame_id, category_id])
+}
+
+model frame_color_variants {
+  id                  String   @id @default(dbgenerated("uuid_generate_v4()")) @db.Uuid
+  frame_id            String   @db.Uuid
+  color_name          String   @db.VarChar(100)
+  color_hex           String   @db.VarChar(7)
+  secondary_color_hex String?  @db.VarChar(7)
+  sku                 String   @unique @db.VarChar(100)
+  model_3d_url        String?
+  stock_quantity      Int      @default(0)
+  is_default          Boolean  @default(false)
+  created_at          DateTime @default(now()) @db.Timestamptz(6)
+  updated_at          DateTime @default(now()) @db.Timestamptz(6)
+
+  frame        frames         @relation(fields: [frame_id], references: [id], onDelete: Cascade)
+  frame_images frame_images[]
+  cart_items   cart_items[]
+  wishlists    wishlists[]
+}
+
+model frame_images {
+  id               String           @id @default(dbgenerated("uuid_generate_v4()")) @db.Uuid
+  color_variant_id String           @db.Uuid
+  url              String
+  alt              String?          @db.VarChar(255)
+  image_type       frame_image_type @default(front)
+  sort_order       Int              @default(0)
+  created_at       DateTime         @default(now()) @db.Timestamptz(6)
+
+  color_variant frame_color_variants @relation(fields: [color_variant_id], references: [id], onDelete: Cascade)
+}
+
+model lens_materials {
+  id                         String        @id @default(dbgenerated("uuid_generate_v4()")) @db.Uuid
+  name                       String        @db.VarChar(100)
+  description                String?
+  lens_index                 String        @db.VarChar(10)
+  high_prescription_suitable Boolean       @default(false)
+  max_sphere_recommended     Decimal?      @db.Decimal(4, 2)
+  thinness_factor            Int?
+  is_polycarbonate           Boolean       @default(false)
+  has_uv_protection          Boolean       @default(false)
+  price                      Decimal       @db.Decimal(10, 2)
+  currency                   currency_type @default(MXN)
+  comparison_image_url       String?
+  is_active                  Boolean       @default(true)
+  sort_order                 Int           @default(0)
+  created_at                 DateTime      @default(now()) @db.Timestamptz(6)
+  updated_at                 DateTime      @default(now()) @db.Timestamptz(6)
+
+  lens_configurations lens_configurations[]
+}
+
+model lens_treatments {
+  id                   String             @id @default(dbgenerated("uuid_generate_v4()")) @db.Uuid
+  name                 String             @db.VarChar(100)
+  short_name           String?            @db.VarChar(50)
+  description          String?
+  category             treatment_category
+  benefits             String[]           @default([])
+  incompatible_with    String[]           @default([])
+  requires_materials   String[]           @default([])
+  excluded_usage_types lens_usage_type[]  @default([])
+  price                Decimal            @db.Decimal(10, 2)
+  currency             currency_type      @default(MXN)
+  icon_url             String?
+  image_url            String?
+  sort_order           Int                @default(0)
+  is_active            Boolean            @default(true)
+  is_popular           Boolean            @default(false)
+  created_at           DateTime           @default(now()) @db.Timestamptz(6)
+  updated_at           DateTime           @default(now()) @db.Timestamptz(6)
+}
+
+model lens_usage_options {
+  id                    lens_usage_type @id
+  name                  String          @db.VarChar(100)
+  description           String?
+  icon                  String?         @db.VarChar(50)
+  requires_prescription Boolean         @default(true)
+  requires_add          Boolean         @default(false)
+  price_modifier        Decimal         @default(0) @db.Decimal(10, 2)
+  sort_order            Int             @default(0)
+  is_active             Boolean         @default(true)
+}
+
+model lens_configurations {
+  id                        String               @id @default(dbgenerated("uuid_generate_v4()")) @db.Uuid
+  frame_id                  String               @db.Uuid
+  user_id                   String?              @db.Uuid
+  current_step              configurator_step    @default(usage_type)
+  is_complete               Boolean              @default(false)
+  usage_type                lens_usage_type?
+  prescription_source       prescription_source?
+  saved_prescription_id     String?              @db.Uuid
+  manual_prescription       Json?
+  uploaded_prescription_url String?
+  appointment_id            String?              @db.Uuid
+  material_id               String?              @db.Uuid
+  treatment_ids             String[]             @default([])
+  pricing                   Json?
+  expires_at                DateTime?            @db.Timestamptz(6)
+  created_at                DateTime             @default(now()) @db.Timestamptz(6)
+  updated_at                DateTime             @default(now()) @db.Timestamptz(6)
+
+  frame              frames          @relation(fields: [frame_id], references: [id], onDelete: Cascade)
+  user               users?          @relation(fields: [user_id], references: [id], onDelete: SetNull)
+  saved_prescription prescriptions?  @relation(fields: [saved_prescription_id], references: [id], onDelete: SetNull)
+  material           lens_materials? @relation(fields: [material_id], references: [id], onDelete: SetNull)
+  cart_items         cart_items[]
+  appointments       appointments[]
+}
+
+model carts {
+  id          String        @id @default(dbgenerated("uuid_generate_v4()")) @db.Uuid
+  user_id     String?       @db.Uuid
+  session_id  String?       @db.VarChar(255)
+  subtotal    Decimal       @default(0) @db.Decimal(10, 2)
+  discount    Decimal       @default(0) @db.Decimal(10, 2)
+  shipping    Decimal       @default(0) @db.Decimal(10, 2)
+  tax         Decimal       @default(0) @db.Decimal(10, 2)
+  total       Decimal       @default(0) @db.Decimal(10, 2)
+  currency    currency_type @default(MXN)
+  coupon_code String?       @db.VarChar(50)
+  created_at  DateTime      @default(now()) @db.Timestamptz(6)
+  updated_at  DateTime      @default(now()) @db.Timestamptz(6)
+
+  user       users?       @relation(fields: [user_id], references: [id], onDelete: Cascade)
+  cart_items cart_items[]
+}
+
+model cart_items {
+  id                    String   @id @default(dbgenerated("uuid_generate_v4()")) @db.Uuid
+  cart_id               String   @db.Uuid
+  frame_id              String   @db.Uuid
+  color_variant_id      String   @db.Uuid
+  lens_configuration_id String?  @db.Uuid
+  quantity              Int      @default(1)
+  unit_price            Decimal  @db.Decimal(10, 2)
+  total_price           Decimal  @db.Decimal(10, 2)
+  added_at              DateTime @default(now()) @db.Timestamptz(6)
+
+  cart               carts                @relation(fields: [cart_id], references: [id], onDelete: Cascade)
+  frame              frames               @relation(fields: [frame_id], references: [id], onDelete: Cascade)
+  color_variant      frame_color_variants @relation(fields: [color_variant_id], references: [id], onDelete: Cascade)
+  lens_configuration lens_configurations? @relation(fields: [lens_configuration_id], references: [id], onDelete: SetNull)
+}
+
+model orders {
+  id                String        @id @default(dbgenerated("uuid_generate_v4()")) @db.Uuid
+  order_number      String        @unique @db.VarChar(50)
+  user_id           String?       @db.Uuid
+  status            order_status  @default(pending_payment)
+  shipping_address  Json
+  billing_address   Json?
+  subtotal          Decimal       @db.Decimal(10, 2)
+  discount          Decimal       @default(0) @db.Decimal(10, 2)
+  shipping          Decimal       @default(0) @db.Decimal(10, 2)
+  tax               Decimal       @default(0) @db.Decimal(10, 2)
+  total             Decimal       @db.Decimal(10, 2)
+  currency          currency_type @default(MXN)
+  coupon_code       String?       @db.VarChar(50)
+  payment_method    String?       @db.VarChar(50)
+  payment_reference String?       @db.VarChar(255)
+  paid_at           DateTime?     @db.Timestamptz(6)
+  tracking_number   String?       @db.VarChar(100)
+  carrier           String?       @db.VarChar(100)
+  shipped_at        DateTime?     @db.Timestamptz(6)
+  delivered_at      DateTime?     @db.Timestamptz(6)
+  notes             String?
+  created_at        DateTime      @default(now()) @db.Timestamptz(6)
+  updated_at        DateTime      @default(now()) @db.Timestamptz(6)
+
+  user        users?        @relation(fields: [user_id], references: [id], onDelete: SetNull)
+  order_items order_items[]
+  reviews     reviews[]
+}
+
+model order_items {
+  id                          String   @id @default(dbgenerated("uuid_generate_v4()")) @db.Uuid
+  order_id                    String   @db.Uuid
+  frame_snapshot              Json
+  color_variant_snapshot      Json
+  lens_configuration_snapshot Json?
+  quantity                    Int      @default(1)
+  unit_price                  Decimal  @db.Decimal(10, 2)
+  total_price                 Decimal  @db.Decimal(10, 2)
+  production_status           String   @default("pending") @db.VarChar(50)
+  production_notes            String?
+  created_at                  DateTime @default(now()) @db.Timestamptz(6)
+
+  order orders @relation(fields: [order_id], references: [id], onDelete: Cascade)
+}
+
+model optometrists {
+  id             String   @id @default(dbgenerated("uuid_generate_v4()")) @db.Uuid
+  name           String   @db.VarChar(200)
+  license_number String?  @db.VarChar(100)
+  location_id    String?  @db.Uuid
+  is_active      Boolean  @default(true)
+  created_at     DateTime @default(now()) @db.Timestamptz(6)
+  updated_at     DateTime @default(now()) @db.Timestamptz(6)
+
+  location     locations?     @relation(fields: [location_id], references: [id], onDelete: SetNull)
+  appointments appointments[]
+}
+
+model appointments {
+  id                           String             @id @default(dbgenerated("uuid_generate_v4()")) @db.Uuid
+  user_id                      String             @db.Uuid
+  appointment_type             appointment_type
+  status                       appointment_status @default(pending)
+  start_time                   DateTime           @db.Timestamptz(6)
+  duration_minutes             Int                @default(30)
+  location_id                  String?            @db.Uuid
+  optometrist_id               String?            @db.Uuid
+  patient_notes                String?
+  staff_notes                  String?
+  resulting_prescription_id    String?            @db.Uuid
+  linked_lens_configuration_id String?            @db.Uuid
+  created_at                   DateTime           @default(now()) @db.Timestamptz(6)
+  updated_at                   DateTime           @default(now()) @db.Timestamptz(6)
+
+  user                      users                @relation(fields: [user_id], references: [id], onDelete: Cascade)
+  location                  locations?           @relation(fields: [location_id], references: [id], onDelete: SetNull)
+  optometrist               optometrists?        @relation(fields: [optometrist_id], references: [id], onDelete: SetNull)
+  resulting_prescription    prescriptions?       @relation(fields: [resulting_prescription_id], references: [id], onDelete: SetNull)
+  linked_lens_configuration lens_configurations? @relation(fields: [linked_lens_configuration_id], references: [id], onDelete: SetNull)
+}
+
+model reviews {
+  id                   String   @id @default(dbgenerated("uuid_generate_v4()")) @db.Uuid
+  frame_id             String   @db.Uuid
+  user_id              String   @db.Uuid
+  order_id             String?  @db.Uuid
+  rating               Int
+  title                String?  @db.VarChar(255)
+  comment              String?
+  is_verified_purchase Boolean  @default(false)
+  is_approved          Boolean  @default(false)
+  created_at           DateTime @default(now()) @db.Timestamptz(6)
+  updated_at           DateTime @default(now()) @db.Timestamptz(6)
+
+  frame frames  @relation(fields: [frame_id], references: [id], onDelete: Cascade)
+  user  users   @relation(fields: [user_id], references: [id], onDelete: Cascade)
+  order orders? @relation(fields: [order_id], references: [id], onDelete: SetNull)
+
+  @@unique([frame_id, user_id])
+}
+
+model coupons {
+  id             String    @id @default(dbgenerated("uuid_generate_v4()")) @db.Uuid
+  code           String    @unique @db.VarChar(50)
+  description    String?
+  discount_type  String    @db.VarChar(20)
+  discount_value Decimal   @db.Decimal(10, 2)
+  min_purchase   Decimal   @default(0) @db.Decimal(10, 2)
+  max_uses       Int?
+  uses_count     Int       @default(0)
+  valid_from     DateTime? @db.Timestamptz(6)
+  valid_until    DateTime? @db.Timestamptz(6)
+  is_active      Boolean   @default(true)
+  created_at     DateTime  @default(now()) @db.Timestamptz(6)
+  updated_at     DateTime  @default(now()) @db.Timestamptz(6)
+}
+
+model wishlists {
+  id               String   @id @default(dbgenerated("uuid_generate_v4()")) @db.Uuid
+  user_id          String   @db.Uuid
+  frame_id         String   @db.Uuid
+  color_variant_id String?  @db.Uuid
+  created_at       DateTime @default(now()) @db.Timestamptz(6)
+
+  user          users                 @relation(fields: [user_id], references: [id], onDelete: Cascade)
+  frame         frames                @relation(fields: [frame_id], references: [id], onDelete: Cascade)
+  color_variant frame_color_variants? @relation(fields: [color_variant_id], references: [id], onDelete: SetNull)
+
+  @@unique([user_id, frame_id])
+}
+
+// ═══════════════════════════════════════════════════════════════════════════
+// ADMIN USERS
+// ═══════════════════════════════════════════════════════════════════════════
+
+enum admin_role {
+  admin
+  super_admin
+  staff
+}
+
+model admin_users {
+  id            String     @id @default(dbgenerated("uuid_generate_v4()")) @db.Uuid
+  email         String     @unique @db.VarChar(255)
+  password_hash String     @db.VarChar(255)
+  name          String     @db.VarChar(200)
+  role          admin_role @default(admin)
+  avatar_url    String?
+  is_active     Boolean    @default(true)
+  last_login_at DateTime?  @db.Timestamptz(6)
+  created_at    DateTime   @default(now()) @db.Timestamptz(6)
+  updated_at    DateTime   @default(now()) @db.Timestamptz(6)
+
+  sessions admin_sessions[]
+}
+
+model admin_sessions {
+  id            String   @id @default(dbgenerated("uuid_generate_v4()")) @db.Uuid
+  admin_user_id String   @db.Uuid
+  token         String   @unique @db.VarChar(512)
+  expires_at    DateTime @db.Timestamptz(6)
+  ip_address    String?  @db.VarChar(50)
+  user_agent    String?
+  created_at    DateTime @default(now()) @db.Timestamptz(6)
+
+  admin_user admin_users @relation(fields: [admin_user_id], references: [id], onDelete: Cascade)
+}
+
