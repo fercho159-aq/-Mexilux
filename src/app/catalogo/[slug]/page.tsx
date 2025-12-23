@@ -205,27 +205,27 @@ export default async function ProductPage({ params }: PageProps) {
                         </div>
                     </div>
 
-                    {/* Delivery info */}
+                    {/* Delivery info con humor mexicano */}
                     <div className="delivery-info">
                         <div className="delivery-item">
                             <span className="delivery-icon">🚚</span>
                             <div className="delivery-text">
-                                <strong>Envío gratis</strong>
-                                <span>En compras mayores a $1,500</span>
+                                <strong>Envío gratis 🎉</strong>
+                                <span>Sí llegamos, no somos tu prima (+$1,500)</span>
                             </div>
                         </div>
                         <div className="delivery-item">
                             <span className="delivery-icon">⏱️</span>
                             <div className="delivery-text">
-                                <strong>Entrega 5-7 días</strong>
-                                <span>Lentes graduados</span>
+                                <strong>5-7 días</strong>
+                                <span>Ya vamos, es que hay mucho tráfico 🏃</span>
                             </div>
                         </div>
                         <div className="delivery-item">
                             <span className="delivery-icon">🛡️</span>
                             <div className="delivery-text">
                                 <strong>Garantía 1 año</strong>
-                                <span>En todas las monturas</span>
+                                <span>Pa&apos; que estés tranquilo, compa</span>
                             </div>
                         </div>
                     </div>

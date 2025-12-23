@@ -76,10 +76,10 @@ const TESTIMONIALS = [
 // SELLOS DE CONFIANZA MÉDICA
 // ═══════════════════════════════════════════════════════════════════════════
 const TRUST_BADGES = [
-    { icon: '🏥', label: 'Optometristas Certificados', detail: 'CNOM' },
-    { icon: '✅', label: 'Garantía de 1 año', detail: 'En todos los lentes' },
-    { icon: '🔬', label: 'Laboratorio Propio', detail: 'Tecnología digital' },
-    { icon: '⏱️', label: 'Entrega en 5-7 días', detail: 'Envío express disponible' },
+    { icon: '🏥', label: 'Optometristas Certificados', detail: 'De los buenos, eh' },
+    { icon: '✅', label: 'Garantía de 1 año', detail: 'Pa\' que no te preocupes' },
+    { icon: '🔬', label: 'Laboratorio Propio', detail: 'Bien hecho en México 🇲🇽' },
+    { icon: '⏱️', label: '5-7 días', detail: 'Ya vamos, hay mucho tráfico 🏃' },
 ];
 
 // Tipo para productos que vienen de props

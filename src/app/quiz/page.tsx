@@ -12,7 +12,8 @@
 'use client';
 
 import Link from 'next/link';
-import { useState } from 'react';
+import { useState, useRef } from 'react';
+import html2canvas from 'html2canvas';
 
 // Tipos de rostro y sus características
 const FACE_TYPES = {
@@ -126,6 +127,7 @@ export default function QuizPage() {
     const [answers, setAnswers] = useState<Record<string, string>>({});
     const [showResults, setShowResults] = useState(false);
     const [isAnimating, setIsAnimating] = useState(false);
+    const cardRef = useRef<HTMLDivElement>(null);
 
     const totalSteps = QUIZ_STEPS.length;
     const progress = ((currentStep + 1) / totalSteps) * 100;
@@ -161,25 +163,55 @@ export default function QuizPage() {
         return FACE_TYPES[faceKey] || FACE_TYPES.oval;
     };
 
+
     const handleShare = async () => {
         const result = getFaceResult();
-        const shareText = `🇲🇽 Descubrí que soy "${result.celebrity.title}" según mi tipo de rostro en Mexilux!\n\n${result.celebrity.quote}\n\n¿Cuál eres tú? 👓`;
+        const shareText = `🇲🇽 Descubrí que soy "${result.celebrity.title}" según mi tipo de rostro en Mexilux!\n\n${result.celebrity.quote}\n\n¿Cuál eres tú? 👓\nmexilux.com/quiz`;
         
-        if (navigator.share) {
+        // Capturar la tarjeta con html2canvas
+        if (cardRef.current) {
             try {
-                await navigator.share({
-                    title: 'Mi Resultado Mexilux',
-                    text: shareText,
-                    url: 'https://mexilux.com/quiz',
+                const canvas = await html2canvas(cardRef.current, {
+                    backgroundColor: '#1a1a2e',
+                    scale: 2,
+                    useCORS: true,
                 });
-            } catch {
-                // User cancelled or error
+                
+                const imageData = canvas.toDataURL('image/png');
+                
+                // Intentar compartir con Web Share API
+                if (navigator.share) {
+                    try {
+                        const response = await fetch(imageData);
+                        const blob = await response.blob();
+                        const file = new File([blob], 'mi-resultado-mexilux.png', { type: 'image/png' });
+                        
+                        await navigator.share({
+                            title: 'Mi Resultado Mexilux',
+                            text: shareText,
+                            files: [file],
+                        });
+                        return;
+                    } catch {
+                        // Fall through to download
+                    }
+                }
+                
+                // Descargar imagen
+                const link = document.createElement('a');
+                link.download = 'mi-resultado-mexilux.png';
+                link.href = imageData;
+                link.click();
+                alert('¡Imagen descargada! 📱 Compártela en tus historias de Instagram, WhatsApp o TikTok');
+                return;
+            } catch (error) {
+                console.error('Error generating image:', error);
             }
-        } else {
-            // Fallback: copy to clipboard
-            navigator.clipboard.writeText(shareText);
-            alert('¡Copiado! Pégalo en tus redes sociales');
         }
+
+        // Fallback: copy text
+        navigator.clipboard.writeText(shareText);
+        alert('¡Texto copiado! Pégalo en tus redes sociales');
     };
 
     const canProceed = answers[currentQuestion?.id];
@@ -199,8 +231,8 @@ export default function QuizPage() {
                 </div>
 
                 <div className="wrapped-container">
-                    {/* Card principal estilo Wrapped */}
-                    <div className="wrapped-card">
+                    {/* Card principal estilo Wrapped - ref para captura */}
+                    <div className="wrapped-card" ref={cardRef}>
                         <div className="wrapped-header">
                             <span className="wrapped-badge">MEXILUX 2024</span>
                             <span className="wrapped-emoji">{result.emoji}</span>
