@@ -14,7 +14,7 @@ const CATEGORIES = [
         id: 'cat-mexicano',
         name: 'Mexicano',
         description: 'Estilos modernos y clásicos',
-        gradient: 'gradient-mexicano',
+        image: '/armazon-1/1.png',
         slug: 'hombre',
         count: 156,
         featured: 'Ray-Ban, Oakley, Tommy',
@@ -23,7 +23,7 @@ const CATEGORIES = [
         id: 'cat-mexicana',
         name: 'Mexicana',
         description: 'Elegancia y tendencias',
-        gradient: 'gradient-mexicana',
+        image: '/armazon-2/1.png',
         slug: 'mujer',
         count: 203,
         featured: 'Gucci, Prada, Dior',
@@ -149,8 +149,14 @@ export default function HomePageClient({ featuredProducts = [] }: HomePageClient
                                     href={`/catalogo?genero=${category.slug}`}
                                     className="category-card category-card-large"
                                 >
-                                    <div className={`category-visual ${category.gradient}`}>
-                                        <div className="category-gradient-element" aria-hidden="true"></div>
+                                    <div className="category-visual">
+                                        <Image
+                                            src={category.image}
+                                            alt={category.name}
+                                            fill
+                                            style={{ objectFit: 'contain' }}
+                                            sizes="(max-width: 768px) 50vw, 200px"
+                                        />
                                     </div>
                                     <div className="category-content">
                                         <h3 className="category-name">{category.name}</h3>

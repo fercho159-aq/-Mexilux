@@ -1382,13 +1382,16 @@ button {
 }
 
 .category-visual {
+  position: relative;
   width: 120px;
   height: 120px;
-  background: var(--gradient-primary);
+  background: var(--color-bg-secondary);
   border-radius: var(--radius-xl);
   display: flex;
   align-items: center;
   justify-content: center;
+  overflow: hidden;
+  flex-shrink: 0;
 }
 
 .category-emoji {
