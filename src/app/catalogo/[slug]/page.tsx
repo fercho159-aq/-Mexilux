@@ -222,10 +222,10 @@ export default async function ProductPage({ params }: PageProps) {
                             </div>
                         </div>
                         <div className="delivery-item">
-                            <span className="delivery-icon">↩️</span>
+                            <span className="delivery-icon">🛡️</span>
                             <div className="delivery-text">
-                                <strong>Devolución fácil</strong>
-                                <span>30 días para devolver</span>
+                                <strong>Garantía 1 año</strong>
+                                <span>En todas las monturas</span>
                             </div>
                         </div>
                     </div>

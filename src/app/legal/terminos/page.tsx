@@ -40,8 +40,8 @@ export default function TerminosPage() {
                     </section>
 
                     <section className="legal-section">
-                        <h2>4. Devoluciones</h2>
-                        <p>30 días para devolución. 1 año de garantía en monturas. Ver <Link href="/legal/garantia">política completa</Link>.</p>
+                        <h2>4. Garantía</h2>
+                        <p>1 año de garantía en todas las monturas. Ver <Link href="/legal/garantia">política completa</Link>.</p>
                     </section>
 
                     <section className="legal-section">

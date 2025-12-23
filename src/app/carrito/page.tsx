@@ -324,8 +324,8 @@ function CartContent() {
                                 <span>Envío gratis +$1,500</span>
                             </div>
                             <div className="guarantee-item">
-                                <span>↩️</span>
-                                <span>30 días para devolución</span>
+                                <span>🛡️</span>
+                                <span>Garantía 1 año</span>
                             </div>
                         </div>
                     </aside>
