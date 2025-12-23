@@ -3360,19 +3360,7 @@
 
 .apple-gallery-slide {
     position: relative;
-    animation: slideIn 0.4s ease-out;
-}
-
-@keyframes slideIn {
-    from {
-        opacity: 0;
-        transform: scale(0.98);
-    }
-
-    to {
-        opacity: 1;
-        transform: scale(1);
-    }
+    overflow: hidden;
 }
 
 .apple-gallery-image {
@@ -3384,19 +3372,20 @@
     transition: transform 0.3s ease;
 }
 
+/* Imagen entra desde la derecha */
 .apple-gallery-image img {
-    animation: imageReveal 0.5s ease-out;
+    animation: slideFromRight 0.6s cubic-bezier(0.25, 0.46, 0.45, 0.94) both;
 }
 
-@keyframes imageReveal {
+@keyframes slideFromRight {
     from {
         opacity: 0;
-        transform: translateY(10px);
+        transform: translateX(60px) scale(0.95);
     }
 
     to {
         opacity: 1;
-        transform: translateY(0);
+        transform: translateX(0) scale(1);
     }
 }
 
@@ -3404,7 +3393,7 @@
     font-size: 8rem;
 }
 
-/* Info overlay */
+/* Info overlay con animaciones desde diferentes direcciones */
 .apple-gallery-info {
     position: absolute;
     bottom: 0;
@@ -3413,13 +3402,42 @@
     padding: var(--space-xl);
     background: linear-gradient(transparent, rgba(0, 0, 0, 0.6));
     color: white;
-    animation: infoSlideUp 0.4s ease-out 0.1s both;
 }
 
-@keyframes infoSlideUp {
+/* Contador entra desde la izquierda */
+.apple-gallery-counter {
+    font-size: var(--font-size-xs);
+    opacity: 0.7;
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    display: block;
+    animation: slideFromLeft 0.5s ease-out 0.1s both;
+}
+
+@keyframes slideFromLeft {
     from {
         opacity: 0;
-        transform: translateY(15px);
+        transform: translateX(-30px);
+    }
+
+    to {
+        opacity: 0.7;
+        transform: translateX(0);
+    }
+}
+
+/* Título entra desde abajo */
+.apple-gallery-title {
+    font-size: var(--font-size-xl);
+    font-weight: 600;
+    margin: var(--space-xs) 0;
+    animation: slideFromBottom 0.5s ease-out 0.2s both;
+}
+
+@keyframes slideFromBottom {
+    from {
+        opacity: 0;
+        transform: translateY(25px);
     }
 
     to {
@@ -3428,23 +3446,22 @@
     }
 }
 
-.apple-gallery-counter {
-    font-size: var(--font-size-xs);
-    opacity: 0.7;
-    text-transform: uppercase;
-    letter-spacing: 0.1em;
-}
-
-.apple-gallery-title {
-    font-size: var(--font-size-xl);
-    font-weight: 600;
-    margin: var(--space-xs) 0;
-}
-
+/* Descripción con fade elegante */
 .apple-gallery-description {
     font-size: var(--font-size-sm);
     opacity: 0.85;
     margin: 0;
+    animation: fadeInSoft 0.6s ease-out 0.35s both;
+}
+
+@keyframes fadeInSoft {
+    from {
+        opacity: 0;
+    }
+
+    to {
+        opacity: 0.85;
+    }
 }
 
 /* Navigation arrows */
@@ -3625,5 +3642,357 @@
     .apple-thumbnail {
         width: 60px;
         height: 60px;
+    }
+}
+
+/* ═══════════════════════════════════════════════════════════════════════════
+   QUIZ WRAPPED STYLES - Estilo Spotify Wrapped
+   ═══════════════════════════════════════════════════════════════════════════ */
+
+.quiz-results-wrapped {
+    min-height: 100vh;
+    position: relative;
+    overflow: hidden;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: var(--space-2xl);
+}
+
+/* Background animado */
+.wrapped-background {
+    position: fixed;
+    inset: 0;
+    z-index: 0;
+}
+
+.wrapped-gradient {
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(135deg,
+            #1a1a2e 0%,
+            #16213e 25%,
+            #0f3460 50%,
+            #e94560 75%,
+            #ff6b6b 100%);
+    background-size: 400% 400%;
+    animation: gradientFlow 8s ease infinite;
+}
+
+@keyframes gradientFlow {
+
+    0%,
+    100% {
+        background-position: 0% 50%;
+    }
+
+    50% {
+        background-position: 100% 50%;
+    }
+}
+
+.wrapped-particles {
+    position: absolute;
+    inset: 0;
+    background-image:
+        radial-gradient(circle at 20% 80%, rgba(255, 255, 255, 0.1) 1px, transparent 1px),
+        radial-gradient(circle at 80% 20%, rgba(255, 255, 255, 0.1) 1px, transparent 1px),
+        radial-gradient(circle at 40% 40%, rgba(255, 255, 255, 0.05) 2px, transparent 2px);
+    background-size: 100px 100px, 150px 150px, 200px 200px;
+    animation: particleFloat 20s linear infinite;
+}
+
+@keyframes particleFloat {
+    from {
+        transform: translateY(0);
+    }
+
+    to {
+        transform: translateY(-100px);
+    }
+}
+
+.wrapped-container {
+    position: relative;
+    z-index: 10;
+    max-width: 500px;
+    width: 100%;
+}
+
+/* Card principal */
+.wrapped-card {
+    background: rgba(255, 255, 255, 0.95);
+    backdrop-filter: blur(20px);
+    border-radius: 32px;
+    padding: var(--space-2xl);
+    text-align: center;
+    animation: cardPop 0.6s cubic-bezier(0.34, 1.56, 0.64, 1) both;
+}
+
+@keyframes cardPop {
+    from {
+        opacity: 0;
+        transform: scale(0.8) translateY(30px);
+    }
+
+    to {
+        opacity: 1;
+        transform: scale(1) translateY(0);
+    }
+}
+
+.wrapped-header {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: var(--space-md);
+    margin-bottom: var(--space-xl);
+}
+
+.wrapped-badge {
+    background: linear-gradient(135deg, #e94560, #ff6b6b);
+    color: white;
+    font-size: 0.7rem;
+    font-weight: 700;
+    letter-spacing: 0.2em;
+    padding: 6px 16px;
+    border-radius: 20px;
+    animation: badgePulse 2s ease infinite;
+}
+
+@keyframes badgePulse {
+
+    0%,
+    100% {
+        transform: scale(1);
+    }
+
+    50% {
+        transform: scale(1.05);
+    }
+}
+
+.wrapped-emoji {
+    font-size: 4rem;
+    animation: emojiFloat 3s ease-in-out infinite;
+}
+
+@keyframes emojiFloat {
+
+    0%,
+    100% {
+        transform: translateY(0);
+    }
+
+    50% {
+        transform: translateY(-10px);
+    }
+}
+
+.wrapped-celebrity {
+    margin-bottom: var(--space-lg);
+}
+
+.wrapped-title {
+    font-size: 1.2rem;
+    color: var(--color-text-secondary);
+    margin: 0;
+    animation: fadeUp 0.5s ease-out 0.2s both;
+}
+
+.wrapped-celebrity-title {
+    font-size: 2.5rem;
+    font-weight: 800;
+    background: linear-gradient(135deg, #e94560, #0f3460);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    margin: var(--space-sm) 0;
+    animation: fadeUp 0.5s ease-out 0.3s both;
+}
+
+.wrapped-celebrity-name {
+    font-size: 1.1rem;
+    color: var(--color-text-secondary);
+    margin: 0;
+    animation: fadeUp 0.5s ease-out 0.4s both;
+}
+
+@keyframes fadeUp {
+    from {
+        opacity: 0;
+        transform: translateY(20px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.wrapped-quote {
+    font-style: italic;
+    color: var(--color-text-secondary);
+    padding: var(--space-md);
+    margin: var(--space-lg) 0;
+    border-left: 3px solid #e94560;
+    text-align: left;
+    animation: fadeUp 0.5s ease-out 0.5s both;
+}
+
+.wrapped-description {
+    color: var(--color-text);
+    line-height: 1.6;
+    margin-bottom: var(--space-xl);
+    animation: fadeUp 0.5s ease-out 0.6s both;
+}
+
+.wrapped-recommendations,
+.wrapped-colors {
+    margin-bottom: var(--space-lg);
+    animation: fadeUp 0.5s ease-out 0.7s both;
+}
+
+.wrapped-recommendations h3,
+.wrapped-colors h3 {
+    font-size: 0.9rem;
+    color: var(--color-text-muted);
+    margin-bottom: var(--space-sm);
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+}
+
+.wrapped-shapes,
+.wrapped-color-list {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--space-xs);
+    justify-content: center;
+}
+
+.wrapped-shape-tag,
+.wrapped-color-tag {
+    background: linear-gradient(135deg, #f0f0f5, #e5e5ea);
+    padding: 8px 16px;
+    border-radius: 20px;
+    font-size: 0.85rem;
+    font-weight: 500;
+}
+
+.wrapped-color-tag {
+    background: linear-gradient(135deg, #0f3460, #16213e);
+    color: white;
+}
+
+/* Actions */
+.wrapped-actions {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-md);
+    margin-top: var(--space-xl);
+}
+
+.btn-wrapped-share {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: var(--space-sm);
+    padding: 16px 24px;
+    background: linear-gradient(135deg, #1a1a2e, #16213e);
+    color: white;
+    border: none;
+    border-radius: 16px;
+    font-size: 1rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.btn-wrapped-share svg {
+    width: 20px;
+    height: 20px;
+}
+
+.btn-wrapped-share:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 10px 30px rgba(26, 26, 46, 0.3);
+}
+
+.btn-wrapped-primary {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: var(--space-sm);
+    padding: 16px 24px;
+    background: linear-gradient(135deg, #e94560, #ff6b6b);
+    color: white;
+    border: none;
+    border-radius: 16px;
+    font-size: 1rem;
+    font-weight: 600;
+    text-decoration: none;
+    transition: all 0.3s ease;
+}
+
+.btn-wrapped-primary:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 10px 30px rgba(233, 69, 96, 0.3);
+}
+
+.btn-wrapped-secondary {
+    padding: 12px 24px;
+    background: transparent;
+    color: var(--color-text-secondary);
+    border: 1px solid var(--color-border);
+    border-radius: 12px;
+    font-size: 0.9rem;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.btn-wrapped-secondary:hover {
+    background: var(--color-bg-secondary);
+}
+
+/* Stats */
+.wrapped-stats {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: var(--space-md);
+    margin-top: var(--space-2xl);
+    padding: var(--space-lg);
+    background: rgba(255, 255, 255, 0.1);
+    backdrop-filter: blur(10px);
+    border-radius: 20px;
+    border: 1px solid rgba(255, 255, 255, 0.2);
+}
+
+.wrapped-stat {
+    text-align: center;
+    color: white;
+}
+
+.stat-number {
+    display: block;
+    font-size: 2rem;
+    font-weight: 800;
+}
+
+.stat-label {
+    font-size: 0.75rem;
+    opacity: 0.8;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+}
+
+/* Quiz animating out */
+.quiz-step.animating-out {
+    animation: stepOut 0.3s ease-out forwards;
+}
+
+@keyframes stepOut {
+    to {
+        opacity: 0;
+        transform: translateX(-30px);
     }
 }
