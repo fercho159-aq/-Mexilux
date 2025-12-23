@@ -171,7 +171,7 @@ export default function HomePageClient({ featuredProducts = [] }: HomePageClient
                     {/* Nota Inclusiva */}
                     <ScrollAnimate animation="fade-up" delay={300}>
                         <div className="inclusive-note">
-                            <span className="inclusive-icon" aria-hidden="true">🌈</span>
+                            <span className="inclusive-icon" aria-hidden="true">👓</span>
                             <p className="inclusive-text">
                                 <strong>¿No te identificas con estas categorías?</strong>
                                 <br />
