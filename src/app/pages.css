@@ -2758,8 +2758,65 @@
     padding: 0 var(--space-xl);
     display: flex;
     align-items: center;
+    justify-content: space-between;
     gap: var(--space-lg);
     flex-wrap: wrap;
+}
+
+/* Filter Links (Tab style - Apple) */
+.filter-links {
+    display: flex;
+    align-items: center;
+    gap: var(--space-xs);
+}
+
+.filter-link {
+    padding: var(--space-sm) var(--space-lg);
+    font-size: var(--font-size-sm);
+    font-weight: 500;
+    color: var(--color-text-secondary);
+    border-radius: var(--radius-full);
+    transition: all var(--transition-fast);
+    white-space: nowrap;
+}
+
+.filter-link:hover {
+    background: var(--color-bg-secondary);
+    color: var(--color-text);
+}
+
+.filter-link.active {
+    background: var(--color-text);
+    color: white;
+}
+
+/* Filter Actions */
+.filter-actions {
+    display: flex;
+    align-items: center;
+    gap: var(--space-sm);
+}
+
+.filter-search-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: var(--space-xs);
+    padding: var(--space-sm) var(--space-md);
+    font-size: var(--font-size-sm);
+    color: var(--color-text-secondary);
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-full);
+    transition: all var(--transition-fast);
+}
+
+.filter-search-btn svg {
+    width: 16px;
+    height: 16px;
+}
+
+.filter-search-btn:hover {
+    border-color: var(--color-primary);
+    color: var(--color-primary);
 }
 
 /* Search */
