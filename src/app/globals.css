@@ -536,22 +536,28 @@ button {
   padding: 0 var(--space-xl);
 }
 
-/* Grid de 3 columnas para incluir la tarjeta "Sin etiquetas" */
-.categories-grid-3 {
-  grid-template-columns: repeat(3, 1fr);
+/* Tarjeta centrada debajo del grid */
+.category-card-centered {
+  display: flex;
+  justify-content: center;
+  margin-top: var(--space-xl);
+  padding: 0 var(--space-xl);
+  max-width: 600px;
+  margin-left: auto;
+  margin-right: auto;
 }
 
-@media (max-width: 1024px) {
-  .categories-grid-3 {
-    grid-template-columns: repeat(2, 1fr);
-  }
+.category-card-centered .category-card-large {
+  width: 100%;
 }
 
 @media (max-width: 640px) {
-
-  .categories-grid,
-  .categories-grid-3 {
+  .categories-grid {
     grid-template-columns: 1fr;
+  }
+
+  .category-card-centered {
+    padding: 0 var(--space-md);
   }
 }
 

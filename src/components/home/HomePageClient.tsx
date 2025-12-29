@@ -141,7 +141,7 @@ export default function HomePageClient({ featuredProducts = [] }: HomePageClient
                         </div>
                     </ScrollAnimate>
 
-                    <div className="categories-grid categories-grid-3">
+                    <div className="categories-grid">
                         {CATEGORIES.map((category, index) => (
                             <ScrollAnimate key={category.id} animation="fade-up" delay={index * 150}>
                                 <Link
@@ -171,9 +171,11 @@ export default function HomePageClient({ featuredProducts = [] }: HomePageClient
                                 </Link>
                             </ScrollAnimate>
                         ))}
+                    </div>
 
-                        {/* Tercera tarjeta: Sin etiquetas / Todos los estilos */}
-                        <ScrollAnimate animation="fade-up" delay={300}>
+                    {/* Tercera tarjeta: Sin etiquetas / Todos los estilos - Centrada debajo */}
+                    <ScrollAnimate animation="fade-up" delay={300}>
+                        <div className="category-card-centered">
                             <Link
                                 href="/catalogo"
                                 className="category-card category-card-large category-card-inclusive"
@@ -204,8 +206,8 @@ export default function HomePageClient({ featuredProducts = [] }: HomePageClient
                                     </span>
                                 </div>
                             </Link>
-                        </ScrollAnimate>
-                    </div>
+                        </div>
+                    </ScrollAnimate>
                 </div>
             </section>
 
