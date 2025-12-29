@@ -210,15 +210,13 @@ export default function RootLayout({
                     <a href="/catalogo">Todos los productos</a>
                   </li>
                   <li>
-                    <a href="/catalogo/lentes-de-sol">Lentes de sol</a>
+                    <a href="/catalogo?genero=hombre">Mexicano</a>
                   </li>
                   <li>
-                    <a href="/catalogo/lentes-oftalmicos">
-                      Lentes oftálmicos
-                    </a>
+                    <a href="/catalogo?genero=mujer">Mexicana</a>
                   </li>
                   <li>
-                    <a href="/marcas">Marcas</a>
+                    <a href="/quiz">Hacer quiz</a>
                   </li>
                 </ul>
               </div>

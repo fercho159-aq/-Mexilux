@@ -25,13 +25,13 @@ const SLIDE_INFO = [
     { title: 'Perspectiva', description: 'Para que veas todos los ángulos' },
 ];
 
-export default function ProductGallery({ 
-    images, 
-    productName, 
+export default function ProductGallery({
+    images,
+    productName,
     brandName,
     material,
     shape,
-    discount 
+    discount
 }: ProductGalleryProps) {
     const [selectedIndex, setSelectedIndex] = useState(0);
     const [isAutoPlaying, setIsAutoPlaying] = useState(true);
@@ -48,7 +48,7 @@ export default function ProductGallery({
 
     useEffect(() => {
         if (!isAutoPlaying || images.length <= 1) return;
-        
+
         const timer = setInterval(nextSlide, 4000);
         return () => clearInterval(timer);
     }, [isAutoPlaying, nextSlide, images.length]);
@@ -107,22 +107,22 @@ export default function ProductGallery({
                 {/* Navigation arrows */}
                 {images.length > 1 && (
                     <>
-                        <button 
+                        <button
                             className="apple-gallery-nav apple-gallery-prev"
                             onClick={handlePrev}
                             aria-label="Imagen anterior"
                         >
                             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                                <path d="m15 18-6-6 6-6"/>
+                                <path d="m15 18-6-6 6-6" />
                             </svg>
                         </button>
-                        <button 
+                        <button
                             className="apple-gallery-nav apple-gallery-next"
                             onClick={handleNext}
                             aria-label="Siguiente imagen"
                         >
                             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                                <path d="m9 18 6-6-6-6"/>
+                                <path d="m9 18 6-6-6-6" />
                             </svg>
                         </button>
                     </>
@@ -146,50 +146,26 @@ export default function ProductGallery({
                             </button>
                         ))}
                     </div>
-                    <button 
+                    <button
                         className="apple-gallery-playpause"
                         onClick={() => setIsAutoPlaying(!isAutoPlaying)}
                         aria-label={isAutoPlaying ? 'Pausar' : 'Reproducir'}
                     >
                         {isAutoPlaying ? (
                             <svg viewBox="0 0 24 24" fill="currentColor">
-                                <rect x="6" y="4" width="4" height="16" rx="1"/>
-                                <rect x="14" y="4" width="4" height="16" rx="1"/>
+                                <rect x="6" y="4" width="4" height="16" rx="1" />
+                                <rect x="14" y="4" width="4" height="16" rx="1" />
                             </svg>
                         ) : (
                             <svg viewBox="0 0 24 24" fill="currentColor">
-                                <path d="M8 5v14l11-7z"/>
+                                <path d="M8 5v14l11-7z" />
                             </svg>
                         )}
                     </button>
                 </div>
             )}
 
-            {/* Thumbnails */}
-            {images.length > 1 && (
-                <div className="apple-gallery-thumbnails">
-                    {images.map((image, idx) => (
-                        <button
-                            key={idx}
-                            className={`apple-thumbnail ${idx === selectedIndex ? 'active' : ''}`}
-                            onClick={() => handleDotClick(idx)}
-                            aria-label={`Ver imagen ${idx + 1}`}
-                        >
-                            {image.url ? (
-                                <Image
-                                    src={image.url}
-                                    alt=""
-                                    width={80}
-                                    height={80}
-                                    style={{ objectFit: 'contain' }}
-                                />
-                            ) : (
-                                <span>👓</span>
-                            )}
-                        </button>
-                    ))}
-                </div>
-            )}
+
         </section>
     );
 }

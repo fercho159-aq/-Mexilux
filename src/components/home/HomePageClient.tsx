@@ -76,10 +76,9 @@ const TESTIMONIALS = [
 // SELLOS DE CONFIANZA MÉDICA
 // ═══════════════════════════════════════════════════════════════════════════
 const TRUST_BADGES = [
-    { icon: '🏥', label: 'Optometristas Certificados', detail: 'De los buenos, eh' },
-    { icon: '✅', label: 'Garantía de 1 año', detail: 'Pa\' que no te preocupes' },
-    { icon: '🔬', label: 'Laboratorio Propio', detail: 'Bien hecho en México 🇲🇽' },
-    { icon: '⏱️', label: '5-7 días', detail: 'Ya vamos, hay mucho tráfico 🏃' },
+    { icon: '🇲🇽', label: 'Página Mexicana', detail: 'Lo que está hecho en México está bien hecho' },
+    { icon: '✅', label: 'Con garantía', detail: 'Pa\' que no te preocupes' },
+    { icon: '⏱️', label: '5-7 días', detail: 'Calidad que vale la espera' },
 ];
 
 // Tipo para productos que vienen de props
@@ -142,7 +141,7 @@ export default function HomePageClient({ featuredProducts = [] }: HomePageClient
                         </div>
                     </ScrollAnimate>
 
-                    <div className="categories-grid">
+                    <div className="categories-grid categories-grid-3">
                         {CATEGORIES.map((category, index) => (
                             <ScrollAnimate key={category.id} animation="fade-up" delay={index * 150}>
                                 <Link
@@ -172,25 +171,41 @@ export default function HomePageClient({ featuredProducts = [] }: HomePageClient
                                 </Link>
                             </ScrollAnimate>
                         ))}
-                    </div>
 
-                    {/* Nota Inclusiva */}
-                    <ScrollAnimate animation="fade-up" delay={300}>
-                        <div className="inclusive-note">
-                            <span className="inclusive-icon" aria-hidden="true">👓</span>
-                            <p className="inclusive-text">
-                                <strong>¿No te identificas con estas categorías?</strong>
-                                <br />
-                                Todos nuestros estilos están diseñados para ti. Explora toda nuestra colección sin etiquetas.
-                            </p>
-                            <Link href="/catalogo" className="inclusive-link">
-                                Ver todos los estilos
-                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                                    <path d="M5 12h14m-7-7 7 7-7 7" />
-                                </svg>
+                        {/* Tercera tarjeta: Sin etiquetas / Todos los estilos */}
+                        <ScrollAnimate animation="fade-up" delay={300}>
+                            <Link
+                                href="/catalogo"
+                                className="category-card category-card-large category-card-inclusive"
+                            >
+                                <div className="category-visual gradient-inclusive">
+                                    <Image
+                                        src="/armazon-3/1.png"
+                                        alt="Todos los estilos"
+                                        fill
+                                        style={{ objectFit: 'contain' }}
+                                        sizes="(max-width: 768px) 50vw, 200px"
+                                        onError={(e) => {
+                                            // Fallback si no existe la imagen
+                                            const target = e.target as HTMLImageElement;
+                                            target.style.display = 'none';
+                                        }}
+                                    />
+                                </div>
+                                <div className="category-content">
+                                    <h3 className="category-name">Sin etiquetas</h3>
+                                    <p className="category-description">Para todos los estilos</p>
+                                    <span className="category-featured">Toda la colección disponible</span>
+                                    <span className="category-cta">
+                                        Ver todos los estilos
+                                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                                            <path d="M5 12h14m-7-7 7 7-7 7" />
+                                        </svg>
+                                    </span>
+                                </div>
                             </Link>
-                        </div>
-                    </ScrollAnimate>
+                        </ScrollAnimate>
+                    </div>
                 </div>
             </section>
 

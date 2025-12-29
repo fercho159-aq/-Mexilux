@@ -23,9 +23,9 @@ export default function EnviosPage() {
 
                 <div className="legal-content">
                     {/* Sección principal con humor */}
-                    <section className="legal-section" style={{ 
-                        background: 'var(--color-bg-secondary)', 
-                        padding: '2rem', 
+                    <section className="legal-section" style={{
+                        background: 'var(--color-bg-secondary)',
+                        padding: '2rem',
                         borderRadius: '16px',
                         textAlign: 'center',
                         marginBottom: '2rem'
@@ -35,7 +35,7 @@ export default function EnviosPage() {
                             &quot;Ya voy, es que hay mucho tráfico&quot;
                         </h2>
                         <p style={{ color: 'var(--color-text-secondary)', maxWidth: '500px', margin: '0 auto' }}>
-                            Tranquilo, no somos como tu cuate que siempre llega tarde. 
+                            Tranquilo, no somos como tu cuate que siempre llega tarde.
                             Tus lentes llegan en tiempo y forma.
                         </p>
                     </section>
@@ -44,30 +44,19 @@ export default function EnviosPage() {
                         <h2>📦 Tiempos de entrega</h2>
                         <div className="guarantee-cards">
                             <div className="guarantee-card">
-                                <p style={{ fontSize: '2.5rem', margin: '0' }}>📍</p>
+                                <p style={{ fontSize: '2.5rem', margin: '0' }}>👓</p>
                                 <h3>Solo armazón</h3>
                                 <p className="guarantee-duration" style={{ color: 'var(--color-success)' }}>
-                                    1-3 días hábiles
-                                </p>
-                                <p style={{ fontSize: '0.9rem', color: 'var(--color-text-secondary)' }}>
-                                    Más rápido que encontrar estacionamiento en el centro
-                                </p>
-                            </div>
-                            <div className="guarantee-card">
-                                <p style={{ fontSize: '2.5rem', margin: '0' }}>👓</p>
-                                <h3>Con lentes graduados</h3>
-                                <p className="guarantee-duration" style={{ color: 'var(--color-primary)' }}>
                                     5-7 días hábiles
                                 </p>
                                 <p style={{ fontSize: '0.9rem', color: 'var(--color-text-secondary)' }}>
-                                    &quot;Como buen mexicano, lo enviamos el último día... 
-                                    <br />pero siempre a tiempo&quot; 😉
+                                    Calidad que vale la espera
                                 </p>
                             </div>
                             <div className="guarantee-card">
                                 <p style={{ fontSize: '2.5rem', margin: '0' }}>✨</p>
-                                <h3>Lentes especiales</h3>
-                                <p className="guarantee-duration" style={{ color: 'var(--color-warning)' }}>
+                                <h3>Con lentes graduados</h3>
+                                <p className="guarantee-duration" style={{ color: 'var(--color-primary)' }}>
                                     7-10 días hábiles
                                 </p>
                                 <p style={{ fontSize: '0.9rem', color: 'var(--color-text-secondary)' }}>
@@ -79,61 +68,102 @@ export default function EnviosPage() {
 
                     <section className="legal-section">
                         <h2>💸 Costo de envío</h2>
-                        <div style={{ 
-                            background: 'linear-gradient(135deg, var(--color-success) 0%, #2e7d32 100%)',
+
+                        {/* Envío gratis destacado */}
+                        <div style={{
+                            background: 'linear-gradient(135deg, #006847 0%, #2e7d32 50%, #ce1126 100%)',
                             color: 'white',
-                            padding: '2rem',
-                            borderRadius: '16px',
-                            textAlign: 'center'
+                            padding: '2.5rem',
+                            borderRadius: '20px',
+                            textAlign: 'center',
+                            marginBottom: '2rem',
+                            boxShadow: '0 10px 40px rgba(0, 104, 71, 0.3)'
                         }}>
-                            <p style={{ fontSize: '1.5rem', margin: '0 0 0.5rem', fontWeight: '700' }}>
-                                ¡ENVÍO GRATIS! 🎉
+                            <p style={{ fontSize: '4rem', margin: '0' }}>🎁</p>
+                            <p style={{ fontSize: '2rem', margin: '0.5rem 0', fontWeight: '800' }}>
+                                ¡ENVÍO GRATIS!
                             </p>
-                            <p style={{ margin: '0', opacity: 0.9 }}>
-                                En todas las compras mayores a $1,500 MXN
+                            <p style={{ fontSize: '1.25rem', margin: '0', opacity: 0.95 }}>
+                                En compras mayores a <strong>$1,300 MXN</strong>
+                            </p>
+                            <p style={{ fontSize: '0.9rem', margin: '0.5rem 0 0', opacity: 0.8 }}>
+                                Porque queremos que tu dinero se quede en tus bolsillos 💚
                             </p>
                         </div>
-                        <div style={{ marginTop: '1.5rem' }}>
-                            <ul>
-                                <li><strong>Envío estándar:</strong> $99 MXN (3-5 días)</li>
-                                <li><strong>Envío express:</strong> $199 MXN (1-2 días) - Para los que no aguantan las ganas</li>
-                            </ul>
+
+                        {/* Opciones de envío en tarjetas bonitas */}
+                        <div className="guarantee-cards">
+                            <div className="guarantee-card" style={{
+                                border: '2px solid var(--color-border)',
+                                background: 'var(--color-bg)'
+                            }}>
+                                <p style={{ fontSize: '2.5rem', margin: '0' }}>🚚</p>
+                                <h3>Envío Estándar</h3>
+                                <p style={{
+                                    fontSize: '1.5rem',
+                                    fontWeight: '700',
+                                    color: 'var(--color-primary)',
+                                    margin: '0.5rem 0'
+                                }}>
+                                    $99 MXN
+                                </p>
+                                <p className="guarantee-duration" style={{ color: 'var(--color-text-secondary)' }}>
+                                    5-7 días hábiles
+                                </p>
+                                <p style={{ fontSize: '0.85rem', color: 'var(--color-text-muted)' }}>
+                                    Tranquilo y seguro
+                                </p>
+                            </div>
+                            <div className="guarantee-card" style={{
+                                border: '2px solid var(--color-primary)',
+                                background: 'linear-gradient(145deg, var(--color-bg) 0%, var(--color-primary-bg) 100%)'
+                            }}>
+                                <p style={{ fontSize: '2.5rem', margin: '0' }}>⚡</p>
+                                <h3>Envío Express</h3>
+                                <p style={{
+                                    fontSize: '1.5rem',
+                                    fontWeight: '700',
+                                    color: 'var(--color-primary)',
+                                    margin: '0.5rem 0'
+                                }}>
+                                    $199 MXN
+                                </p>
+                                <p className="guarantee-duration" style={{ color: 'var(--color-success)' }}>
+                                    3-5 días hábiles
+                                </p>
+                                <p style={{ fontSize: '0.85rem', color: 'var(--color-text-muted)' }}>
+                                    Pa&apos; los que no aguantan las ganas 😏
+                                </p>
+                            </div>
                         </div>
                     </section>
 
                     <section className="legal-section">
                         <h2>📍 Cobertura</h2>
-                        <p>Llegamos a toda la República Mexicana. Desde Tijuana hasta Cancún, y todo lo que hay en medio.</p>
-                        <div style={{ display: 'flex', gap: '1rem', flexWrap: 'wrap', marginTop: '1rem' }}>
-                            <span style={{ 
-                                padding: '0.5rem 1rem', 
-                                background: 'var(--color-bg-secondary)', 
-                                borderRadius: '20px',
-                                fontSize: '0.9rem'
-                            }}>📦 DHL Express</span>
-                            <span style={{ 
-                                padding: '0.5rem 1rem', 
-                                background: 'var(--color-bg-secondary)', 
-                                borderRadius: '20px',
-                                fontSize: '0.9rem'
-                            }}>📦 FedEx</span>
-                            <span style={{ 
-                                padding: '0.5rem 1rem', 
-                                background: 'var(--color-bg-secondary)', 
-                                borderRadius: '20px',
-                                fontSize: '0.9rem'
-                            }}>📦 Estafeta</span>
+                        <div style={{
+                            textAlign: 'center',
+                            padding: '2rem',
+                            background: 'var(--color-bg-secondary)',
+                            borderRadius: '16px'
+                        }}>
+                            <p style={{ fontSize: '6rem', margin: '0', lineHeight: 1 }}>🇲🇽</p>
+                            <h3 style={{ margin: '1rem 0 0.5rem', fontSize: '1.5rem' }}>
+                                Toda la República Mexicana
+                            </h3>
+                            <p style={{ color: 'var(--color-text-secondary)', margin: 0 }}>
+                                Desde Tijuana hasta Cancún, y todo lo que hay en medio
+                            </p>
                         </div>
                     </section>
 
                     <section className="legal-section">
-                        <h2>📱 Rastreo en tiempo real</h2>
+                        <h2>📱 Rastreo en tiempo real <span style={{ fontSize: '0.8rem', color: 'var(--color-text-muted)' }}>(tóxico)</span></h2>
                         <p>
-                            Te mandamos tu número de guía por WhatsApp y correo para que 
+                            Te mandamos tu número de guía por WhatsApp y correo para que
                             puedas stalkear tu paquete como si fuera tu ex. 👀
                         </p>
                         <p style={{ color: 'var(--color-text-secondary)', fontStyle: 'italic', marginTop: '1rem' }}>
-                            (También funciona para saber exactamente cuándo llega el repartidor 
+                            (También funciona para saber exactamente cuándo llega el repartidor
                             y no bajarte en pijama)
                         </p>
                     </section>
@@ -145,8 +175,19 @@ export default function EnviosPage() {
                         textAlign: 'center'
                     }}>
                         <h2>¿Dudas sobre tu envío? 🤔</h2>
-                        <p style={{ marginBottom: '1.5rem' }}>
-                            No te quedes con la duda, pregunta lo que quieras
+                        <p style={{
+                            marginBottom: '0.5rem',
+                            fontStyle: 'italic',
+                            fontSize: '1.1rem'
+                        }}>
+                            &quot;La única diferencia entre un pend#%* y un inteligente es que uno se quedó con la duda&quot;
+                        </p>
+                        <p style={{
+                            fontSize: '0.9rem',
+                            color: 'var(--color-text-muted)',
+                            marginBottom: '1.5rem'
+                        }}>
+                            — Mi abuelo, 2020 (che viejo sabio)
                         </p>
                         <div className="contact-options">
                             <Link href="/contacto" className="btn btn-primary">

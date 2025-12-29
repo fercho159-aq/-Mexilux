@@ -42,22 +42,7 @@ const CONTACT_METHODS = [
     },
 ];
 
-const LOCATIONS = [
-    {
-        name: 'Sucursal Polanco',
-        address: 'Av. Presidente Masaryk 123, Polanco, CDMX',
-        phone: '(55) 5555-1234',
-        hours: 'Lun - Sáb: 10am - 8pm',
-        mapUrl: 'https://maps.google.com',
-    },
-    {
-        name: 'Sucursal Santa Fe',
-        address: 'Centro Comercial Santa Fe, Local 234',
-        phone: '(55) 5555-5678',
-        hours: 'Lun - Dom: 11am - 9pm',
-        mapUrl: 'https://maps.google.com',
-    },
-];
+
 
 const FAQ_QUICK = [
     {
@@ -150,28 +135,7 @@ export default function ContactoPage() {
                     </form>
                 </section>
 
-                {/* Locations */}
-                <section className="locations-section">
-                    <h2>Nuestras sucursales</h2>
-                    <div className="locations-grid">
-                        {LOCATIONS.map((location) => (
-                            <article key={location.name} className="location-card">
-                                <h3>{location.name}</h3>
-                                <p className="location-address">📍 {location.address}</p>
-                                <p className="location-phone">📞 {location.phone}</p>
-                                <p className="location-hours">🕐 {location.hours}</p>
-                                <a
-                                    href={location.mapUrl}
-                                    className="btn btn-outline btn-sm"
-                                    target="_blank"
-                                    rel="noopener noreferrer"
-                                >
-                                    Ver en mapa →
-                                </a>
-                            </article>
-                        ))}
-                    </div>
-                </section>
+
 
                 {/* Quick FAQ */}
                 <section className="quick-faq">

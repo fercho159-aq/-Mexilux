@@ -536,6 +536,25 @@ button {
   padding: 0 var(--space-xl);
 }
 
+/* Grid de 3 columnas para incluir la tarjeta "Sin etiquetas" */
+.categories-grid-3 {
+  grid-template-columns: repeat(3, 1fr);
+}
+
+@media (max-width: 1024px) {
+  .categories-grid-3 {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+@media (max-width: 640px) {
+
+  .categories-grid,
+  .categories-grid-3 {
+    grid-template-columns: 1fr;
+  }
+}
+
 .category-card {
   display: flex;
   flex-direction: column;
@@ -1317,29 +1336,36 @@ button {
 
 .trust-badges-section {
   background: var(--color-bg-secondary);
-  padding: var(--space-lg) 0;
+  padding: var(--space-xl) 0;
   border-bottom: 1px solid var(--color-border);
 }
 
 .trust-badges-container {
-  max-width: 1400px;
+  max-width: 900px;
   margin: 0 auto;
   display: flex;
-  justify-content: space-around;
-  align-items: center;
+  justify-content: center;
+  align-items: stretch;
   padding: 0 var(--space-lg);
-  flex-wrap: wrap;
-  gap: var(--space-lg);
+  gap: 0;
 }
 
 .trust-badge-item {
   display: flex;
   align-items: center;
   gap: var(--space-md);
+  padding: var(--space-md) var(--space-xl);
+  flex: 1;
+  justify-content: center;
+  border-right: 1px solid var(--color-border);
+}
+
+.trust-badge-item:last-child {
+  border-right: none;
 }
 
 .trust-badge-item .badge-icon {
-  font-size: 2rem;
+  font-size: 2.5rem;
 }
 
 .trust-badge-item .badge-text {
@@ -1348,13 +1374,34 @@ button {
 }
 
 .trust-badge-item .badge-label {
-  font-weight: 600;
+  font-weight: 700;
+  font-size: var(--font-size-base);
   color: var(--color-text);
 }
 
 .trust-badge-item .badge-detail {
   font-size: var(--font-size-sm);
   color: var(--color-text-secondary);
+}
+
+/* Mobile: stack badges vertically */
+@media (max-width: 768px) {
+  .trust-badges-container {
+    flex-direction: column;
+    gap: var(--space-md);
+    max-width: 100%;
+  }
+
+  .trust-badge-item {
+    border-right: none;
+    border-bottom: 1px solid var(--color-border);
+    padding: var(--space-md);
+    justify-content: flex-start;
+  }
+
+  .trust-badge-item:last-child {
+    border-bottom: none;
+  }
 }
 
 /* ─── CATEGORIES SECTION ───────────────────────────────────────────────────── */
@@ -1526,9 +1573,31 @@ button {
       transparent 60%);
 }
 
+/* Degradado Inclusivo - Para la tarjeta "Sin etiquetas" */
+.gradient-inclusive {
+  background: linear-gradient(145deg,
+      #f8f9fa 0%,
+      #f0f0f5 30%,
+      #f5f5f7 70%,
+      #ebebf0 100%);
+  position: relative;
+}
+
+.gradient-inclusive::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(135deg,
+      rgba(147, 112, 219, 0.06) 0%,
+      rgba(78, 205, 196, 0.05) 50%,
+      rgba(255, 193, 7, 0.04) 100%);
+  border-radius: inherit;
+}
+
 /* Efectos hover para los degradados - Estilo Apple */
 .category-card-large:hover .gradient-mexicano,
-.category-card-large:hover .gradient-mexicana {
+.category-card-large:hover .gradient-mexicana,
+.category-card-large:hover .gradient-inclusive {
   box-shadow:
     0 4px 20px rgba(0, 0, 0, 0.08),
     inset 0 0 0 1px rgba(255, 255, 255, 0.5);

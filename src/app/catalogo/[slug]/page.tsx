@@ -183,8 +183,28 @@ export default async function ProductPage({ params }: PageProps) {
                             >
                                 <span className="config-icon">🛒</span>
                                 <span className="config-text">
-                                    <strong>Agregar al carrito</strong>
+                                    <strong>Órale pues necio, agrégamelo</strong>
                                     <small>Solo armazón - {formatPrice(basePrice)}</small>
+                                </span>
+                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                                    <path d="M5 12h14m-7-7 7 7-7 7" />
+                                </svg>
+                            </Link>
+
+                            {/* Botón de compra rápida */}
+                            <Link
+                                href={`/checkout?buy=${product.slug}&variant=${defaultVariant?.id || ''}`}
+                                className="btn btn-config"
+                                style={{
+                                    background: 'linear-gradient(135deg, #006847 0%, #2e7d32 100%)',
+                                    color: 'white',
+                                    border: 'none'
+                                }}
+                            >
+                                <span className="config-icon">⚡</span>
+                                <span className="config-text">
+                                    <strong>¡Lo quiero ya!</strong>
+                                    <small>Ir directo al pago</small>
                                 </span>
                                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
                                     <path d="M5 12h14m-7-7 7 7-7 7" />
