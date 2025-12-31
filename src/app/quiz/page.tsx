@@ -14,6 +14,7 @@
 import Link from 'next/link';
 import { useState, useRef } from 'react';
 import html2canvas from 'html2canvas';
+import FaceAnalyzer, { AnalysisResult } from '@/components/quiz/FaceAnalyzer';
 
 // Tipos de rostro y sus características
 const FACE_TYPES = {
@@ -127,6 +128,8 @@ export default function QuizPage() {
     const [answers, setAnswers] = useState<Record<string, string>>({});
     const [showResults, setShowResults] = useState(false);
     const [isAnimating, setIsAnimating] = useState(false);
+    const [showCamera, setShowCamera] = useState(false);
+    const [skinToneResult, setSkinToneResult] = useState<AnalysisResult['skinTone'] | null>(null);
     const cardRef = useRef<HTMLDivElement>(null);
 
     const totalSteps = QUIZ_STEPS.length;
@@ -138,6 +141,26 @@ export default function QuizPage() {
             ...prev,
             [currentQuestion.id]: value,
         }));
+    };
+
+    const handleAnalysisComplete = (result: AnalysisResult) => {
+        // Guardar forma de rostro
+        setAnswers(prev => ({
+            ...prev,
+            'face-shape': result.faceShape
+        }));
+
+        // Guardar tono de piel
+        setSkinToneResult(result.skinTone);
+
+        // Cerrar cámara y avanzar
+        setShowCamera(false);
+        // Pequeño delay para transición suave
+        setTimeout(() => {
+            if (currentStep < totalSteps - 1) {
+                setCurrentStep(prev => prev + 1);
+            }
+        }, 500);
     };
 
     const handleNext = () => {
@@ -167,7 +190,7 @@ export default function QuizPage() {
     const handleShare = async () => {
         const result = getFaceResult();
         const shareText = `🇲🇽 Descubrí que soy "${result.celebrity.title}" según mi tipo de rostro en Mexilux!\n\n${result.celebrity.quote}\n\n¿Cuál eres tú? 👓\nmexilux.com/quiz`;
-        
+
         // Capturar la tarjeta con html2canvas
         if (cardRef.current) {
             try {
@@ -176,16 +199,16 @@ export default function QuizPage() {
                     scale: 2,
                     useCORS: true,
                 });
-                
+
                 const imageData = canvas.toDataURL('image/png');
-                
+
                 // Intentar compartir con Web Share API
                 if (navigator.share) {
                     try {
                         const response = await fetch(imageData);
                         const blob = await response.blob();
                         const file = new File([blob], 'mi-resultado-mexilux.png', { type: 'image/png' });
-                        
+
                         await navigator.share({
                             title: 'Mi Resultado Mexilux',
                             text: shareText,
@@ -196,7 +219,7 @@ export default function QuizPage() {
                         // Fall through to download
                     }
                 }
-                
+
                 // Descargar imagen
                 const link = document.createElement('a');
                 link.download = 'mi-resultado-mexilux.png';
@@ -217,6 +240,20 @@ export default function QuizPage() {
     const canProceed = answers[currentQuestion?.id];
 
     // ═══════════════════════════════════════════════════════════════════════════
+    // PANTALLA DE CÁMARA
+    // ═══════════════════════════════════════════════════════════════════════════
+    if (showCamera) {
+        return (
+            <main className="quiz-page" style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', minHeight: '100vh' }}>
+                <FaceAnalyzer
+                    onComplete={handleAnalysisComplete}
+                    onCancel={() => setShowCamera(false)}
+                />
+            </main>
+        );
+    }
+
+    // ═══════════════════════════════════════════════════════════════════════════
     // PANTALLA DE RESULTADOS - Estilo Spotify Wrapped
     // ═══════════════════════════════════════════════════════════════════════════
     if (showResults) {
@@ -232,8 +269,8 @@ export default function QuizPage() {
 
                 <div className="wrapped-container">
                     {/* Card principal estilo Wrapped - ref para captura */}
-                    <div 
-                        className="wrapped-card" 
+                    <div
+                        className="wrapped-card"
                         ref={cardRef}
                         style={{
                             background: 'linear-gradient(180deg, #1a1a2e 0%, #16213e 50%, #0f3460 100%)',
@@ -242,7 +279,7 @@ export default function QuizPage() {
                         }}
                     >
                         <div className="wrapped-header" style={{ textAlign: 'center', marginBottom: '24px' }}>
-                            <span 
+                            <span
                                 className="wrapped-badge"
                                 style={{
                                     background: 'linear-gradient(135deg, #e94560, #ff6b6b)',
@@ -265,7 +302,7 @@ export default function QuizPage() {
                             <p style={{ fontSize: '18px', color: 'rgba(255,255,255,0.7)', margin: '0 0 8px 0' }}>
                                 Eres
                             </p>
-                            <h2 
+                            <h2
                                 style={{
                                     fontSize: '42px',
                                     fontWeight: 800,
@@ -280,7 +317,7 @@ export default function QuizPage() {
                             </p>
                         </div>
 
-                        <div 
+                        <div
                             className="wrapped-quote"
                             style={{
                                 fontStyle: 'italic',
@@ -303,9 +340,9 @@ export default function QuizPage() {
 
                         {/* Formas recomendadas */}
                         <div className="wrapped-recommendations" style={{ marginBottom: '20px', textAlign: 'center' }}>
-                            <h3 style={{ 
-                                fontSize: '12px', 
-                                color: 'rgba(255,255,255,0.6)', 
+                            <h3 style={{
+                                fontSize: '12px',
+                                color: 'rgba(255,255,255,0.6)',
                                 textTransform: 'uppercase',
                                 letterSpacing: '0.1em',
                                 marginBottom: '12px',
@@ -314,8 +351,8 @@ export default function QuizPage() {
                             </h3>
                             <div className="wrapped-shapes" style={{ display: 'flex', flexWrap: 'wrap', gap: '8px', justifyContent: 'center' }}>
                                 {result.recommendedShapes.map((shape, idx) => (
-                                    <span 
-                                        key={idx} 
+                                    <span
+                                        key={idx}
                                         style={{
                                             background: 'rgba(255,255,255,0.15)',
                                             color: 'white',
@@ -332,9 +369,9 @@ export default function QuizPage() {
 
                         {/* Colores */}
                         <div className="wrapped-colors" style={{ textAlign: 'center' }}>
-                            <h3 style={{ 
-                                fontSize: '12px', 
-                                color: 'rgba(255,255,255,0.6)', 
+                            <h3 style={{
+                                fontSize: '12px',
+                                color: 'rgba(255,255,255,0.6)',
                                 textTransform: 'uppercase',
                                 letterSpacing: '0.1em',
                                 marginBottom: '12px',
@@ -343,7 +380,7 @@ export default function QuizPage() {
                             </h3>
                             <div className="wrapped-color-list" style={{ display: 'flex', flexWrap: 'wrap', gap: '8px', justifyContent: 'center' }}>
                                 {result.colors.map((color, idx) => (
-                                    <span 
+                                    <span
                                         key={idx}
                                         style={{
                                             background: 'linear-gradient(135deg, #e94560, #ff6b6b)',
@@ -358,30 +395,77 @@ export default function QuizPage() {
                                 ))}
                             </div>
                         </div>
-
-                        {/* Footer para compartir */}
-                        <div style={{ 
-                            marginTop: '32px', 
-                            paddingTop: '24px', 
-                            borderTop: '1px solid rgba(255,255,255,0.1)',
-                            textAlign: 'center',
-                        }}>
-                            <p style={{ color: '#e94560', fontWeight: 600, fontSize: '18px', margin: '0 0 8px 0' }}>
-                                ¿Cuál eres tú? 👓
-                            </p>
-                            <p style={{ color: 'rgba(255,255,255,0.5)', fontSize: '14px', margin: 0 }}>
-                                mexilux.com/quiz
-                            </p>
-                        </div>
                     </div>
+
+                    {/* Recomendación por Tono de Piel (Nuevo) */}
+                    {skinToneResult && (
+                        <div className="wrapped-skintone" style={{ marginTop: '24px', textAlign: 'center' }}>
+                            <h3 style={{
+                                fontSize: '12px',
+                                color: 'rgba(255,255,255,0.6)',
+                                textTransform: 'uppercase',
+                                letterSpacing: '0.1em',
+                                marginBottom: '12px',
+                            }}>
+                                Tu Análisis de Color
+                            </h3>
+                            <div style={{
+                                background: 'rgba(255,255,255,0.05)',
+                                padding: '16px',
+                                borderRadius: '16px',
+                                display: 'inline-block'
+                            }}>
+                                <p style={{ margin: '0 0 8px 0', fontSize: '14px', color: 'rgba(255,255,255,0.9)' }}>
+                                    Detectamos un tono <strong>{skinToneResult.category === 'light' ? 'Claro' : skinToneResult.category === 'medium' ? 'Medio' : 'Oscuro'}</strong> con subtono <strong>{skinToneResult.undertone === 'warm' ? 'Cálido' : skinToneResult.undertone === 'cool' ? 'Frío' : 'Neutro'}</strong>
+                                </p>
+                                <div style={{ display: 'flex', gap: '8px', justifyContent: 'center', marginTop: '8px' }}>
+                                    {skinToneResult.undertone === 'warm' ? (
+                                        <>
+                                            <span style={{ width: 20, height: 20, borderRadius: '50%', background: '#FFD700', border: '2px solid rgba(255,255,255,0.2)' }} title="Dorado" />
+                                            <span style={{ width: 20, height: 20, borderRadius: '50%', background: '#8B4513', border: '2px solid rgba(255,255,255,0.2)' }} title="Café" />
+                                            <span style={{ width: 20, height: 20, borderRadius: '50%', background: '#556B2F', border: '2px solid rgba(255,255,255,0.2)' }} title="Verde Oliva" />
+                                        </>
+                                    ) : skinToneResult.undertone === 'cool' ? (
+                                        <>
+                                            <span style={{ width: 20, height: 20, borderRadius: '50%', background: '#C0C0C0', border: '2px solid rgba(255,255,255,0.2)' }} title="Plateado" />
+                                            <span style={{ width: 20, height: 20, borderRadius: '50%', background: '#000000', border: '2px solid rgba(255,255,255,0.2)' }} title="Negro" />
+                                            <span style={{ width: 20, height: 20, borderRadius: '50%', background: '#000080', border: '2px solid rgba(255,255,255,0.2)' }} title="Azul Marino" />
+                                        </>
+                                    ) : (
+                                        <>
+                                            <span style={{ width: 20, height: 20, borderRadius: '50%', background: '#000000', border: '2px solid rgba(255,255,255,0.2)' }} title="Negro" />
+                                            <span style={{ width: 20, height: 20, borderRadius: '50%', background: '#FFD700', border: '2px solid rgba(255,255,255,0.2)' }} title="Dorado" />
+                                            <span style={{ width: 20, height: 20, borderRadius: '50%', background: '#C0C0C0', border: '2px solid rgba(255,255,255,0.2)' }} title="Plateado" />
+                                        </>
+                                    )}
+                                </div>
+                            </div>
+                        </div>
+                    )}
+
+                    {/* Footer para compartir */}
+                    <div style={{
+                        marginTop: '32px',
+                        paddingTop: '24px',
+                        borderTop: '1px solid rgba(255,255,255,0.1)',
+                        textAlign: 'center',
+                    }}>
+                        <p style={{ color: '#e94560', fontWeight: 600, fontSize: '18px', margin: '0 0 8px 0' }}>
+                            ¿Cuál eres tú? 👓
+                        </p>
+                        <p style={{ color: 'rgba(255,255,255,0.5)', fontSize: '14px', margin: 0 }}>
+                            mexilux.com/quiz
+                        </p>
+                    </div>
+
 
                     {/* Acciones */}
                     <div className="wrapped-actions">
                         <button className="btn-wrapped-share" onClick={handleShare}>
                             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                                <path d="M4 12v8a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-8"/>
-                                <polyline points="16 6 12 2 8 6"/>
-                                <line x1="12" y1="2" x2="12" y2="15"/>
+                                <path d="M4 12v8a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-8" />
+                                <polyline points="16 6 12 2 8 6" />
+                                <line x1="12" y1="2" x2="12" y2="15" />
                             </svg>
                             Compartir mi resultado
                         </button>
@@ -390,7 +474,7 @@ export default function QuizPage() {
                             👓 Ver monturas recomendadas
                         </Link>
 
-                        <button 
+                        <button
                             className="btn-wrapped-secondary"
                             onClick={() => {
                                 setShowResults(false);
@@ -418,7 +502,7 @@ export default function QuizPage() {
                         </div>
                     </div>
                 </div>
-            </main>
+            </main >
         );
     }
 
@@ -451,6 +535,47 @@ export default function QuizPage() {
                     {/* Current Step */}
                     <section className={`quiz-step ${isAnimating ? 'animating-out' : ''}`}>
                         <h2>{currentQuestion.title}</h2>
+
+                        {/* Botón de análisis IA solo en paso 1 */}
+                        {currentStep === 0 && (
+                            <div style={{ marginBottom: '24px', textAlign: 'center' }}>
+                                <button
+                                    className="btn-ai-analyze"
+                                    onClick={() => setShowCamera(true)}
+                                    style={{
+                                        background: 'linear-gradient(135deg, #e94560, #ff6b6b)',
+                                        color: 'white',
+                                        border: 'none',
+                                        padding: '12px 24px',
+                                        borderRadius: '50px',
+                                        fontSize: '16px',
+                                        fontWeight: 'bold',
+                                        cursor: 'pointer',
+                                        display: 'inline-flex',
+                                        alignItems: 'center',
+                                        gap: '8px',
+                                        boxShadow: '0 4px 15px rgba(233, 69, 96, 0.3)',
+                                        transition: 'transform 0.2s',
+                                    }}
+                                >
+                                    <span>📸</span> Analizar mi rostro con IA
+                                </button>
+                                <div style={{
+                                    margin: '16px 0',
+                                    display: 'flex',
+                                    alignItems: 'center',
+                                    justifyContent: 'center',
+                                    gap: '10px',
+                                    color: 'rgba(255,255,255,0.5)',
+                                    fontSize: '12px'
+                                }}>
+                                    <span style={{ height: '1px', width: '30px', background: 'rgba(255,255,255,0.1)' }}></span>
+                                    O elige manualmente
+                                    <span style={{ height: '1px', width: '30px', background: 'rgba(255,255,255,0.1)' }}></span>
+                                </div>
+                            </div>
+                        )}
+
                         <p className="step-description">{currentQuestion.subtitle}</p>
 
                         <div className="quiz-options-grid">
