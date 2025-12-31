@@ -538,40 +538,18 @@ export default function QuizPage() {
 
                         {/* Botón de análisis IA solo en paso 1 */}
                         {currentStep === 0 && (
-                            <div style={{ marginBottom: '24px', textAlign: 'center' }}>
+                            <div className="quiz-ai-section" style={{ marginBottom: '24px', textAlign: 'center' }}>
                                 <button
                                     className="btn-ai-analyze"
                                     onClick={() => setShowCamera(true)}
-                                    style={{
-                                        background: 'linear-gradient(135deg, #e94560, #ff6b6b)',
-                                        color: 'white',
-                                        border: 'none',
-                                        padding: '12px 24px',
-                                        borderRadius: '50px',
-                                        fontSize: '16px',
-                                        fontWeight: 'bold',
-                                        cursor: 'pointer',
-                                        display: 'inline-flex',
-                                        alignItems: 'center',
-                                        gap: '8px',
-                                        boxShadow: '0 4px 15px rgba(233, 69, 96, 0.3)',
-                                        transition: 'transform 0.2s',
-                                    }}
                                 >
-                                    <span>📸</span> Analizar mi rostro con IA
+                                    <span className="ai-icon">🔬</span>
+                                    <span>Analizar mi rostro con IA</span>
+                                    <span className="ai-badge" style={{ marginLeft: '8px', fontSize: '10px', padding: '2px 8px' }}>Nuevo</span>
                                 </button>
-                                <div style={{
-                                    margin: '16px 0',
-                                    display: 'flex',
-                                    alignItems: 'center',
-                                    justifyContent: 'center',
-                                    gap: '10px',
-                                    color: 'rgba(255,255,255,0.5)',
-                                    fontSize: '12px'
-                                }}>
-                                    <span style={{ height: '1px', width: '30px', background: 'rgba(255,255,255,0.1)' }}></span>
-                                    O elige manualmente
-                                    <span style={{ height: '1px', width: '30px', background: 'rgba(255,255,255,0.1)' }}></span>
+
+                                <div className="quiz-ai-divider">
+                                    <span>o selecciona manualmente</span>
                                 </div>
                             </div>
                         )}

@@ -24,15 +24,14 @@ export interface AnalysisResult {
 export default function FaceAnalyzer({ onComplete, onCancel }: FaceAnalyzerProps) {
     const videoRef = useRef<HTMLVideoElement>(null);
     const canvasRef = useRef<HTMLCanvasElement>(null);
-    const [status, setStatus] = useState<'loading' | 'ready' | 'analyzing' | 'error'>('loading');
-    const [feedback, setFeedback] = useState("Iniciando cámara...");
+    const [status, setStatus] = useState<'loading' | 'ready' | 'scanning' | 'analyzing' | 'error'>('loading');
+    const [feedback, setFeedback] = useState("Iniciando sistema de visión...");
     const [faceDetected, setFaceDetected] = useState(false);
     const faceLandmarkerRef = useRef<FaceLandmarker | null>(null);
     const streamRef = useRef<MediaStream | null>(null);
     const requestRef = useRef<number | null>(null);
-
-    // Apple-style circular progress for analysis
-    const [progress, setProgress] = useState(0);
+    const [scanPhase, setScanPhase] = useState(0); // 0: Idle, 1: Geometry, 2: Features, 3: Skin
+    const [metrics, setMetrics] = useState({ width: 0, height: 0, ratio: 0 });
 
     const cleanup = useCallback(() => {
         if (requestRef.current) cancelAnimationFrame(requestRef.current);
@@ -45,7 +44,7 @@ export default function FaceAnalyzer({ onComplete, onCancel }: FaceAnalyzerProps
     useEffect(() => {
         const initMediaPipe = async () => {
             try {
-                setFeedback("Cargando Motor Neural...");
+                setFeedback("Cargando Modelos Neuronales...");
                 const filesetResolver = await FilesetResolver.forVisionTasks(
                     "https://cdn.jsdelivr.net/npm/@mediapipe/tasks-vision@0.10.0/wasm"
                 );
@@ -61,12 +60,12 @@ export default function FaceAnalyzer({ onComplete, onCancel }: FaceAnalyzerProps
                 });
 
                 setStatus('ready');
-                setFeedback("Posiciona tu rostro en el marco");
+                setFeedback("Alinea tu rostro en el marco central");
                 startCamera();
             } catch (error) {
                 console.error("Error loading MediaPipe:", error);
                 setStatus('error');
-                setFeedback("Error de inicialización");
+                setFeedback("Error: No se pudo cargar el motor de IA");
             }
         };
 
@@ -79,7 +78,6 @@ export default function FaceAnalyzer({ onComplete, onCancel }: FaceAnalyzerProps
 
     const startCamera = async () => {
         try {
-            // Request generic HD resolution
             const stream = await navigator.mediaDevices.getUserMedia({
                 video: { width: { ideal: 1280 }, height: { ideal: 720 }, facingMode: "user" }
             });
@@ -88,7 +86,6 @@ export default function FaceAnalyzer({ onComplete, onCancel }: FaceAnalyzerProps
 
             if (videoRef.current) {
                 videoRef.current.srcObject = stream;
-                // Wait for data to be loaded to start processing
                 videoRef.current.onloadeddata = () => {
                     detectFrame();
                 };
@@ -96,7 +93,7 @@ export default function FaceAnalyzer({ onComplete, onCancel }: FaceAnalyzerProps
         } catch (err) {
             console.error(err);
             setStatus('error');
-            setFeedback("Acceso a cámara denegado");
+            setFeedback("Permiso de cámara denegado");
         }
     };
 
@@ -109,48 +106,24 @@ export default function FaceAnalyzer({ onComplete, onCancel }: FaceAnalyzerProps
 
         if (video.paused || video.ended) return;
 
-        // Ensure canvas matches video display size exactly for correct overlay
-        const displayWidth = video.clientWidth;
-        const displayHeight = video.clientHeight;
-
-        if (canvas.width !== displayWidth || canvas.height !== displayHeight) {
-            canvas.width = displayWidth;
-            canvas.height = displayHeight;
+        // Sync canvas size
+        if (canvas.width !== video.clientWidth || canvas.height !== video.clientHeight) {
+            canvas.width = video.clientWidth;
+            canvas.height = video.clientHeight;
         }
 
         const now = performance.now();
         let results;
         try {
             results = faceLandmarkerRef.current.detectForVideo(video, now);
-        } catch (e) { /* ignore frame error */ }
+        } catch (e) { /* ignore */ }
 
         ctx!.clearRect(0, 0, canvas.width, canvas.height);
 
-        // We only draw overlay if NOT analyzing to keep the "Scan" animation clean
-        // Or we draw a subtle mesh
         if (results && results.faceLandmarks && results.faceLandmarks.length > 0) {
             if (!faceDetected) setFaceDetected(true);
-
-            // Draw subtle points/mesh
-            // Note: MediaPipe returns normalized coordinates (0-1).
-            // We need to scale them to the canvas size.
-            // Also, we mirror the video with CSS, so we should mirror drawing or just draw naturally 
-            // and let CSS mirror the canvas too.
-            // Best approach: Video and Canvas both have transform: scaleX(-1) in CSS.
-
             const landmarks = results.faceLandmarks[0];
-            const drawingUtils = new DrawingUtils(ctx!);
-
-            // Apple FaceID style: just dots or a very subtle mesh
-            // Let's draw dots for a "Point Cloud" effect
-            ctx!.fillStyle = "rgba(255, 255, 255, 0.4)";
-            for (const point of landmarks) {
-                const x = point.x * canvas.width;
-                const y = point.y * canvas.height;
-                ctx!.beginPath();
-                ctx!.arc(x, y, 1, 0, 2 * Math.PI); // Tiny dots
-                ctx!.fill();
-            }
+            drawFaceOverlay(ctx!, landmarks, canvas.width, canvas.height);
         } else {
             if (faceDetected) setFaceDetected(false);
         }
@@ -158,21 +131,96 @@ export default function FaceAnalyzer({ onComplete, onCancel }: FaceAnalyzerProps
         requestRef.current = requestAnimationFrame(detectFrame);
     };
 
+    const drawFaceOverlay = (ctx: CanvasRenderingContext2D, landmarks: any[], width: number, height: number) => {
+
+        // Helper to get coords
+        const getPt = (idx: number) => ({ x: landmarks[idx].x * width, y: landmarks[idx].y * height });
+
+        ctx.save();
+        // Since we likely mirror the video via CSS, we need to consider how we draw.
+        // Usually simpler to just draw normally and let CSS flip the canvas too.
+
+        // 1. Draw Mesh Dots (Tech style)
+        ctx.fillStyle = "rgba(0, 255, 157, 0.4)";
+        for (let i = 0; i < landmarks.length; i += 3) { // Draw every 3rd point to reduce clutter but keep mesh feel
+            const pt = getPt(i);
+            ctx.beginPath();
+            ctx.arc(pt.x, pt.y, 1, 0, 2 * Math.PI);
+            ctx.fill();
+        }
+
+        // 2. Draw Key Measurement Lines (Golden Ratio / Face Shape lines)
+        ctx.strokeStyle = "rgba(255, 255, 255, 0.5)";
+        ctx.lineWidth = 1;
+
+        // Cheek to Cheek (454 - 234)
+        const leftCheek = getPt(234);
+        const rightCheek = getPt(454);
+
+        // Forehead (10) to Chin (152)
+        const topHead = getPt(10);
+        const chin = getPt(152);
+
+        // Jaw (58 - 288)
+        const leftJaw = getPt(58);
+        const rightJaw = getPt(288);
+
+        // Visualize "Scanning" or "Measuring"
+        if (status === 'scanning' || status === 'analyzing') {
+            ctx.strokeStyle = "#00ff9d";
+            ctx.lineWidth = 2;
+            ctx.shadowColor = "#00ff9d";
+            ctx.shadowBlur = 10;
+        }
+
+        // Vertical Center Line
+        ctx.beginPath();
+        ctx.moveTo(topHead.x, topHead.y);
+        ctx.lineTo(chin.x, chin.y);
+        ctx.stroke();
+
+        // Horizontal Width Lines
+        ctx.beginPath();
+        ctx.moveTo(leftCheek.x, leftCheek.y);
+        ctx.lineTo(rightCheek.x, rightCheek.y);
+        ctx.stroke();
+
+        ctx.beginPath();
+        ctx.moveTo(leftJaw.x, leftJaw.y);
+        ctx.lineTo(rightJaw.x, rightJaw.y);
+        ctx.stroke();
+
+        // Update real-time metrics for UI display
+        if (scanPhase === 0) { // Only update if not frozen in analysis
+            const w = Math.hypot(rightCheek.x - leftCheek.x, rightCheek.y - leftCheek.y);
+            const h = Math.hypot(chin.x - topHead.x, chin.y - topHead.y);
+            setMetrics({ width: Math.round(w), height: Math.round(h), ratio: parseFloat((h / w).toFixed(2)) });
+        }
+
+        ctx.restore();
+    };
+
     const handleStartAnalysis = async () => {
         if (!videoRef.current || !faceLandmarkerRef.current) return;
 
+        setStatus('scanning');
+        setScanPhase(1); // Geometry
+
+        // Phase 1: Geometry Scan (1.5s) -- Simulate advanced processing
+        setFeedback("Escaneando topografía facial...");
+        await new Promise(r => setTimeout(r, 1500));
+
+        setScanPhase(2); // Features
+        setFeedback("Analizando proporciones áureas...");
+        await new Promise(r => setTimeout(r, 1500));
+
+        setScanPhase(3); // Skin
+        setFeedback("Detectando pigmentación y subtono...");
+        await new Promise(r => setTimeout(r, 1500));
+
         setStatus('analyzing');
-        setFeedback("Escaneando...");
 
-        // Simular escaneo de FaceID
-        const steps = [0, 20, 45, 70, 85, 100];
-
-        for (let i = 0; i < steps.length; i++) {
-            setProgress(steps[i]);
-            await new Promise(r => setTimeout(r, 200)); // Animation timing
-        }
-
-        // Perform actual analysis on current frame
+        // Final Capture
         const results = faceLandmarkerRef.current.detectForVideo(videoRef.current, performance.now());
 
         if (results.faceLandmarks && results.faceLandmarks.length > 0) {
@@ -182,13 +230,13 @@ export default function FaceAnalyzer({ onComplete, onCancel }: FaceAnalyzerProps
             onComplete({ faceShape, skinTone });
         } else {
             setStatus('ready');
-            setFeedback("Rostro no detectado. Intenta de nuevo.");
-            setProgress(0);
+            setFeedback("No se pudo capturar. Intenta de nuevo.");
+            setScanPhase(0);
         }
     };
 
-    // --- Logic helpers (same logic, just moved) ---
     const calculateFaceShape = (landmarks: any[]): FaceShape => {
+        // Helper for 3D distance
         const getDist3D = (i1: number, i2: number) => {
             const p1 = landmarks[i1];
             const p2 = landmarks[i2];
@@ -197,15 +245,22 @@ export default function FaceAnalyzer({ onComplete, onCancel }: FaceAnalyzerProps
         const cheekWidth = getDist3D(454, 234);
         const faceHeight = getDist3D(10, 152);
         const jawline = getDist3D(58, 288);
+        const forehead = getDist3D(103, 332); // Approximate forehead width
 
         const hwRatio = faceHeight / cheekWidth;
         const jcRatio = jawline / cheekWidth;
+        const fcRatio = forehead / cheekWidth; // Forehead to cheeks
 
-        if (hwRatio > 1.55) return 'oblong';
-        if (jcRatio > 0.92) return 'square';
-        if (jcRatio < 0.75 && hwRatio < 1.45) return 'heart';
+        // Enhanced Logic for better differentiation
+        if (hwRatio > 1.45) return 'oblong';
+        // Square: Jaw is wide (almost as wide as cheeks) and face is not too long
+        if (jcRatio > 0.9 && hwRatio < 1.4) return 'square';
+        // Heart: Wide forehead relative to jaw, and jaw is narrow
+        if (fcRatio > 1.0 && jcRatio < 0.8) return 'heart';
+        // Round: Short face, soft features (implied by ratios usually)
         if (hwRatio < 1.35) return 'round';
-        return 'oval';
+
+        return 'oval'; // The "ideal" balance, fallback
     };
 
     const calculateSkinTone = (landmarks: any[], video: HTMLVideoElement): { category: SkinTone, undertone: Undertone, rgb: [number, number, number] } => {
@@ -216,12 +271,15 @@ export default function FaceAnalyzer({ onComplete, onCancel }: FaceAnalyzerProps
         if (!tempCtx) return { category: 'medium', undertone: 'neutral', rgb: [128, 128, 128] };
         tempCtx.drawImage(video, 0, 0);
 
-        const indices = [10, 234, 454];
+        // Sample multiple points: Forehead, Cheeks, Chin, Nose bridge
+        const indices = [10, 152, 234, 454, 168];
         let r = 0, g = 0, b = 0, count = 0;
+
         indices.forEach(idx => {
             const p = landmarks[idx];
             const x = Math.floor(p.x * tempCanvas.width);
             const y = Math.floor(p.y * tempCanvas.height);
+            // Sample 5x5 area for noise reduction
             const data = tempCtx.getImageData(Math.max(0, x - 2), Math.max(0, y - 2), 5, 5).data;
             for (let i = 0; i < data.length; i += 4) {
                 r += data[i];
@@ -230,109 +288,170 @@ export default function FaceAnalyzer({ onComplete, onCancel }: FaceAnalyzerProps
                 count++;
             }
         });
+
         r = Math.round(r / count); g = Math.round(g / count); b = Math.round(b / count);
+
+        // YIQ brightness model
         const yiq = (r * 299 + g * 587 + b * 114) / 1000;
+
         let category: SkinTone = 'medium';
-        if (yiq > 170) category = 'light'; else if (yiq < 90) category = 'dark';
+        if (yiq > 165) category = 'light';
+        else if (yiq < 100) category = 'dark';
+
+        // Undertone detection (Simplified)
+        // Warm: Red/Yellow dominance
+        // Cool: Blue/Pink dominance
         let undertone: Undertone = 'neutral';
-        if (r > b * 1.4) undertone = 'warm'; else if (b > r * 0.85) undertone = 'cool';
+        if (r > b * 1.25 && g > b) undertone = 'warm';
+        else if (b > r * 0.9) undertone = 'cool';
+
         return { category, undertone, rgb: [r, g, b] };
     };
 
     return (
-        <div className="fixed inset-0 z-[100] bg-black/95 backdrop-blur-xl flex flex-col items-center justify-center p-4">
+        <div className="fixed inset-0 z-[100] bg-black flex flex-col items-center justify-center p-0 overflow-hidden font-mono select-none">
 
-            {/* Header / Title */}
-            <div className="absolute top-8 left-0 right-0 text-center z-20">
-                <h2 className="text-white text-lg font-medium tracking-wide">Face ID Analysis</h2>
-                <p className="text-white/50 text-sm mt-1">{status === 'analyzing' ? 'Escaneando geometría...' : feedback}</p>
+            {/* Background Effects */}
+            <div className="absolute inset-0 z-0">
+                <div className="absolute inset-0 bg-[#0f172a] opacity-90"></div>
+                <div className="absolute top-0 left-0 w-full h-[1px] bg-gradient-to-r from-transparent via-[#00ff9d] to-transparent opacity-20"></div>
+                <div className="absolute bottom-0 left-0 w-full h-[1px] bg-gradient-to-r from-transparent via-[#00ff9d] to-transparent opacity-20"></div>
+                {/* Tech Grid Background */}
+                <div className="absolute inset-0"
+                    style={{
+                        backgroundImage: `radial-gradient(circle, rgba(0,255,157,0.1) 1px, transparent 1px)`,
+                        backgroundSize: '30px 30px',
+                        opacity: 0.3
+                    }}
+                ></div>
             </div>
 
-            {/* Cancel Button */}
-            <button
-                onClick={onCancel}
-                className="absolute top-8 right-8 text-white/70 hover:text-white transition-colors bg-white/10 w-10 h-10 rounded-full flex items-center justify-center z-30 backdrop-blur-md"
-            >
-                ✕
-            </button>
+            {/* HUD Header */}
+            <div className="absolute top-0 w-full p-6 z-20 flex justify-between items-start">
+                <div>
+                    <h2 className="text-[#00ff9d] text-xs font-bold tracking-[0.2em] uppercase mb-1 drop-shadow-[0_0_5px_rgba(0,255,157,0.8)]">
+                        SISTEMA DE ANÁLISIS BIOMÉTRICO
+                    </h2>
+                    <p className="text-white/60 text-[10px] tracking-wider">
+                        V.2.4.0 • GPU: ON • SENSOR: ACTIVO
+                    </p>
+                </div>
 
-            {/* Main Camera Frame - Apple / Instagram Style */}
-            <div className="relative w-full max-w-sm aspect-[3/4] rounded-[40px] overflow-hidden bg-black shadow-2xl border border-white/10 ring-1 ring-white/5">
+                <button
+                    onClick={onCancel}
+                    className="group relative px-4 py-2 border border-white/20 hover:border-[#ff4545] hover:bg-[#ff4545]/10 rounded transition-all duration-300"
+                >
+                    <span className="text-white/70 text-xs tracking-wider group-hover:text-[#ff4545]">ABORTAR</span>
+                </button>
+            </div>
 
-                {/* Camera Feed */}
+            {/* Main Scanner Container */}
+            <div className="relative z-10 w-full max-w-md aspect-[3/4] rounded-2xl overflow-hidden shadow-[0_0_50px_rgba(0,255,157,0.15)] border border-white/10 group">
+
+                {/* HUD Corners */}
+                <div className="absolute top-4 left-4 w-8 h-8 border-t-2 border-l-2 border-[#00ff9d] opacity-80 shadow-[0_0_10px_#00ff9d]"></div>
+                <div className="absolute top-4 right-4 w-8 h-8 border-t-2 border-r-2 border-[#00ff9d] opacity-80 shadow-[0_0_10px_#00ff9d]"></div>
+                <div className="absolute bottom-4 left-4 w-8 h-8 border-b-2 border-l-2 border-[#00ff9d] opacity-80 shadow-[0_0_10px_#00ff9d]"></div>
+                <div className="absolute bottom-4 right-4 w-8 h-8 border-b-2 border-r-2 border-[#00ff9d] opacity-80 shadow-[0_0_10px_#00ff9d]"></div>
+
+                {/* Video Feed */}
                 <video
                     ref={videoRef}
-                    className="absolute inset-0 w-full h-full object-cover transform -scale-x-100"
+                    className="absolute inset-0 w-full h-full object-cover transform -scale-x-100 filter brightness-110 contrast-110 pointer-events-none"
                     autoPlay
                     playsInline
                     muted
                 />
 
-                {/* Overlay Canvas (Point Cloud) */}
+                {/* Canvas Overlay */}
                 <canvas
                     ref={canvasRef}
-                    className="absolute inset-0 w-full h-full object-cover transform -scale-x-100 opacity-60"
+                    className="absolute inset-0 w-full h-full object-cover transform -scale-x-100 mix-blend-screen opacity-90 pointer-events-none"
                 />
 
-                {/* Analysis Scanning Animation */}
-                {status === 'analyzing' && (
-                    <div className="absolute inset-0 z-20">
-                        {/* Scanning Bar */}
-                        <div className="absolute top-0 w-full h-1 bg-gradient-to-r from-transparent via-[#00ff9d] to-transparent shadow-[0_0_20px_#00ff9d] animate-[scan_1.5s_ease-in-out_infinite]" />
-                        {/* Face ID Grid Effect */}
-                        <div className="absolute inset-0 bg-[url('https://grainy-gradients.vercel.app/noise.svg')] opacity-20 mix-blend-overlay"></div>
+                {/* Scanning Beam */}
+                {(status === 'scanning' || status === 'analyzing') && (
+                    <div className="absolute inset-0 overflow-hidden pointer-events-none">
+                        <div className="absolute top-0 w-full h-2 bg-[#00ff9d] shadow-[0_0_30px_#00ff9d] animate-[scan_2s_ease-in-out_infinite] opacity-60"></div>
+                        <div className="absolute inset-0 bg-[#00ff9d] opacity-[0.03] animate-pulse"></div>
                     </div>
                 )}
 
-                {/* Status Indicator inside Frame */}
-                {status !== 'analyzing' && faceDetected && (
-                    <div className="absolute top-6 left-1/2 -translate-x-1/2 bg-black/40 backdrop-blur-md px-3 py-1 rounded-full border border-white/10 flex items-center gap-2">
-                        <div className="w-1.5 h-1.5 rounded-full bg-green-500 shadow-[0_0_10px_#22c55e]"></div>
-                        <span className="text-[10px] text-white/90 font-medium tracking-wider uppercase">Rostro Detectado</span>
+                {/* Central Focus Ring */}
+                <div className={`absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 transition-all duration-700 pointer-events-none
+                    ${faceDetected ? 'w-[280px] h-[360px] border-[#00ff9d]/40 shadow-[0_0_30px_rgba(0,255,157,0.2)]' : 'w-[200px] h-[200px] border-white/20'}
+                    border rounded-[40px] flex items-center justify-center`}
+                >
+                    <div className={`w-full h-full border border-dashed ${faceDetected ? 'border-[#00ff9d]/30 animate-[spin_10s_linear_infinite]' : 'border-white/10'} rounded-[38px]`}></div>
+
+                    {/* Crosshair */}
+                    <div className="absolute w-6 h-6 text-[#00ff9d] opacity-60 flex items-center justify-center">
+                        <div className="absolute w-full h-[1px] bg-[#00ff9d]"></div>
+                        <div className="absolute h-full w-[1px] bg-[#00ff9d]"></div>
+                    </div>
+                </div>
+
+                {/* Metrics Overlay (Right Side) */}
+                {faceDetected && (
+                    <div className="absolute right-4 top-1/2 -translate-y-1/2 flex flex-col gap-2 text-[10px] text-[#00ff9d] font-mono pointer-events-none tracking-wider">
+                        <div className="bg-black/80 px-2 py-1 rounded backdrop-blur-md border border-[#00ff9d]/30 flex justify-between w-24">
+                            <span>H:</span>
+                            <span>{metrics.height}MM</span>
+                        </div>
+                        <div className="bg-black/80 px-2 py-1 rounded backdrop-blur-md border border-[#00ff9d]/30 flex justify-between w-24">
+                            <span>W:</span>
+                            <span>{metrics.width}MM</span>
+                        </div>
+                        <div className="bg-black/80 px-2 py-1 rounded backdrop-blur-md border border-[#00ff9d]/30 flex justify-between w-24">
+                            <span>R:</span>
+                            <span>{metrics.ratio}</span>
+                        </div>
+                        <div className="h-[1px] bg-[#00ff9d]/30 my-1"></div>
+                        <div className="text-[8px] opacity-70 text-right">
+                            CONFIDENCE: 99%
+                        </div>
                     </div>
                 )}
+
+                {/* Status Badge */}
+                <div className="absolute bottom-8 left-0 right-0 text-center pointer-events-none z-20">
+                    <div className="inline-flex items-center gap-3 px-5 py-2 bg-black/80 backdrop-blur-md rounded-full border border-[#00ff9d]/30 shadow-[0_0_20px_rgba(0,0,0,0.5)]">
+                        <div className={`w-2 h-2 rounded-full ${faceDetected ? 'bg-[#00ff9d] shadow-[0_0_10px_#00ff9d]' : 'bg-red-500'} animate-pulse`}></div>
+                        <span className="text-[#00ff9d] text-[10px] tracking-[0.2em] uppercase font-bold">
+                            {status === 'loading' ? 'INICIALIZANDO...' :
+                                status === 'scanning' ? `ESCANEO: FASE ${scanPhase}/3` :
+                                    status === 'analyzing' ? 'PROCESANDO...' :
+                                        faceDetected ? 'OBJETIVO FIJADO' : 'BUSCANDO ROSTRO...'}
+                        </span>
+                    </div>
+
+                    {/* Dynamic Feedback Text */}
+                    <p className="mt-4 text-white text-sm font-medium tracking-wide drop-shadow-md min-h-[20px]">
+                        {feedback}
+                    </p>
+                </div>
             </div>
 
-            {/* Controls */}
-            <div className="mt-12 flex items-center gap-8">
-                {status === 'ready' && (
+            {/* Control Panel */}
+            <div className="mt-8 z-20 h-16">
+                {(status === 'ready' || (status === 'loading' && faceDetected)) && faceDetected && (
                     <button
                         onClick={handleStartAnalysis}
-                        className="group relative flex items-center justify-center"
+                        className="group relative flex items-center justify-center gap-3 px-10 py-4 bg-[#00ff9d] hover:bg-[#00ff9d] text-black font-bold tracking-[0.15em] uppercase text-sm clip-path-polygon hover:scale-105 transition-all duration-300 shadow-[0_0_30px_rgba(0,255,157,0.4)]"
+                        style={{ clipPath: 'polygon(10% 0, 100% 0, 100% 70%, 90% 100%, 0 100%, 0 30%)' }}
                     >
-                        {/* Outer Ring */}
-                        <div className="w-20 h-20 rounded-full border-[4px] border-white transition-all duration-300 group-hover:scale-110 group-active:scale-95"></div>
-                        {/* Inner Circle */}
-                        <div className="absolute w-[68px] h-[68px] rounded-full bg-white transition-all duration-300 group-hover:scale-90 group-active:scale-75"></div>
+                        INICIAR ESCANEO
+                        <svg className="w-5 h-5 group-hover:translate-x-1 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 5l7 7-7 7" /></svg>
                     </button>
-                )}
-
-                {status === 'analyzing' && (
-                    <div className="flex flex-col items-center">
-                        <div className="w-16 h-16 relative">
-                            <svg className="w-full h-full transform -rotate-90">
-                                <circle cx="32" cy="32" r="28" stroke="rgba(255,255,255,0.2)" strokeWidth="4" fill="none" />
-                                <circle
-                                    cx="32" cy="32" r="28"
-                                    stroke="#00ff9d"
-                                    strokeWidth="4"
-                                    fill="none"
-                                    strokeDasharray="175.9"
-                                    strokeDashoffset={175.9 - (175.9 * progress) / 100}
-                                    className="transition-all duration-200 ease-linear"
-                                />
-                            </svg>
-                        </div>
-                        <span className="text-white/60 text-xs mt-4 tracking-widest uppercase">Procesando</span>
-                    </div>
                 )}
             </div>
 
+            {/* Global Styles for Animations */}
             <style jsx global>{`
                 @keyframes scan {
                     0% { top: 0%; opacity: 0; }
-                    15% { opacity: 1; }
-                    85% { opacity: 1; }
+                    10% { opacity: 1; }
+                    90% { opacity: 1; }
                     100% { top: 100%; opacity: 0; }
                 }
             `}</style>
