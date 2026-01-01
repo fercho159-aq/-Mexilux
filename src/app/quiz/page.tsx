@@ -17,10 +17,10 @@ import html2canvas from 'html2canvas';
 import FaceAnalyzer, { AnalysisResult } from '@/components/quiz/FaceAnalyzer';
 
 // Tipos de rostro y sus características
-const FACE_TYPES = {
+const FACE_TYPES: { [key: string]: { name: string; icon: string; description: string; recommendedShapes: string[]; celebrity: { name: string; title: string; description: string; quote: string }; colors: string[] } } = {
     oval: {
         name: 'Ovalado',
-        emoji: '🥚',
+        icon: '○',
         description: 'Frente ligeramente más ancha que la mandíbula, pómulos definidos',
         recommendedShapes: ['Cualquier forma te queda', 'Aviador', 'Cuadrado', 'Cat Eye'],
         celebrity: {
@@ -33,12 +33,12 @@ const FACE_TYPES = {
     },
     round: {
         name: 'Redondo',
-        emoji: '🔴',
+        icon: '●',
         description: 'Mejillas prominentes, frente y mandíbula de anchura similar',
         recommendedShapes: ['Rectangular', 'Cuadrado', 'Aviador', 'Cat Eye'],
         celebrity: {
             name: 'Yalitza Aparicio',
-            title: 'El Carismático',
+            title: 'La Carismática',
             description: 'Como Yalitza, transmites calidez y cercanía. Las monturas angulares realzan tu expresividad natural.',
             quote: '"La belleza está en la autenticidad"',
         },
@@ -46,7 +46,7 @@ const FACE_TYPES = {
     },
     square: {
         name: 'Cuadrado',
-        emoji: '⬛',
+        icon: '■',
         description: 'Mandíbula angular, frente ancha, rasgos definidos',
         recommendedShapes: ['Redondo', 'Ovalado', 'Cat Eye', 'Aviador curvo'],
         celebrity: {
@@ -59,12 +59,12 @@ const FACE_TYPES = {
     },
     heart: {
         name: 'Corazón',
-        emoji: '💜',
+        icon: '▽',
         description: 'Frente ancha, pómulos altos, barbilla puntiaguda',
         recommendedShapes: ['Aviador', 'Mariposa', 'Redondo', 'Sin montura inferior'],
         celebrity: {
             name: 'Salma Hayek',
-            title: 'El Apasionado',
+            title: 'La Apasionada',
             description: 'Como Salma, irradias energía y pasión. Las monturas que equilibran la parte superior de tu rostro te favorecen.',
             quote: '"El estilo es una forma de decir quién eres"',
         },
@@ -72,7 +72,7 @@ const FACE_TYPES = {
     },
     oblong: {
         name: 'Alargado',
-        emoji: '📏',
+        icon: '⬭',
         description: 'Rostro más largo que ancho, frente alta',
         recommendedShapes: ['Oversize', 'Cuadrado ancho', 'Aviador grande', 'Wayfarer'],
         celebrity: {
@@ -93,7 +93,7 @@ const QUIZ_STEPS = [
         options: Object.entries(FACE_TYPES).map(([key, face]) => ({
             value: key,
             label: face.name,
-            emoji: face.emoji,
+            emoji: face.icon,
             tip: face.description,
         })),
     },
@@ -260,22 +260,26 @@ export default function QuizPage() {
         const result = getFaceResult();
 
         return (
-            <main className="quiz-results-wrapped">
+            <main className="quiz-results-wrapped" style={{ paddingTop: '100px', minHeight: '100vh' }}>
                 {/* Background animado */}
                 <div className="wrapped-background">
                     <div className="wrapped-gradient" />
                     <div className="wrapped-particles" />
                 </div>
 
-                <div className="wrapped-container">
+                <div className="wrapped-container" style={{ paddingBottom: '60px' }}>
                     {/* Card principal estilo Wrapped - ref para captura */}
                     <div
                         className="wrapped-card"
                         ref={cardRef}
                         style={{
-                            background: 'linear-gradient(180deg, #1a1a2e 0%, #16213e 50%, #0f3460 100%)',
-                            padding: '40px 30px',
+                            background: 'linear-gradient(180deg, #1a1a2e 0%, #0f172a 50%, #1e1b4b 100%)',
+                            padding: '48px 32px',
                             borderRadius: '32px',
+                            border: '1px solid rgba(255,255,255,0.1)',
+                            boxShadow: '0 25px 50px -12px rgba(0, 0, 0, 0.7), 0 0 80px rgba(233, 69, 96, 0.15)',
+                            maxWidth: '420px',
+                            margin: '0 auto',
                         }}
                     >
                         <div className="wrapped-header" style={{ textAlign: 'center', marginBottom: '24px' }}>
@@ -295,7 +299,28 @@ export default function QuizPage() {
                             >
                                 MEXILUX 2024
                             </span>
-                            <div style={{ fontSize: '80px', marginTop: '16px' }}>{result.emoji}</div>
+                            <div style={{
+                                width: '120px',
+                                height: '120px',
+                                margin: '20px auto',
+                                background: 'linear-gradient(135deg, rgba(233, 69, 96, 0.2), rgba(255, 107, 107, 0.1))',
+                                borderRadius: result.name === 'Ovalado' ? '50% 50% 45% 45%' :
+                                    result.name === 'Redondo' ? '50%' :
+                                        result.name === 'Cuadrado' ? '20%' :
+                                            result.name === 'Corazón' ? '50% 50% 40% 40%' : '40% 40% 35% 35%',
+                                border: '3px solid #e94560',
+                                display: 'flex',
+                                alignItems: 'center',
+                                justifyContent: 'center',
+                                boxShadow: '0 0 40px rgba(233, 69, 96, 0.3)'
+                            }}>
+                                <span style={{ fontSize: '40px', color: '#e94560' }}>
+                                    {result.name === 'Ovalado' ? '👤' :
+                                        result.name === 'Redondo' ? '😊' :
+                                            result.name === 'Cuadrado' ? '😎' :
+                                                result.name === 'Corazón' ? '💕' : '🌟'}
+                                </span>
+                            </div>
                         </div>
 
                         <div className="wrapped-celebrity" style={{ textAlign: 'center', marginBottom: '24px' }}>
