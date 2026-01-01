@@ -345,28 +345,61 @@ export default function FaceAnalyzer({ onComplete, onCancel }: FaceAnalyzerProps
             left: 0,
             width: '100vw',
             height: '100vh',
-            backgroundImage: 'linear-gradient(135deg, #1a1a2e 0%, #16213e 100%)', // Sleek dark gradient
+            background: 'linear-gradient(135deg, #f5f7fa 0%, #e8ecf1 50%, #f0f4f8 100%)',
             zIndex: 99999,
             display: 'flex',
             flexDirection: 'column',
             alignItems: 'center',
             justifyContent: 'center',
-            color: 'white',
-            fontFamily: 'system-ui, -apple-system, sans-serif'
+            color: '#1a1a2e',
+            fontFamily: 'system-ui, -apple-system, sans-serif',
+            overflow: 'hidden'
         }}>
+            {/* Decorative orbs like hero */}
+            <div style={{
+                position: 'absolute',
+                top: '-10%',
+                left: '-5%',
+                width: '400px',
+                height: '400px',
+                background: 'radial-gradient(circle, rgba(147, 112, 219, 0.4) 0%, transparent 70%)',
+                borderRadius: '50%',
+                filter: 'blur(60px)',
+                pointerEvents: 'none'
+            }} />
+            <div style={{
+                position: 'absolute',
+                bottom: '-15%',
+                right: '-10%',
+                width: '500px',
+                height: '500px',
+                background: 'radial-gradient(circle, rgba(236, 72, 153, 0.3) 0%, transparent 70%)',
+                borderRadius: '50%',
+                filter: 'blur(80px)',
+                pointerEvents: 'none'
+            }} />
+            <div style={{
+                position: 'absolute',
+                top: '30%',
+                right: '10%',
+                width: '300px',
+                height: '300px',
+                background: 'radial-gradient(circle, rgba(59, 130, 246, 0.25) 0%, transparent 70%)',
+                borderRadius: '50%',
+                filter: 'blur(50px)',
+                pointerEvents: 'none'
+            }} />
 
             {/* Title */}
             <h2 style={{
-                fontSize: '24px',
+                fontSize: '28px',
                 fontWeight: '700',
-                letterSpacing: '1px',
+                letterSpacing: '0.5px',
                 marginBottom: '40px',
                 textAlign: 'center',
-                textTransform: 'uppercase',
-                background: 'linear-gradient(to right, #00ff9d, #00b8ff)',
-                WebkitBackgroundClip: 'text',
-                WebkitTextFillColor: 'transparent',
-                textShadow: '0 0 30px rgba(0,255,157,0.3)'
+                color: '#1a1a2e',
+                position: 'relative',
+                zIndex: 1
             }}>
                 Analizando tu Rostro
             </h2>
@@ -376,14 +409,15 @@ export default function FaceAnalyzer({ onComplete, onCancel }: FaceAnalyzerProps
                 position: 'relative',
                 width: '320px',
                 height: '320px',
-                borderRadius: '50%', // Circle shape
-                border: '4px solid rgba(255,255,255,0.1)',
+                borderRadius: '50%',
+                border: '4px solid rgba(0,0,0,0.1)',
                 boxShadow: faceDetected
-                    ? '0 0 50px rgba(0,255,157,0.3), inset 0 0 20px rgba(0,255,157,0.2)'
-                    : '0 0 30px rgba(0,0,0,0.5)',
-                overflow: 'hidden', // Clips the video to circle
+                    ? '0 20px 60px rgba(59, 130, 246, 0.3), 0 0 0 4px rgba(59, 130, 246, 0.2)'
+                    : '0 20px 60px rgba(0,0,0,0.15)',
+                overflow: 'hidden',
                 transition: 'all 0.5s ease',
-                background: '#000'
+                background: '#fff',
+                zIndex: 1
             }}>
                 {mode === 'camera' ? (
                     <video
@@ -442,10 +476,12 @@ export default function FaceAnalyzer({ onComplete, onCancel }: FaceAnalyzerProps
             <p style={{
                 marginTop: '30px',
                 fontSize: '16px',
-                color: 'rgba(255,255,255,0.8)',
+                color: 'rgba(26, 26, 46, 0.7)',
                 minHeight: '24px',
                 textAlign: 'center',
-                fontWeight: 500
+                fontWeight: 500,
+                position: 'relative',
+                zIndex: 1
             }}>
                 {feedback}
             </p>
@@ -457,7 +493,9 @@ export default function FaceAnalyzer({ onComplete, onCancel }: FaceAnalyzerProps
                 flexDirection: 'column',
                 gap: '16px',
                 width: '100%',
-                maxWidth: '280px'
+                maxWidth: '280px',
+                position: 'relative',
+                zIndex: 1
             }}>
                 {mode === 'camera' ? (
                     <>
@@ -466,16 +504,16 @@ export default function FaceAnalyzer({ onComplete, onCancel }: FaceAnalyzerProps
                             disabled={!faceDetected || status === 'scanning'}
                             style={{
                                 padding: '16px',
-                                background: faceDetected ? 'linear-gradient(90deg, #00ff9d, #00b8ff)' : '#333',
-                                color: faceDetected ? '#000' : '#666',
+                                background: faceDetected ? '#000000' : '#d1d5db',
+                                color: faceDetected ? '#ffffff' : '#9ca3af',
                                 border: 'none',
                                 borderRadius: '50px',
                                 fontSize: '16px',
                                 fontWeight: 'bold',
                                 cursor: faceDetected ? 'pointer' : 'not-allowed',
-                                transition: 'transform 0.2s',
+                                transition: 'all 0.2s',
                                 transform: faceDetected ? 'scale(1)' : 'scale(0.98)',
-                                boxShadow: faceDetected ? '0 10px 20px rgba(0,255,157,0.2)' : 'none'
+                                boxShadow: faceDetected ? '0 10px 30px rgba(0,0,0,0.2)' : 'none'
                             }}
                         >
                             {status === 'scanning' ? 'Analizando...' : 'Iniciar Análisis'}
@@ -486,9 +524,9 @@ export default function FaceAnalyzer({ onComplete, onCancel }: FaceAnalyzerProps
                                 onClick={() => fileInputRef.current?.click()}
                                 style={{
                                     padding: '12px 20px',
-                                    background: 'transparent',
-                                    border: '1px solid rgba(255,255,255,0.2)',
-                                    color: 'white',
+                                    background: 'rgba(0,0,0,0.05)',
+                                    border: '1px solid rgba(0,0,0,0.1)',
+                                    color: '#1a1a2e',
                                     borderRadius: '50px',
                                     fontSize: '14px',
                                     cursor: 'pointer'
@@ -501,8 +539,8 @@ export default function FaceAnalyzer({ onComplete, onCancel }: FaceAnalyzerProps
                                 style={{
                                     padding: '12px 20px',
                                     background: 'transparent',
-                                    border: '1px solid rgba(255,69,69,0.3)',
-                                    color: '#ff6b6b',
+                                    border: '1px solid rgba(220, 38, 38, 0.3)',
+                                    color: '#dc2626',
                                     borderRadius: '50px',
                                     fontSize: '14px',
                                     cursor: 'pointer'
@@ -522,13 +560,14 @@ export default function FaceAnalyzer({ onComplete, onCancel }: FaceAnalyzerProps
                             }}
                             style={{
                                 padding: '14px',
-                                background: 'rgba(255,255,255,0.1)',
-                                color: 'white',
-                                border: '1px solid rgba(255,255,255,0.1)',
+                                background: '#000000',
+                                color: '#ffffff',
+                                border: 'none',
                                 borderRadius: '50px',
                                 fontSize: '14px',
                                 fontWeight: '600',
-                                cursor: 'pointer'
+                                cursor: 'pointer',
+                                boxShadow: '0 4px 14px rgba(0,0,0,0.15)'
                             }}
                         >
                             Usar Cámara
@@ -539,7 +578,7 @@ export default function FaceAnalyzer({ onComplete, onCancel }: FaceAnalyzerProps
                                 padding: '12px',
                                 background: 'transparent',
                                 border: 'none',
-                                color: 'rgba(255,255,255,0.5)',
+                                color: 'rgba(26, 26, 46, 0.6)',
                                 fontSize: '14px',
                                 cursor: 'pointer',
                                 textDecoration: 'underline'

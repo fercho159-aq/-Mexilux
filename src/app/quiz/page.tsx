@@ -581,10 +581,23 @@ export default function QuizPage() {
                                 <button
                                     className="btn-ai-analyze"
                                     onClick={() => setShowCamera(true)}
+                                    style={{
+                                        background: '#000000',
+                                        color: '#ffffff',
+                                        border: 'none',
+                                        padding: '16px 32px',
+                                        borderRadius: '50px',
+                                        fontSize: '16px',
+                                        fontWeight: '600',
+                                        cursor: 'pointer',
+                                        display: 'inline-flex',
+                                        alignItems: 'center',
+                                        gap: '8px',
+                                        boxShadow: '0 4px 14px rgba(0, 0, 0, 0.25)',
+                                        transition: 'transform 0.2s, box-shadow 0.2s'
+                                    }}
                                 >
-                                    <span className="ai-icon">🔬</span>
                                     <span>Analizar mi rostro con IA</span>
-                                    <span className="ai-badge" style={{ marginLeft: '8px', fontSize: '10px', padding: '2px 8px' }}>Nuevo</span>
                                 </button>
 
                                 <div className="quiz-ai-divider">
