@@ -194,10 +194,24 @@ export default function QuizPage() {
         // Capturar la tarjeta con html2canvas
         if (cardRef.current) {
             try {
-                const canvas = await html2canvas(cardRef.current, {
+                // Important: Get the full scroll height of the element
+                const element = cardRef.current;
+                const elementRect = element.getBoundingClientRect();
+
+                const canvas = await html2canvas(element, {
                     backgroundColor: '#1a1a2e',
-                    scale: 2,
+                    scale: 2, // High quality
                     useCORS: true,
+                    logging: false,
+                    // Capture full element height
+                    height: element.scrollHeight,
+                    width: element.scrollWidth,
+                    // Ensure we capture even if element is off-screen
+                    scrollY: -window.scrollY,
+                    scrollX: 0,
+                    windowHeight: document.documentElement.offsetHeight,
+                    // Don't clip to viewport
+                    allowTaint: true,
                 });
 
                 const imageData = canvas.toDataURL('image/png');
