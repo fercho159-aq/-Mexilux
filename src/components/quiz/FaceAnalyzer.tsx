@@ -81,11 +81,14 @@ export default function FaceAnalyzer({ onComplete, onCancel }: FaceAnalyzerProps
     useEffect(() => {
         if (status === 'ready') {
             if (mode === 'camera') {
+                // Switch back to VIDEO mode for camera
+                if (faceLandmarkerRef.current) {
+                    faceLandmarkerRef.current.setOptions({ runningMode: "VIDEO" });
+                }
                 startCamera();
             } else {
                 stopCamera();
                 setFeedback("Sube una foto clara de tu rostro.");
-                // Retain detection status until new image is loaded
             }
         }
     }, [mode, status]);
@@ -196,8 +199,9 @@ export default function FaceAnalyzer({ onComplete, onCancel }: FaceAnalyzerProps
         canvas.height = img.naturalHeight;
 
         try {
-            // Note: RunningMode VIDEO can handle detect(img) but sometimes creating a new detector in IMAGE mode is safer.
-            // For now, we trust detect() handles it.
+            // CRITICAL: Switch to IMAGE mode for static image analysis
+            await faceLandmarkerRef.current.setOptions({ runningMode: "IMAGE" });
+
             const results = await faceLandmarkerRef.current.detect(img);
 
             ctx!.clearRect(0, 0, canvas.width, canvas.height);
