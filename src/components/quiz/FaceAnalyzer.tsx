@@ -51,13 +51,12 @@ export default function FaceAnalyzer({ onComplete, onCancel }: FaceAnalyzerProps
                         delegate: "GPU"
                     },
                     outputFaceBlendshapes: true,
-                    runningMode: "VIDEO", // Initialize as VIDEO, can switch context if needed or just use detect() for images
+                    runningMode: "VIDEO",
                     numFaces: 1
                 });
 
                 setStatus('ready');
                 setFeedback("Cámara lista. Colócate en el centro.");
-                // Delay camera start slightly to avoid conflicts
                 setTimeout(() => {
                     if (mode === 'camera') startCamera();
                 }, 500);
@@ -86,7 +85,7 @@ export default function FaceAnalyzer({ onComplete, onCancel }: FaceAnalyzerProps
             } else {
                 stopCamera();
                 setFeedback("Sube una foto clara de tu rostro.");
-                setFaceDetected(false);
+                // Retain detection status until new image is loaded
             }
         }
     }, [mode, status]);
@@ -124,7 +123,6 @@ export default function FaceAnalyzer({ onComplete, onCancel }: FaceAnalyzerProps
 
         if (video.paused || video.ended) return;
 
-        // Visual sync
         if (canvas.width !== video.clientWidth || canvas.height !== video.clientHeight) {
             canvas.width = video.clientWidth;
             canvas.height = video.clientHeight;
@@ -152,10 +150,10 @@ export default function FaceAnalyzer({ onComplete, onCancel }: FaceAnalyzerProps
         const url = URL.createObjectURL(file);
         setSelectedImage(url);
         setMode('image');
-        setFaceDetected(false); // Reset detection
+        setFaceDetected(false);
 
-        // Wait for image to load then analyze
-        setTimeout(() => analyzeUploadedImage(), 500);
+        // Slightly delayed call to ensure state updates
+        setTimeout(() => analyzeUploadedImage(), 100);
     };
 
     const analyzeUploadedImage = async () => {
@@ -165,11 +163,22 @@ export default function FaceAnalyzer({ onComplete, onCancel }: FaceAnalyzerProps
         const canvas = canvasRef.current;
         const ctx = canvas.getContext('2d');
 
-        // Ensure dimensions match
-        canvas.width = img.clientWidth;
-        canvas.height = img.clientHeight;
+        // Wait for image to be fully loaded
+        if (!img.complete) {
+            await new Promise((resolve) => {
+                img.onload = resolve;
+            });
+        }
+        // Small buffer to ensure rendering
+        await new Promise(r => setTimeout(r, 100));
+
+        // Use natural dimensions for accurate detection
+        canvas.width = img.naturalWidth;
+        canvas.height = img.naturalHeight;
 
         try {
+            // Note: RunningMode VIDEO can handle detect(img) but sometimes creating a new detector in IMAGE mode is safer.
+            // For now, we trust detect() handles it.
             const results = await faceLandmarkerRef.current.detect(img);
 
             ctx!.clearRect(0, 0, canvas.width, canvas.height);
@@ -178,7 +187,6 @@ export default function FaceAnalyzer({ onComplete, onCancel }: FaceAnalyzerProps
                 setFaceDetected(true);
                 drawFaceOverlay(ctx!, results.faceLandmarks[0], canvas.width, canvas.height);
                 setFeedback("Rostro detectado. Analizando...");
-                // Auto-complete analysis for image
                 setTimeout(() => {
                     performCompleteAnalysis(results.faceLandmarks[0], img);
                 }, 1500);
@@ -188,7 +196,7 @@ export default function FaceAnalyzer({ onComplete, onCancel }: FaceAnalyzerProps
             }
         } catch (e) {
             console.error(e);
-            setFeedback("Error al procesar la imagen.");
+            setFeedback("Error procesando imagen. Intenta con otra.");
         }
     };
 
@@ -207,11 +215,10 @@ export default function FaceAnalyzer({ onComplete, onCancel }: FaceAnalyzerProps
     };
 
     const handleStartAnalysis = async () => {
-        if (mode === 'image') return; // Image auto-analyzes
+        if (mode === 'image') return;
 
         setStatus('scanning');
 
-        // Simulation steps
         setFeedback("Escaneando geometría...");
         setScanPhase(1); await new Promise(r => setTimeout(r, 1000));
         setFeedback("Analizando proporciones...");
@@ -236,7 +243,6 @@ export default function FaceAnalyzer({ onComplete, onCancel }: FaceAnalyzerProps
         onComplete({ faceShape, skinTone });
     };
 
-    // --- ALGOS (Improved versions) ---
     const calculateFaceShape = (landmarks: any[]): FaceShape => {
         const getDist3D = (i1: number, i2: number) => {
             const p1 = landmarks[i1];
@@ -263,7 +269,6 @@ export default function FaceAnalyzer({ onComplete, onCancel }: FaceAnalyzerProps
 
     const calculateSkinTone = (landmarks: any[], source: HTMLVideoElement | HTMLImageElement): { category: SkinTone, undertone: Undertone, rgb: [number, number, number] } => {
         const canvas = document.createElement('canvas');
-        // Handle explicit size for Image elements vs Video
         const width = source instanceof HTMLVideoElement ? source.videoWidth : source.naturalWidth;
         const height = source instanceof HTMLVideoElement ? source.videoHeight : source.naturalHeight;
 
@@ -272,7 +277,6 @@ export default function FaceAnalyzer({ onComplete, onCancel }: FaceAnalyzerProps
         const ctx = canvas.getContext('2d');
         if (!ctx) return { category: 'medium', undertone: 'neutral', rgb: [128, 128, 128] };
 
-        // Ensure we draw the source fully
         ctx.drawImage(source, 0, 0, width, height);
 
         const samplePoints = [234, 454, 10, 152, 93, 323];
@@ -391,7 +395,7 @@ export default function FaceAnalyzer({ onComplete, onCancel }: FaceAnalyzerProps
                         left: 0,
                         width: '100%',
                         height: '100%',
-                        objectFit: 'cover',
+                        objectFit: 'contain', // Ensure overlay aligns with image
                         transform: mode === 'camera' ? 'scaleX(-1)' : 'none',
                         pointerEvents: 'none'
                     }}
@@ -487,7 +491,6 @@ export default function FaceAnalyzer({ onComplete, onCancel }: FaceAnalyzerProps
                     </>
                 ) : (
                     <>
-                        {/* Auto-analysis triggers upon upload, but allow reset */}
                         <button
                             onClick={() => {
                                 setMode('camera');
@@ -507,7 +510,7 @@ export default function FaceAnalyzer({ onComplete, onCancel }: FaceAnalyzerProps
                         >
                             Usar Cámara
                         </button>
-                        <button // Helper if analysis fails or user wants to try another
+                        <button
                             onClick={() => fileInputRef.current?.click()}
                             style={{
                                 padding: '12px',
