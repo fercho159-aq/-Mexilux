@@ -1,6 +1,7 @@
 import type { Metadata, Viewport } from "next";
 import "./globals.css";
 import "./pages.css";
+import Header from "@/components/layout/Header";
 
 export const metadata: Metadata = {
   title: {
@@ -88,69 +89,8 @@ export default function RootLayout({
           Saltar al contenido principal
         </a>
 
-        {/* Header */}
-        <header className="site-header">
-          <div className="header-container">
-            <a href="/" className="logo" aria-label="Mexilux - Ir al inicio">
-              <span className="logo-icon">👁️</span>
-              <span className="logo-text">Mexilux</span>
-            </a>
-
-            <nav className="main-nav" aria-label="Navegación principal">
-              <ul className="nav-list">
-                <li>
-                  <a href="/catalogo">Catálogo</a>
-                </li>
-                <li>
-                  <a href="/catalogo/lentes-de-sol">Polarizados</a>
-                </li>
-                <li>
-                  <a href="/catalogo/lentes-oftalmicos">Oftálmicos</a>
-                </li>
-                <li>
-                  <a href="/nosotros">Nosotros</a>
-                </li>
-              </ul>
-            </nav>
-
-            <div className="header-actions">
-              <a
-                href="/buscar"
-                className="header-action"
-                aria-label="Buscar productos"
-              >
-                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                  <circle cx="11" cy="11" r="8" />
-                  <path d="m21 21-4.35-4.35" />
-                </svg>
-              </a>
-              <a
-                href="/cuenta"
-                className="header-action"
-                aria-label="Mi cuenta"
-              >
-                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                  <path d="M19 21v-2a4 4 0 0 0-4-4H9a4 4 0 0 0-4 4v2" />
-                  <circle cx="12" cy="7" r="4" />
-                </svg>
-              </a>
-              <a
-                href="/carrito"
-                className="header-action cart-action"
-                aria-label="Carrito de compras"
-              >
-                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                  <circle cx="8" cy="21" r="1" />
-                  <circle cx="19" cy="21" r="1" />
-                  <path d="M2.05 2.05h2l2.66 12.42a2 2 0 0 0 2 1.58h9.78a2 2 0 0 0 1.95-1.57l1.65-7.43H5.12" />
-                </svg>
-                <span className="cart-count" aria-label="0 productos">
-                  0
-                </span>
-              </a>
-            </div>
-          </div>
-        </header>
+        {/* Header Component */}
+        <Header />
 
         {/* Main content */}
         <div id="main-content">{children}</div>
@@ -162,12 +102,9 @@ export default function RootLayout({
               {/* Brand */}
               <div className="footer-section">
                 <a href="/" className="footer-logo">
-                  <span className="logo-icon">👁️</span>
                   <span className="logo-text">Mexilux</span>
                 </a>
-                <p className="footer-tagline">
-                  Tu centro de salud visual premium en México.
-                </p>
+
                 <div className="footer-social">
                   <a
                     href="https://facebook.com"
@@ -207,7 +144,7 @@ export default function RootLayout({
                 <h3>Tienda</h3>
                 <ul>
                   <li>
-                    <a href="/catalogo">Todos los productos</a>
+                    <a href="/catalogo">Sin etiquetas</a>
                   </li>
                   <li>
                     <a href="/catalogo?genero=hombre">Mexicano</a>
@@ -241,12 +178,6 @@ export default function RootLayout({
                 <ul>
                   <li>
                     <a href="/contacto">Contacto</a>
-                  </li>
-                  <li>
-                    <a href="/legal/faq">Preguntas frecuentes</a>
-                  </li>
-                  <li>
-                    <a href="/envios">Envíos</a>
                   </li>
                   <li>
                     <a href="/devoluciones">Devoluciones</a>

@@ -23,15 +23,6 @@ const CONTACT_METHODS = [
         highlighted: true,
     },
     {
-        icon: '📞',
-        title: 'Teléfono',
-        description: 'Lunes a Viernes 9am - 6pm',
-        value: '(55) 5555-1234',
-        link: 'tel:+5255551234',
-        action: 'Llamar',
-        highlighted: false,
-    },
-    {
         icon: '✉️',
         title: 'Correo electrónico',
         description: 'Respuesta en 24 horas',
@@ -64,6 +55,12 @@ export default function ContactoPage() {
         <main className="contact-page">
             {/* Header */}
             <header className="contact-hero">
+                <p style={{ fontStyle: 'italic', fontSize: '1.1rem', marginBottom: '0.5rem', opacity: 0.9 }}>
+                    &quot;La única diferencia entre un pend#%* y un inteligente es que uno se quedó con la duda&quot;
+                </p>
+                <p style={{ fontSize: '0.9rem', color: 'var(--color-text-muted)', marginBottom: '1.5rem' }}>
+                    — Mi abuelo, 2020 (che viejo sabio)
+                </p>
                 <h1>¿En qué podemos ayudarte?</h1>
                 <p>Estamos aquí para ti. Elige el canal que prefieras</p>
             </header>

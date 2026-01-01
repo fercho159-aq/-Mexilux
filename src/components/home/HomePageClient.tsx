@@ -77,8 +77,8 @@ const TESTIMONIALS = [
 // ═══════════════════════════════════════════════════════════════════════════
 const TRUST_BADGES = [
     { icon: '🇲🇽', label: 'Página Mexicana', detail: 'Lo que está hecho en México está bien hecho' },
-    { icon: '✅', label: 'Con garantía', detail: 'Pa\' que no te preocupes' },
-    { icon: '⏱️', label: '5-7 días', detail: 'Calidad que vale la espera' },
+    { icon: '✅', label: "Pa' que no te preocupes", detail: 'Todos los armazones tienen garantía' },
+    { icon: '🚚', label: 'Ya vamos, hay mucho tráfico', detail: '5-7 días de entrega' },
 ];
 
 // Tipo para productos que vienen de props

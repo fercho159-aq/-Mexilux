@@ -156,15 +156,23 @@ export default function EnviosPage() {
                         </div>
                     </section>
 
-                    <section className="legal-section">
-                        <h2>📱 Rastreo en tiempo real <span style={{ fontSize: '0.8rem', color: 'var(--color-text-muted)' }}>(tóxico)</span></h2>
-                        <p>
-                            Te mandamos tu número de guía por WhatsApp y correo para que
-                            puedas stalkear tu paquete como si fuera tu ex. 👀
-                        </p>
-                        <p style={{ color: 'var(--color-text-secondary)', fontStyle: 'italic', marginTop: '1rem' }}>
-                            (También funciona para saber exactamente cuándo llega el repartidor
-                            y no bajarte en pijama)
+                    <section className="legal-section" style={{
+                        background: 'var(--color-bg-secondary)',
+                        padding: '2rem',
+                        borderRadius: '16px',
+                        textAlign: 'center'
+                    }}>
+                        <p style={{ fontSize: '4rem', margin: '0', lineHeight: 1 }}>👀</p>
+                        <h2 style={{ margin: '1rem 0 0.5rem', fontSize: '1.75rem' }}>
+                            Tóxico
+                        </h2>
+                        <p style={{
+                            color: 'var(--color-text-secondary)',
+                            maxWidth: '400px',
+                            margin: '0 auto',
+                            fontSize: '1rem'
+                        }}>
+                            Te mandamos tu número de guía para que puedas stalkear tu paquete
                         </p>
                     </section>
 
