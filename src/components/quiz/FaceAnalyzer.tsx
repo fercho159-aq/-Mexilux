@@ -115,29 +115,48 @@ export default function FaceAnalyzer({ onComplete, onCancel }: FaceAnalyzerProps
     };
 
     const detectFrame = async () => {
-        if (mode !== 'camera' || !faceLandmarkerRef.current || !videoRef.current || !canvasRef.current) return;
+        if (mode !== 'camera' || !faceLandmarkerRef.current || !videoRef.current || !canvasRef.current) {
+            requestRef.current = requestAnimationFrame(detectFrame);
+            return;
+        }
 
         const video = videoRef.current;
         const canvas = canvasRef.current;
         const ctx = canvas.getContext('2d');
 
-        if (video.paused || video.ended) return;
-
-        if (canvas.width !== video.clientWidth || canvas.height !== video.clientHeight) {
-            canvas.width = video.clientWidth;
-            canvas.height = video.clientHeight;
+        if (video.paused || video.ended || video.readyState < 2) {
+            requestRef.current = requestAnimationFrame(detectFrame);
+            return;
         }
 
-        const now = performance.now();
-        const results = faceLandmarkerRef.current.detectForVideo(video, now);
+        // Use native video dimensions for accurate detection
+        const vw = video.videoWidth;
+        const vh = video.videoHeight;
 
-        ctx!.clearRect(0, 0, canvas.width, canvas.height);
+        if (vw === 0 || vh === 0) {
+            requestRef.current = requestAnimationFrame(detectFrame);
+            return;
+        }
 
-        if (results.faceLandmarks.length > 0) {
-            setFaceDetected(true);
-            drawFaceOverlay(ctx!, results.faceLandmarks[0], canvas.width, canvas.height);
-        } else {
-            setFaceDetected(false);
+        if (canvas.width !== vw || canvas.height !== vh) {
+            canvas.width = vw;
+            canvas.height = vh;
+        }
+
+        try {
+            const now = performance.now();
+            const results = faceLandmarkerRef.current.detectForVideo(video, now);
+
+            ctx!.clearRect(0, 0, canvas.width, canvas.height);
+
+            if (results && results.faceLandmarks && results.faceLandmarks.length > 0) {
+                if (!faceDetected) setFaceDetected(true);
+                drawFaceOverlay(ctx!, results.faceLandmarks[0], canvas.width, canvas.height);
+            } else {
+                if (faceDetected) setFaceDetected(false);
+            }
+        } catch (e) {
+            console.error("Detection error:", e);
         }
 
         requestRef.current = requestAnimationFrame(detectFrame);
@@ -395,7 +414,7 @@ export default function FaceAnalyzer({ onComplete, onCancel }: FaceAnalyzerProps
                         left: 0,
                         width: '100%',
                         height: '100%',
-                        objectFit: 'contain', // Ensure overlay aligns with image
+                        objectFit: 'cover', // Match video objectFit
                         transform: mode === 'camera' ? 'scaleX(-1)' : 'none',
                         pointerEvents: 'none'
                     }}
