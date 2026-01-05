@@ -2,6 +2,8 @@
 
 import Link from 'next/link';
 import Image from 'next/image';
+import { useState } from 'react';
+import HomeQuiz from '@/components/home/HomeQuiz';
 import { ScrollAnimate } from '@/components/ui/ScrollAnimate';
 import { NewsletterForm } from '@/components/ui/NewsletterForm';
 import HeroGSAP from './HeroGSAP';
@@ -97,10 +99,23 @@ interface HomePageClientProps {
 }
 
 export default function HomePageClient({ featuredProducts = [] }: HomePageClientProps) {
+    const [isQuizOpen, setIsQuizOpen] = useState(false);
+    const [quizStyle, setQuizStyle] = useState<string | undefined>();
+
+    const handleStartQuiz = (style?: string) => {
+        setQuizStyle(style);
+        setIsQuizOpen(true);
+    };
+
     const formatPrice = (price: number) => `$${price.toLocaleString('es-MX')}`;
 
     return (
         <main className="home-page">
+            <HomeQuiz
+                isOpen={isQuizOpen}
+                onClose={() => setIsQuizOpen(false)}
+                initialStyle={quizStyle}
+            />
             {/* ════════════════════════════════════════════════════════════════════
           1.1 HERO SECTION - GSAP ScrollTrigger Parallax
           ════════════════════════════════════════════════════════════════════ */}
@@ -232,24 +247,24 @@ export default function HomePageClient({ featuredProducts = [] }: HomePageClient
                                     <span className="quiz-label">¿Cuál es tu estilo?</span>
                                     <div className="quiz-buttons">
                                         {STYLE_QUIZ_OPTIONS.map((option) => (
-                                            <Link
+                                            <button
                                                 key={option.value}
-                                                href={`/quiz?style=${option.value}`}
+                                                onClick={() => handleStartQuiz(option.value)}
                                                 className="quiz-option-btn"
                                             >
                                                 <span className="option-icon">{option.icon}</span>
                                                 <span className="option-label">{option.label}</span>
-                                            </Link>
+                                            </button>
                                         ))}
                                     </div>
                                 </div>
 
-                                <Link href="/quiz" className="btn btn-quiz">
+                                <button onClick={() => handleStartQuiz()} className="btn btn-quiz">
                                     Hacer el quiz completo
                                     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
                                         <path d="M5 12h14m-7-7 7 7-7 7" />
                                     </svg>
-                                </Link>
+                                </button>
                             </div>
 
                             <div className="quiz-visual" aria-hidden="true">
