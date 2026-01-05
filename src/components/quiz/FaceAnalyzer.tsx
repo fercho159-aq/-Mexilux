@@ -6,6 +6,7 @@ import { FaceLandmarker, FilesetResolver } from '@mediapipe/tasks-vision';
 interface FaceAnalyzerProps {
     onComplete: (result: AnalysisResult) => void;
     onCancel: () => void;
+    embedded?: boolean;
 }
 
 export type FaceShape = 'oval' | 'round' | 'square' | 'heart' | 'oblong';
@@ -21,7 +22,7 @@ export interface AnalysisResult {
     };
 }
 
-export default function FaceAnalyzer({ onComplete, onCancel }: FaceAnalyzerProps) {
+export default function FaceAnalyzer({ onComplete, onCancel, embedded = false }: FaceAnalyzerProps) {
     const videoRef = useRef<HTMLVideoElement>(null);
     const canvasRef = useRef<HTMLCanvasElement>(null);
     const imageRef = useRef<HTMLImageElement>(null);
@@ -339,7 +340,23 @@ export default function FaceAnalyzer({ onComplete, onCancel }: FaceAnalyzerProps
     };
 
     return (
-        <div style={{
+        <div style={embedded ? {
+            position: 'absolute',
+            top: 0,
+            left: 0,
+            width: '100%',
+            height: '100%',
+            background: 'linear-gradient(135deg, #f5f7fa 0%, #e8ecf1 50%, #f0f4f8 100%)',
+            zIndex: 10,
+            display: 'flex',
+            flexDirection: 'column',
+            alignItems: 'center',
+            justifyContent: 'center',
+            color: '#1a1a2e',
+            fontFamily: 'system-ui, -apple-system, sans-serif',
+            borderRadius: 'inherit',
+            overflow: 'hidden'
+        } : {
             position: 'fixed',
             top: 0,
             left: 0,
