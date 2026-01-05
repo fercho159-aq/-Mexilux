@@ -227,7 +227,14 @@ export default function HomePageClient({ featuredProducts = [] }: HomePageClient
             <section className="style-quiz-section" aria-labelledby="quiz-title">
                 <div className="section-container">
                     <ScrollAnimate animation="zoom-in">
-                        <div className="quiz-card" style={{ minHeight: '500px', transition: 'all 0.3s ease' }}>
+                        <div
+                            className="quiz-card"
+                            style={{
+                                minHeight: '500px',
+                                transition: 'all 0.3s ease',
+                                gridTemplateColumns: isQuizOpen ? '1fr' : '1fr 1fr'
+                            }}
+                        >
                             {isQuizOpen ? (
                                 <HomeQuiz
                                     isOpen={true}
