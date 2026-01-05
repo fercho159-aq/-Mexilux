@@ -224,36 +224,63 @@ export default function FaceAnalyzer({ onComplete, onCancel, embedded = false }:
         }
     };
 
+    const [autoStartTimer, setAutoStartTimer] = useState<NodeJS.Timeout | null>(null);
+
+    // Auto-start analysis when face is detected
+    useEffect(() => {
+        if (faceDetected && status === 'ready' && mode === 'camera') {
+            const timer = setTimeout(() => {
+                handleStartAnalysis();
+            }, 1500); // 1.5 seconds delay to ensure stability
+            setAutoStartTimer(timer);
+        } else {
+            if (autoStartTimer) {
+                clearTimeout(autoStartTimer);
+                setAutoStartTimer(null);
+            }
+        }
+        return () => {
+            if (autoStartTimer) clearTimeout(autoStartTimer);
+        }
+    }, [faceDetected, status, mode]);
+
     const drawFaceOverlay = (ctx: CanvasRenderingContext2D, landmarks: any[], width: number, height: number) => {
         const getPt = (idx: number) => ({ x: landmarks[idx].x * width, y: landmarks[idx].y * height });
 
         ctx.save();
-        ctx.fillStyle = "rgba(0, 255, 157, 0.6)";
-        for (let i = 0; i < landmarks.length; i += 5) {
+        ctx.fillStyle = "rgba(0, 240, 255, 0.4)"; // Cyan for tech feel
+        for (let i = 0; i < landmarks.length; i += 3) { // Draw fewer points for cleaner look
             const pt = getPt(i);
             ctx.beginPath();
-            ctx.arc(pt.x, pt.y, 2, 0, 2 * Math.PI);
+            ctx.arc(pt.x, pt.y, 1.5, 0, 2 * Math.PI);
             ctx.fill();
         }
         ctx.restore();
     };
 
     const handleStartAnalysis = async () => {
-        if (mode === 'image') return;
+        if (mode === 'image' && !faceLandmarkerRef.current) return;
 
         setStatus('scanning');
 
-        setFeedback("Escaneando geometría...");
-        setScanPhase(1); await new Promise(r => setTimeout(r, 1000));
-        setFeedback("Analizando proporciones...");
-        setScanPhase(2); await new Promise(r => setTimeout(r, 1000));
-        setFeedback("Finalizando análisis...");
-        setScanPhase(3); await new Promise(r => setTimeout(r, 1000));
+        setFeedback("Analizando...");
+        setScanPhase(1); await new Promise(r => setTimeout(r, 600));
+        setScanPhase(2); await new Promise(r => setTimeout(r, 600));
+        setScanPhase(3); await new Promise(r => setTimeout(r, 600));
 
-        if (videoRef.current && faceLandmarkerRef.current) {
-            const results = faceLandmarkerRef.current.detectForVideo(videoRef.current, performance.now());
+        if ((videoRef.current || imageRef.current) && faceLandmarkerRef.current) {
+            const source = mode === 'camera' ? videoRef.current! : imageRef.current!;
+            // For camera we re-detect to get latest frame, for image we use existing results if possible or re-detect
+            // Simplify: just re-detect on current frame
+            let results;
+            if (mode === 'camera') {
+                results = faceLandmarkerRef.current.detectForVideo(source as HTMLVideoElement, performance.now());
+            } else {
+                results = await faceLandmarkerRef.current.detect(source as HTMLImageElement);
+            }
+
             if (results.faceLandmarks.length > 0) {
-                performCompleteAnalysis(results.faceLandmarks[0], videoRef.current);
+                performCompleteAnalysis(results.faceLandmarks[0], source);
             } else {
                 setStatus('ready');
                 setFeedback("Se perdió el rostro. Reintentar.");
@@ -421,12 +448,12 @@ export default function FaceAnalyzer({ onComplete, onCancel, embedded = false }:
                 Analizando tu Rostro
             </h2>
 
-            {/* Circular Camera/Image Container */}
+            {/* Circular Camera/Image Container - NOW OVAL */}
             <div style={{
                 position: 'relative',
-                width: '320px',
-                height: '320px',
-                borderRadius: '50%',
+                width: '420px',
+                height: '300px', // OVAL SHAPE
+                borderRadius: '50%', // Makes it ellipse if W != H
                 border: '4px solid rgba(0,0,0,0.1)',
                 boxShadow: faceDetected
                     ? '0 20px 60px rgba(59, 130, 246, 0.3), 0 0 0 4px rgba(59, 130, 246, 0.2)'
