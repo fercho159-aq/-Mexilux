@@ -112,14 +112,15 @@ const QUIZ_STEPS = [
     },
 ];
 
-interface HomeQuizProps {
+export interface HomeQuizProps {
     isOpen: boolean;
     onClose: () => void;
     initialStep?: number;
     initialStyle?: string;
+    embedded?: boolean;
 }
 
-export default function HomeQuiz({ isOpen, onClose, initialStep = 0, initialStyle }: HomeQuizProps) {
+export default function HomeQuiz({ isOpen, onClose, initialStep = 0, initialStyle, embedded = false }: HomeQuizProps) {
     const [currentStep, setCurrentStep] = useState(initialStep);
     const [answers, setAnswers] = useState<Record<string, string>>(initialStyle ? { style: initialStyle } : {});
     const [showResults, setShowResults] = useState(false);
@@ -132,7 +133,7 @@ export default function HomeQuiz({ isOpen, onClose, initialStep = 0, initialStyl
     const progress = ((currentStep + 1) / totalSteps) * 100;
     const currentQuestion = QUIZ_STEPS[currentStep];
 
-    if (!isOpen) return null;
+    if (!isOpen && !embedded) return null;
 
     const handleOptionSelect = (value: string) => {
         setAnswers(prev => ({
@@ -140,10 +141,8 @@ export default function HomeQuiz({ isOpen, onClose, initialStep = 0, initialStyl
             [currentQuestion.id]: value,
         }));
 
-        // Si ya está animando, no hacer nada para evitar doble salto
         if (isAnimating) return;
 
-        // Auto-avanzar después de una breve pausa para que el usuario vea su selección
         handleNext();
     };
 
@@ -177,7 +176,11 @@ export default function HomeQuiz({ isOpen, onClose, initialStep = 0, initialStyl
         if (currentStep > 0) {
             setCurrentStep(prev => prev - 1);
         } else {
-            onClose(); // Close if we go back from step 0
+            if (embedded) {
+                onClose(); // Reset parent state
+            } else {
+                onClose();
+            }
         }
     };
 
@@ -221,7 +224,7 @@ export default function HomeQuiz({ isOpen, onClose, initialStep = 0, initialStyl
                         });
                         return;
                     } catch {
-                        // Fall through
+                        // continue
                     }
                 }
 
@@ -242,23 +245,31 @@ export default function HomeQuiz({ isOpen, onClose, initialStep = 0, initialStyl
 
     const canProceed = answers[currentQuestion?.id];
 
-    // Overlay Wrapper Styles
-    const overlayStyle: React.CSSProperties = {
-        position: 'fixed',
-        top: 0,
-        left: 0,
-        right: 0,
-        bottom: 0,
-        backgroundColor: '#fff',
-        zIndex: 9999, // High z-index to cover everything
-        overflowY: 'auto',
-    };
+    // --- RENDER HELPERS ---
 
-    // Camera Mode
+    // Base styles (modal vs embedded)
+    const containerStyle: React.CSSProperties = embedded
+        ? { width: '100%', height: '100%', position: 'relative', overflow: 'hidden', backgroundColor: 'transparent' }
+        : {
+            position: 'fixed',
+            top: 0,
+            left: 0,
+            right: 0,
+            bottom: 0,
+            backgroundColor: '#fff',
+            zIndex: 9999,
+            overflowY: 'auto'
+        };
+
+    const contentStyle: React.CSSProperties = embedded
+        ? { width: '100%', height: '100%', display: 'flex', flexDirection: 'column' }
+        : { paddingTop: '80px', minHeight: '100vh', width: '100%', backgroundColor: '#fff' };
+
+    // --- CAMERA MODE ---
     if (showCamera) {
         return (
-            <div style={overlayStyle}>
-                <div style={{ position: 'relative', height: '100%' }}>
+            <div style={containerStyle}>
+                <div style={{ position: 'relative', height: '100%', width: '100%', backgroundColor: '#000', borderRadius: embedded ? '20px' : '0' }}>
                     <button
                         onClick={() => setShowCamera(false)}
                         style={{
@@ -290,63 +301,70 @@ export default function HomeQuiz({ isOpen, onClose, initialStep = 0, initialStyl
         );
     }
 
-    // Results Mode
+    // --- RESULTS MODE ---
     if (showResults) {
         const result = getFaceResult();
-        return (
-            <div style={{ ...overlayStyle, backgroundColor: '#1a1a2e' }}>
-                <button
-                    onClick={onClose}
-                    className="close-button-quiz"
-                    style={{
-                        position: 'fixed',
-                        top: '20px',
-                        right: '20px',
-                        zIndex: 1000,
-                        background: 'rgba(255,255,255,0.1)',
-                        color: 'white',
-                        border: 'none',
-                        borderRadius: '50%',
-                        width: '40px',
-                        height: '40px',
-                        fontSize: '20px',
-                        cursor: 'pointer',
-                        display: 'flex',
-                        alignItems: 'center',
-                        justifyContent: 'center',
-                        backdropFilter: 'blur(10px)'
-                    }}
-                >
-                    ✕
-                </button>
+        const resultsContainerStyle: React.CSSProperties = embedded
+            ? { width: '100%', height: '100%', position: 'relative', backgroundColor: 'transparent', borderRadius: '24px', overflowY: 'auto' }
+            : { ...containerStyle, backgroundColor: '#1a1a2e' };
 
-                <div className="quiz-results-wrapped" style={{ paddingTop: '80px', minHeight: '100vh', width: '100%' }}>
-                    <div className="wrapped-background">
+        return (
+            <div style={resultsContainerStyle}>
+                {!embedded && (
+                    <button
+                        onClick={onClose}
+                        className="close-button-quiz"
+                        style={{
+                            position: 'fixed',
+                            top: '20px',
+                            right: '20px',
+                            zIndex: 1000,
+                            background: 'rgba(255,255,255,0.1)',
+                            color: 'white',
+                            border: 'none',
+                            borderRadius: '50%',
+                            width: '40px',
+                            height: '40px',
+                            fontSize: '20px',
+                            cursor: 'pointer',
+                            display: 'flex',
+                            alignItems: 'center',
+                            justifyContent: 'center',
+                            backdropFilter: 'blur(10px)'
+                        }}
+                    >
+                        ✕
+                    </button>
+                )}
+
+                <div className="quiz-results-wrapped" style={embedded ? { padding: '0', width: '100%', height: '100%' } : { paddingTop: '80px', minHeight: '100vh', width: '100%' }}>
+                    {/* Background effects */}
+                    <div className="wrapped-background" style={{ position: 'absolute', top: 0, left: 0, width: '100%', height: '100%', zIndex: 0, overflow: 'hidden', borderRadius: '24px' }}>
                         <div className="wrapped-gradient" />
                         <div className="wrapped-particles" />
                     </div>
 
-                    <div className="wrapped-container" style={{ paddingBottom: '60px' }}>
+                    <div className="wrapped-container" style={{ position: 'relative', zIndex: 1, paddingBottom: embedded ? '20px' : '60px', height: '100%', overflowY: 'auto' }}>
                         <div
                             className="wrapped-card"
                             ref={cardRef}
                             style={{
                                 background: 'linear-gradient(180deg, #1a1a2e 0%, #0f172a 50%, #1e1b4b 100%)',
-                                padding: '48px 32px',
+                                padding: embedded ? '24px 20px' : '48px 32px',
                                 borderRadius: '32px',
                                 border: '1px solid rgba(255,255,255,0.1)',
                                 boxShadow: '0 25px 50px -12px rgba(0, 0, 0, 0.7), 0 0 80px rgba(233, 69, 96, 0.15)',
-                                maxWidth: '420px',
+                                maxWidth: embedded ? '100%' : '420px',
                                 margin: '0 auto',
+                                maxHeight: embedded ? '600px' : 'none'
                             }}
                         >
-                            {/* Same Wrapped Content as original */}
-                            <div className="wrapped-header" style={{ textAlign: 'center', marginBottom: '24px' }}>
-                                <span className="wrapped-badge" style={{ marginBottom: '20px' }}>MEXILUX 2024</span>
+                            <div className="wrapped-header" style={{ textAlign: 'center', marginBottom: '16px' }}>
+                                <span className="wrapped-badge" style={{ marginBottom: '10px', fontSize: '10px' }}>MEXILUX 2024</span>
                                 <div style={{
-                                    width: '120px',
-                                    height: '120px',
-                                    margin: '20px auto',
+                                    width: embedded ? '80px' : '100px',
+                                    height: embedded ? '80px' : '100px',
+                                    margin: '10px auto',
                                     background: 'linear-gradient(135deg, rgba(233, 69, 96, 0.2), rgba(255, 107, 107, 0.1))',
                                     borderRadius: result.name === 'Ovalado' ? '50% 50% 45% 45%' :
                                         result.name === 'Redondo' ? '50%' :
@@ -358,7 +376,7 @@ export default function HomeQuiz({ isOpen, onClose, initialStep = 0, initialStyl
                                     justifyContent: 'center',
                                     boxShadow: '0 0 40px rgba(233, 69, 96, 0.3)'
                                 }}>
-                                    <span style={{ fontSize: '40px', color: '#e94560' }}>
+                                    <span style={{ fontSize: embedded ? '30px' : '40px', color: '#e94560' }}>
                                         {result.name === 'Ovalado' ? '👤' :
                                             result.name === 'Redondo' ? '😊' :
                                                 result.name === 'Cuadrado' ? '😎' :
@@ -367,74 +385,54 @@ export default function HomeQuiz({ isOpen, onClose, initialStep = 0, initialStyl
                                 </div>
                             </div>
 
-                            <div className="wrapped-celebrity" style={{ textAlign: 'center', marginBottom: '24px' }}>
-                                <p style={{ fontSize: '18px', color: 'rgba(255,255,255,0.7)', margin: '0 0 8px 0' }}>Eres</p>
-                                <h2 style={{ fontSize: '42px', fontWeight: 800, color: '#e94560', margin: '0 0 12px 0' }}>{result.celebrity.title}</h2>
-                                <p style={{ fontSize: '18px', color: 'rgba(255,255,255,0.8)', margin: 0 }}>Como <strong style={{ color: 'white' }}>{result.celebrity.name}</strong></p>
+                            <div className="wrapped-celebrity" style={{ textAlign: 'center', marginBottom: '16px' }}>
+                                <p style={{ fontSize: '14px', color: 'rgba(255,255,255,0.7)', margin: '0 0 4px 0' }}>Eres</p>
+                                <h2 style={{ fontSize: embedded ? '24px' : '32px', fontWeight: 800, color: '#e94560', margin: '0 0 8px 0' }}>{result.celebrity.title}</h2>
+                                <p style={{ fontSize: embedded ? '14px' : '16px', color: 'rgba(255,255,255,0.8)', margin: 0 }}>Como <strong style={{ color: 'white' }}>{result.celebrity.name}</strong></p>
                             </div>
 
                             <div className="wrapped-quote" style={{
                                 fontStyle: 'italic',
                                 color: 'rgba(255,255,255,0.9)',
-                                padding: '16px 20px',
-                                margin: '20px 0',
+                                padding: '12px 16px',
+                                margin: '16px 0',
                                 borderLeft: '3px solid #e94560',
                                 background: 'rgba(255,255,255,0.05)',
                                 borderRadius: '0 8px 8px 0',
                             }}>
-                                <p style={{ margin: 0, fontSize: '16px' }}>{result.celebrity.quote}</p>
+                                <p style={{ margin: 0, fontSize: '14px' }}>{result.celebrity.quote}</p>
                             </div>
 
-                            <div className="wrapped-description" style={{ textAlign: 'center', marginBottom: '24px' }}>
-                                <p style={{ color: 'rgba(255,255,255,0.85)', lineHeight: 1.6, margin: 0, fontSize: '15px' }}>{result.celebrity.description}</p>
-                            </div>
-
-                            <div className="wrapped-recommendations" style={{ marginBottom: '20px', textAlign: 'center' }}>
-                                <h3 style={{ fontSize: '12px', color: 'rgba(255,255,255,0.6)', textTransform: 'uppercase', letterSpacing: '0.1em', marginBottom: '12px' }}>Tus monturas ideales</h3>
-                                <div className="wrapped-shapes" style={{ display: 'flex', flexWrap: 'wrap', gap: '8px', justifyContent: 'center' }}>
-                                    {result.recommendedShapes.map((shape, idx) => (
-                                        <span key={idx} style={{ background: 'rgba(255,255,255,0.15)', color: 'white', padding: '8px 16px', borderRadius: '20px', fontSize: '14px' }}>{shape}</span>
-                                    ))}
-                                </div>
-                            </div>
-
-                            <div className="wrapped-colors" style={{ textAlign: 'center' }}>
-                                <h3 style={{ fontSize: '12px', color: 'rgba(255,255,255,0.6)', textTransform: 'uppercase', letterSpacing: '0.1em', marginBottom: '12px' }}>Colores que te favorecen</h3>
-                                <div className="wrapped-color-list" style={{ display: 'flex', flexWrap: 'wrap', gap: '8px', justifyContent: 'center' }}>
-                                    {result.colors.map((color, idx) => (
-                                        <span key={idx} style={{ background: 'linear-gradient(135deg, #e94560, #ff6b6b)', color: 'white', padding: '8px 16px', borderRadius: '20px', fontSize: '14px' }}>{color}</span>
+                            <div className="wrapped-recommendations" style={{ marginBottom: '16px', textAlign: 'center' }}>
+                                <h3 style={{ fontSize: '10px', color: 'rgba(255,255,255,0.6)', textTransform: 'uppercase', letterSpacing: '0.1em', marginBottom: '8px' }}>Tus monturas</h3>
+                                <div className="wrapped-shapes" style={{ display: 'flex', flexWrap: 'wrap', gap: '6px', justifyContent: 'center' }}>
+                                    {result.recommendedShapes.slice(0, 3).map((shape, idx) => (
+                                        <span key={idx} style={{ background: 'rgba(255,255,255,0.15)', color: 'white', padding: '6px 12px', borderRadius: '20px', fontSize: '12px' }}>{shape}</span>
                                     ))}
                                 </div>
                             </div>
                         </div>
 
-                        {skinToneResult && (
-                            <div className="wrapped-skintone" style={{ marginTop: '24px', textAlign: 'center' }}>
-                                <h3 style={{ fontSize: '12px', color: 'rgba(255,255,255,0.6)', textTransform: 'uppercase', letterSpacing: '0.1em', marginBottom: '12px' }}>Tu Análisis de Color</h3>
-                                <div style={{ background: 'rgba(255,255,255,0.05)', padding: '16px', borderRadius: '16px', display: 'inline-block' }}>
-                                    <p style={{ margin: '0 0 8px 0', fontSize: '14px', color: 'rgba(255,255,255,0.9)' }}>
-                                        Detectamos un tono <strong>{skinToneResult.category === 'light' ? 'Claro' : skinToneResult.category === 'medium' ? 'Medio' : 'Oscuro'}</strong> con subtono <strong>{skinToneResult.undertone === 'warm' ? 'Cálido' : skinToneResult.undertone === 'cool' ? 'Frío' : 'Neutro'}</strong>
-                                    </p>
-                                </div>
-                            </div>
-                        )}
-
-                        <div className="wrapped-actions">
-                            <button className="btn-wrapped-share" onClick={handleShare}>
-                                Compartir mi resultado
+                        <div className="wrapped-actions" style={{ marginTop: '20px', display: 'flex', flexDirection: 'column', gap: '10px' }}>
+                            <button className="btn-wrapped-share" onClick={handleShare} style={{ padding: '12px' }}>
+                                Compartir
                             </button>
-                            <Link href="/catalogo" className="btn-wrapped-primary">
-                                👓 Ver monturas recomendadas
+                            <Link href="/catalogo" className="btn-wrapped-primary" style={{ textAlign: 'center', padding: '12px' }}>
+                                Ver monturas
                             </Link>
                             <button
                                 className="btn-wrapped-secondary"
                                 onClick={() => {
+                                    if (embedded) {
+                                        onClose(); // Reset parent state
+                                    }
                                     setShowResults(false);
                                     setCurrentStep(0);
                                     setAnswers({});
                                 }}
+                                style={{ padding: '10px' }}
                             >
-                                Repetir quiz
+                                Volver al inicio
                             </button>
                         </div>
                     </div>
@@ -443,51 +441,60 @@ export default function HomeQuiz({ isOpen, onClose, initialStep = 0, initialStyl
         );
     }
 
-    // Question Mode
+    // --- WIZARD / QUESTION MODE ---
     return (
-        <div style={overlayStyle} className="quiz-modal-container">
-            <button
-                onClick={onClose}
-                style={{
-                    position: 'absolute',
-                    top: '20px',
-                    right: '20px',
-                    zIndex: 100,
-                    background: 'transparent',
-                    border: 'none',
-                    fontSize: '24px',
-                    cursor: 'pointer',
-                    color: '#000'
-                }}
-            >
-                ✕
-            </button>
+        <div style={containerStyle} className="quiz-container">
+            {!embedded && (
+                <button
+                    onClick={onClose}
+                    style={{
+                        position: 'absolute',
+                        top: '20px',
+                        right: '20px',
+                        zIndex: 100,
+                        background: 'transparent',
+                        border: 'none',
+                        fontSize: '24px',
+                        cursor: 'pointer',
+                        color: '#000'
+                    }}
+                >
+                    ✕
+                </button>
+            )}
 
-            <main className="quiz-page" style={{ paddingTop: '80px', minHeight: '100vh', width: '100%', backgroundColor: '#fff' }}>
-                <div className="section-container" style={{ maxWidth: '800px', margin: '0 auto', padding: '0 20px' }}>
-                    <header className="quiz-page-header" style={{ textAlign: 'center', marginBottom: '40px' }}>
-                        <h1 style={{ fontSize: '28px', marginBottom: '10px' }}>🇲🇽 ¿Qué tipo de mexicano eres?</h1>
-                        <p style={{ color: '#666' }}>Descubre tu estilo y qué lentes te quedan mejor</p>
-                    </header>
+            <main className="quiz-content" style={contentStyle}>
+                <div className="section-container" style={{ width: '100%', height: '100%', maxWidth: embedded ? '100%' : '800px', margin: '0 auto', padding: embedded ? '0' : '0 20px', display: 'flex', flexDirection: 'column' }}>
 
-                    <div className="quiz-wizard">
-                        <div className="quiz-progress" style={{ marginBottom: '40px' }}>
-                            <div className="progress-bar" style={{ height: '6px', background: '#eee', borderRadius: '3px', overflow: 'hidden' }}>
+                    {!embedded && (
+                        <header className="quiz-page-header" style={{ textAlign: 'center', marginBottom: '40px' }}>
+                            <h1 style={{ fontSize: '28px', marginBottom: '10px' }}>🇲🇽 ¿Qué tipo de mexicano eres?</h1>
+                            <p style={{ color: '#666' }}>Descubre tu estilo y qué lentes te quedan mejor</p>
+                        </header>
+                    )}
+
+                    <div className="quiz-wizard" style={{ flex: 1, display: 'flex', flexDirection: 'column' }}>
+                        {/* Progress Bar */}
+                        <div className="quiz-progress" style={{ marginBottom: '24px' }}>
+                            <div className="progress-bar" style={{ height: '4px', background: '#f0f0f0', borderRadius: '2px', overflow: 'hidden' }}>
                                 <div
                                     className="progress-fill"
                                     style={{ width: `${progress}%`, height: '100%', background: '#0071e3', transition: 'width 0.3s ease' }}
                                 />
                             </div>
-                            <span className="progress-text" style={{ fontSize: '14px', color: '#999', marginTop: '8px', display: 'block', textAlign: 'right' }}>
+                            <span className="progress-text" style={{ fontSize: '12px', color: '#999', marginTop: '4px', display: 'block', textAlign: 'right' }}>
                                 {currentStep + 1} / {totalSteps}
                             </span>
                         </div>
 
-                        <section className={`quiz-step ${isAnimating ? 'animating-out' : ''}`}>
-                            <h2 style={{ fontSize: '24px', textAlign: 'center', marginBottom: '20px' }}>{currentQuestion.title}</h2>
+                        {/* Step Content */}
+                        <section className={`quiz-step ${isAnimating ? 'animating-out' : ''}`} style={{ flex: 1, overflowY: 'auto' }}>
+                            <h2 style={{ fontSize: embedded ? '20px' : '24px', textAlign: 'center', marginBottom: '8px' }}>{currentQuestion.title}</h2>
+                            <p className="step-description" style={{ textAlign: 'center', color: '#666', marginBottom: '24px', fontSize: embedded ? '14px' : '16px' }}>{currentQuestion.subtitle}</p>
 
+                            {/* Camera Option (Only for step 0) */}
                             {currentStep === 0 && (
-                                <div className="quiz-ai-section" style={{ marginBottom: '32px', textAlign: 'center' }}>
+                                <div className="quiz-ai-section" style={{ marginBottom: '24px', textAlign: 'center' }}>
                                     <button
                                         className="btn-ai-analyze"
                                         onClick={() => setShowCamera(true)}
@@ -495,31 +502,34 @@ export default function HomeQuiz({ isOpen, onClose, initialStep = 0, initialStyl
                                             background: '#000',
                                             color: '#fff',
                                             border: 'none',
-                                            padding: '16px 32px',
+                                            padding: embedded ? '12px 24px' : '16px 32px',
                                             borderRadius: '50px',
-                                            fontSize: '16px',
+                                            fontSize: embedded ? '14px' : '16px',
                                             fontWeight: '600',
                                             cursor: 'pointer',
                                             display: 'inline-flex',
                                             alignItems: 'center',
                                             gap: '8px',
                                             boxShadow: '0 4px 14px rgba(0, 0, 0, 0.25)',
-                                            marginBottom: '20px'
+                                            marginBottom: '16px'
                                         }}
                                     >
                                         <span>Analizar mi rostro con IA</span>
                                     </button>
-                                    <div className="quiz-ai-divider" style={{ borderTop: '1px solid #eee', position: 'relative', margin: '20px 0' }}>
-                                        <span style={{ position: 'absolute', top: '-10px', left: '50%', transform: 'translateX(-50%)', background: '#fff', padding: '0 10px', color: '#999', fontSize: '14px' }}>
+                                    <div className="quiz-ai-divider" style={{ borderTop: '1px solid #eee', position: 'relative', margin: '16px 0', width: '100%' }}>
+                                        <span style={{ position: 'absolute', top: '-10px', left: '50%', transform: 'translateX(-50%)', background: '#fff', padding: '0 10px', color: '#999', fontSize: '12px' }}>
                                             o selecciona manualmente
                                         </span>
                                     </div>
                                 </div>
                             )}
 
-                            <p className="step-description" style={{ textAlign: 'center', color: '#666', marginBottom: '30px' }}>{currentQuestion.subtitle}</p>
-
-                            <div className="quiz-options-grid" style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '16px' }}>
+                            {/* Options Grid */}
+                            <div className="quiz-options-grid" style={{
+                                display: 'grid',
+                                gridTemplateColumns: embedded ? 'repeat(auto-fit, minmax(130px, 1fr))' : 'repeat(auto-fit, minmax(200px, 1fr))',
+                                gap: embedded ? '10px' : '16px'
+                            }}>
                                 {currentQuestion.options.map((option) => (
                                     <label
                                         key={option.value}
@@ -528,7 +538,7 @@ export default function HomeQuiz({ isOpen, onClose, initialStep = 0, initialStyl
                                             display: 'flex',
                                             flexDirection: 'column',
                                             alignItems: 'center',
-                                            padding: '24px',
+                                            padding: embedded ? '16px' : '24px',
                                             borderRadius: '16px',
                                             border: answers[currentQuestion.id] === option.value ? '2px solid #0071e3' : '1px solid #eee',
                                             cursor: 'pointer',
@@ -544,37 +554,30 @@ export default function HomeQuiz({ isOpen, onClose, initialStep = 0, initialStyl
                                             onChange={() => handleOptionSelect(option.value)}
                                             style={{ display: 'none' }}
                                         />
-                                        <span className="option-emoji" style={{ fontSize: '32px', marginBottom: '12px' }}>{option.emoji}</span>
-                                        <span className="option-label" style={{ fontWeight: '600', marginBottom: '4px' }}>{option.label}</span>
-                                        <span className="option-tip" style={{ fontSize: '12px', color: '#888', textAlign: 'center' }}>{option.tip}</span>
+                                        <span className="option-emoji" style={{ fontSize: embedded ? '24px' : '32px', marginBottom: '8px' }}>{option.emoji}</span>
+                                        <span className="option-label" style={{ fontWeight: '600', marginBottom: '4px', fontSize: embedded ? '13px' : '16px', textAlign: 'center' }}>{option.label}</span>
+                                        {!embedded && <span className="option-tip" style={{ fontSize: '12px', color: '#888', textAlign: 'center' }}>{option.tip}</span>}
                                     </label>
                                 ))}
                             </div>
                         </section>
 
-                        <div className="quiz-navigation" style={{ display: 'flex', justifyContent: 'space-between', marginTop: '40px' }}>
+                        {/* Navigation */}
+                        <div className="quiz-navigation" style={{ display: 'flex', justifyContent: 'space-between', marginTop: '24px', paddingTop: '16px', borderTop: '1px solid #f0f0f0' }}>
                             <button
                                 className="btn btn-outline"
                                 onClick={handlePrevious}
-                                style={{ padding: '12px 24px', border: '1px solid #ddd', borderRadius: '12px', background: 'transparent', cursor: 'pointer' }}
-                            >
-                                ← {currentStep === 0 ? 'Cancelar' : 'Anterior'}
-                            </button>
-                            <button
-                                className="btn btn-primary"
-                                onClick={handleNext}
-                                disabled={!canProceed}
                                 style={{
-                                    padding: '12px 32px',
-                                    background: canProceed ? '#0071e3' : '#ccc',
-                                    color: '#fff',
-                                    border: 'none',
-                                    borderRadius: '12px',
-                                    cursor: canProceed ? 'pointer' : 'not-allowed',
-                                    fontWeight: '600'
+                                    padding: '8px 16px',
+                                    border: '1px solid #ddd',
+                                    borderRadius: '8px',
+                                    background: 'transparent',
+                                    cursor: 'pointer',
+                                    fontSize: '14px',
+                                    color: '#666'
                                 }}
                             >
-                                {currentStep === totalSteps - 1 ? '¡Ver mi resultado! 🎉' : 'Siguiente →'}
+                                ← {currentStep === 0 ? 'Cancelar' : 'Anterior'}
                             </button>
                         </div>
                     </div>
