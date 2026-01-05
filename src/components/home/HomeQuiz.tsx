@@ -139,6 +139,12 @@ export default function HomeQuiz({ isOpen, onClose, initialStep = 0, initialStyl
             ...prev,
             [currentQuestion.id]: value,
         }));
+
+        // Si ya está animando, no hacer nada para evitar doble salto
+        if (isAnimating) return;
+
+        // Auto-avanzar después de una breve pausa para que el usuario vea su selección
+        handleNext();
     };
 
     const handleAnalysisComplete = (result: AnalysisResult) => {
