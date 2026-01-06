@@ -464,7 +464,7 @@ export default function HomeQuiz({ isOpen, onClose, initialStep = 0, initialStyl
                 </button>
             )}
 
-            <main className="quiz-content" style={contentStyle}>
+            <main className="quiz-wizard-content" style={contentStyle}>
                 <div className="section-container" style={{ width: '100%', height: '100%', maxWidth: embedded ? '100%' : '800px', margin: '0 auto', padding: embedded ? '0 16px' : '0 20px', display: 'flex', flexDirection: 'column', boxSizing: 'border-box' }}>
 
                     {!embedded && (
