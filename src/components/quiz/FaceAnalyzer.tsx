@@ -448,12 +448,14 @@ export default function FaceAnalyzer({ onComplete, onCancel, embedded = false }:
                 Analizando tu Rostro
             </h2>
 
-            {/* Circular Camera/Image Container - NOW OVAL */}
+            {/* Circular Camera/Image Container - Perfect Circle */}
             <div style={{
                 position: 'relative',
-                width: '420px',
-                height: '300px', // OVAL SHAPE
-                borderRadius: '50%', // Makes it ellipse if W != H
+                width: 'min(80vw, 360px)',
+                height: 'min(80vw, 360px)',
+                minWidth: '280px',
+                minHeight: '280px',
+                borderRadius: '50%',
                 border: '4px solid rgba(0,0,0,0.1)',
                 boxShadow: faceDetected
                     ? '0 20px 60px rgba(59, 130, 246, 0.3), 0 0 0 4px rgba(59, 130, 246, 0.2)'
@@ -461,7 +463,8 @@ export default function FaceAnalyzer({ onComplete, onCancel, embedded = false }:
                 overflow: 'hidden',
                 transition: 'all 0.5s ease',
                 background: '#fff',
-                zIndex: 1
+                zIndex: 1,
+                flexShrink: 0
             }}>
                 {mode === 'camera' ? (
                     <video
@@ -543,29 +546,27 @@ export default function FaceAnalyzer({ onComplete, onCancel, embedded = false }:
             }}>
                 {mode === 'camera' ? (
                     <>
-                        <button
-                            onClick={handleStartAnalysis}
-                            disabled={!faceDetected || status === 'scanning'}
-                            style={{
+                        {/* Status indicator when scanning */}
+                        {status === 'scanning' && (
+                            <div style={{
                                 padding: '16px',
-                                background: faceDetected ? '#000000' : '#d1d5db',
-                                color: faceDetected ? '#ffffff' : '#9ca3af',
+                                background: '#000000',
+                                color: '#ffffff',
                                 border: 'none',
                                 borderRadius: '50px',
                                 fontSize: '16px',
                                 fontWeight: 'bold',
-                                cursor: faceDetected ? 'pointer' : 'not-allowed',
-                                transition: 'all 0.2s',
-                                transform: faceDetected ? 'scale(1)' : 'scale(0.98)',
-                                boxShadow: faceDetected ? '0 10px 30px rgba(0,0,0,0.2)' : 'none'
-                            }}
-                        >
-                            {status === 'scanning' ? 'Analizando...' : 'Iniciar Análisis'}
-                        </button>
+                                textAlign: 'center',
+                                boxShadow: '0 10px 30px rgba(0,0,0,0.2)'
+                            }}>
+                                Analizando...
+                            </div>
+                        )}
 
                         <div style={{ display: 'flex', gap: '10px', justifyContent: 'center' }}>
                             <button
                                 onClick={() => fileInputRef.current?.click()}
+                                disabled={status === 'scanning'}
                                 style={{
                                     padding: '12px 20px',
                                     background: 'rgba(0,0,0,0.05)',
@@ -573,13 +574,15 @@ export default function FaceAnalyzer({ onComplete, onCancel, embedded = false }:
                                     color: '#1a1a2e',
                                     borderRadius: '50px',
                                     fontSize: '14px',
-                                    cursor: 'pointer'
+                                    cursor: status === 'scanning' ? 'not-allowed' : 'pointer',
+                                    opacity: status === 'scanning' ? 0.5 : 1
                                 }}
                             >
                                 Subir Foto
                             </button>
                             <button
                                 onClick={onCancel}
+                                disabled={status === 'scanning'}
                                 style={{
                                     padding: '12px 20px',
                                     background: 'transparent',
@@ -587,7 +590,8 @@ export default function FaceAnalyzer({ onComplete, onCancel, embedded = false }:
                                     color: '#dc2626',
                                     borderRadius: '50px',
                                     fontSize: '14px',
-                                    cursor: 'pointer'
+                                    cursor: status === 'scanning' ? 'not-allowed' : 'pointer',
+                                    opacity: status === 'scanning' ? 0.5 : 1
                                 }}
                             >
                                 Cancelar
