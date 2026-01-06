@@ -316,271 +316,340 @@ export default function HomeQuiz({ isOpen, onClose, initialStep = 0, initialStyl
     // --- RESULTS MODE ---
     if (showResults) {
         const result = getFaceResult();
-        const resultsContainerStyle: React.CSSProperties = embedded
-            ? { width: '100%', height: '100%', position: 'relative', backgroundColor: 'transparent', borderRadius: '24px', overflowY: 'auto' }
-            : { ...containerStyle, backgroundColor: '#EEEADE' };
 
         return (
-            <div style={resultsContainerStyle}>
+            <div style={{
+                position: embedded ? 'relative' : 'fixed',
+                top: 0,
+                left: 0,
+                width: embedded ? '100%' : '100vw',
+                height: embedded ? '100%' : '100vh',
+                background: 'linear-gradient(135deg, #EEEADE 0%, #e8e3d6 50%, #d4c9b0 100%)',
+                zIndex: embedded ? 1 : 9999,
+                overflowY: 'auto',
+                borderRadius: embedded ? '24px' : '0'
+            }}>
+                {/* Orbes decorativos sutiles */}
+                <div style={{
+                    position: 'absolute',
+                    top: '10%',
+                    left: '-5%',
+                    width: '300px',
+                    height: '300px',
+                    background: 'radial-gradient(circle, rgba(138, 102, 35, 0.15) 0%, transparent 70%)',
+                    borderRadius: '50%',
+                    filter: 'blur(40px)',
+                    pointerEvents: 'none'
+                }} />
+                <div style={{
+                    position: 'absolute',
+                    bottom: '20%',
+                    right: '-5%',
+                    width: '250px',
+                    height: '250px',
+                    background: 'radial-gradient(circle, rgba(21, 33, 50, 0.08) 0%, transparent 70%)',
+                    borderRadius: '50%',
+                    filter: 'blur(40px)',
+                    pointerEvents: 'none'
+                }} />
+
+                {/* Botón cerrar */}
                 {!embedded && (
                     <button
                         onClick={onClose}
-                        className="close-button-quiz"
                         style={{
                             position: 'fixed',
                             top: '20px',
                             right: '20px',
                             zIndex: 1000,
-                            background: 'rgba(21, 33, 50, 0.1)',
+                            background: 'rgba(255,255,255,0.8)',
+                            backdropFilter: 'blur(10px)',
                             color: '#1D1E21',
                             border: 'none',
                             borderRadius: '50%',
-                            width: '40px',
-                            height: '40px',
-                            fontSize: '20px',
+                            width: '44px',
+                            height: '44px',
+                            fontSize: '18px',
                             cursor: 'pointer',
                             display: 'flex',
                             alignItems: 'center',
                             justifyContent: 'center',
-                            backdropFilter: 'blur(10px)'
+                            boxShadow: '0 4px 20px rgba(0,0,0,0.1)'
                         }}
                     >
                         ✕
                     </button>
                 )}
 
-                <div className="quiz-results-wrapped" style={embedded ? { padding: '0', width: '100%', height: '100%' } : { paddingTop: '80px', minHeight: '100vh', width: '100%' }}>
-                    {/* Background effects - Sand tones */}
-                    <div className="wrapped-background" style={{ position: 'absolute', top: 0, left: 0, width: '100%', height: '100%', zIndex: 0, overflow: 'hidden', borderRadius: '24px' }}>
+                {/* Contenido principal */}
+                <div style={{
+                    position: 'relative',
+                    zIndex: 1,
+                    padding: embedded ? '24px 16px' : '100px 20px 60px',
+                    maxWidth: '440px',
+                    margin: '0 auto',
+                    minHeight: embedded ? 'auto' : '100vh',
+                    display: 'flex',
+                    flexDirection: 'column'
+                }}>
+                    {/* Tarjeta principal con glassmorphism */}
+                    <div
+                        ref={cardRef}
+                        style={{
+                            background: 'rgba(255, 255, 255, 0.7)',
+                            backdropFilter: 'blur(20px)',
+                            borderRadius: '28px',
+                            padding: embedded ? '28px 24px' : '40px 32px',
+                            border: '1px solid rgba(255, 255, 255, 0.6)',
+                            boxShadow: '0 20px 60px rgba(0, 0, 0, 0.08), 0 0 1px rgba(0,0,0,0.1)',
+                            marginBottom: '24px'
+                        }}
+                    >
+                        {/* Badge */}
+                        <div style={{ textAlign: 'center', marginBottom: '24px' }}>
+                            <span style={{
+                                display: 'inline-block',
+                                padding: '8px 20px',
+                                background: 'linear-gradient(135deg, #152132 0%, #1c2d42 100%)',
+                                color: '#EEEADE',
+                                borderRadius: '30px',
+                                fontSize: '11px',
+                                fontWeight: '700',
+                                letterSpacing: '0.15em',
+                                textTransform: 'uppercase'
+                            }}>Tu Análisis Facial</span>
+                        </div>
+
+                        {/* Icono del tipo de rostro */}
                         <div style={{
-                            position: 'absolute',
-                            top: '-20%',
-                            left: '-10%',
-                            width: '500px',
-                            height: '500px',
-                            background: 'radial-gradient(circle, rgba(138, 102, 35, 0.2) 0%, transparent 70%)',
-                            borderRadius: '50%',
-                            filter: 'blur(60px)'
-                        }} />
+                            width: '90px',
+                            height: '90px',
+                            margin: '0 auto 20px',
+                            background: 'linear-gradient(135deg, rgba(138, 102, 35, 0.12) 0%, rgba(130, 108, 64, 0.06) 100%)',
+                            borderRadius: result.name === 'Ovalado' ? '48% 48% 42% 42%' :
+                                result.name === 'Redondo' ? '50%' :
+                                    result.name === 'Cuadrado' ? '18%' :
+                                        result.name === 'Corazón' ? '48% 48% 38% 38%' : '38% 38% 32% 32%',
+                            border: '2.5px solid #8A6623',
+                            display: 'flex',
+                            alignItems: 'center',
+                            justifyContent: 'center',
+                            boxShadow: '0 8px 32px rgba(138, 102, 35, 0.12)'
+                        }}>
+                            <span style={{ fontSize: '36px' }}>
+                                {result.name === 'Ovalado' ? '👤' :
+                                    result.name === 'Redondo' ? '😊' :
+                                        result.name === 'Cuadrado' ? '😎' :
+                                            result.name === 'Corazón' ? '💕' : '✨'}
+                            </span>
+                        </div>
+
+                        {/* Título del resultado */}
+                        <div style={{ textAlign: 'center', marginBottom: '28px' }}>
+                            <p style={{ fontSize: '13px', color: '#826C40', margin: '0 0 6px 0', fontWeight: '500' }}>Tu tipo de rostro</p>
+                            <h2 style={{
+                                fontSize: '32px',
+                                fontWeight: '800',
+                                color: '#152132',
+                                margin: '0 0 10px 0',
+                                letterSpacing: '-0.02em'
+                            }}>
+                                {result.name}
+                            </h2>
+                            <p style={{ fontSize: '14px', color: '#6b5d4d', margin: 0, lineHeight: '1.5', maxWidth: '300px', marginLeft: 'auto', marginRight: 'auto' }}>
+                                {result.description}
+                            </p>
+                        </div>
+
+                        {/* Sección de características */}
                         <div style={{
-                            position: 'absolute',
-                            bottom: '-15%',
-                            right: '-10%',
-                            width: '400px',
-                            height: '400px',
-                            background: 'radial-gradient(circle, rgba(130, 108, 64, 0.15) 0%, transparent 70%)',
-                            borderRadius: '50%',
-                            filter: 'blur(50px)'
-                        }} />
+                            background: 'rgba(138, 102, 35, 0.06)',
+                            borderRadius: '18px',
+                            padding: '20px',
+                            marginBottom: '20px'
+                        }}>
+                            <h3 style={{
+                                fontSize: '11px',
+                                color: '#8A6623',
+                                textTransform: 'uppercase',
+                                letterSpacing: '0.12em',
+                                marginBottom: '14px',
+                                fontWeight: '700'
+                            }}>Tus Características</h3>
+
+                            <div style={{ display: 'flex', flexWrap: 'wrap', gap: '8px', marginBottom: '16px' }}>
+                                {result.analysis.characteristics.map((char, idx) => (
+                                    <span key={idx} style={{
+                                        background: 'rgba(255, 255, 255, 0.8)',
+                                        color: '#3d3425',
+                                        padding: '8px 14px',
+                                        borderRadius: '24px',
+                                        fontSize: '12px',
+                                        fontWeight: '500',
+                                        border: '1px solid rgba(138, 102, 35, 0.15)'
+                                    }}>{char}</span>
+                                ))}
+                            </div>
+
+                            <div style={{
+                                background: 'rgba(255,255,255,0.6)',
+                                borderRadius: '12px',
+                                padding: '14px',
+                                marginBottom: '10px'
+                            }}>
+                                <p style={{ fontSize: '13px', color: '#2d2820', margin: 0, lineHeight: '1.6' }}>
+                                    <span style={{ color: '#8A6623', fontWeight: '600' }}>✓ </span>
+                                    {result.analysis.bestFor}
+                                </p>
+                            </div>
+
+                            <p style={{ fontSize: '12px', color: '#7a6b5a', margin: 0, lineHeight: '1.5', fontStyle: 'italic' }}>
+                                💡 {result.analysis.avoid}
+                            </p>
+                        </div>
+
+                        {/* Tono de piel */}
+                        {skinToneResult && (
+                            <div style={{
+                                background: 'rgba(138, 102, 35, 0.06)',
+                                borderRadius: '18px',
+                                padding: '18px 20px',
+                                marginBottom: '20px',
+                                display: 'flex',
+                                alignItems: 'center',
+                                gap: '16px'
+                            }}>
+                                <div style={{
+                                    width: '52px',
+                                    height: '52px',
+                                    borderRadius: '50%',
+                                    backgroundColor: `rgb(${skinToneResult.rgb.join(',')})`,
+                                    border: '3px solid rgba(255,255,255,0.9)',
+                                    boxShadow: '0 4px 16px rgba(0,0,0,0.12)',
+                                    flexShrink: 0
+                                }} />
+                                <div>
+                                    <h3 style={{ fontSize: '11px', color: '#8A6623', textTransform: 'uppercase', letterSpacing: '0.1em', margin: '0 0 6px 0', fontWeight: '700' }}>Tu Tono</h3>
+                                    <p style={{ fontSize: '15px', fontWeight: '600', color: '#152132', margin: '0 0 2px 0' }}>
+                                        {skinToneResult.category === 'light' ? 'Claro' : skinToneResult.category === 'medium' ? 'Medio' : 'Oscuro'}
+                                    </p>
+                                    <p style={{ fontSize: '12px', color: '#7a6b5a', margin: 0 }}>
+                                        Subtono {skinToneResult.undertone === 'warm' ? 'Cálido' : skinToneResult.undertone === 'cool' ? 'Frío' : 'Neutro'}
+                                    </p>
+                                </div>
+                            </div>
+                        )}
+
+                        {/* Monturas recomendadas */}
+                        <div style={{ textAlign: 'center', marginBottom: '16px' }}>
+                            <h3 style={{
+                                fontSize: '11px',
+                                color: '#8A6623',
+                                textTransform: 'uppercase',
+                                letterSpacing: '0.12em',
+                                marginBottom: '14px',
+                                fontWeight: '700'
+                            }}>Monturas Ideales</h3>
+                            <div style={{ display: 'flex', flexWrap: 'wrap', gap: '10px', justifyContent: 'center' }}>
+                                {result.recommendedShapes.slice(0, 4).map((shape, idx) => (
+                                    <span key={idx} style={{
+                                        background: 'linear-gradient(135deg, #152132 0%, #1c2d42 100%)',
+                                        color: '#EEEADE',
+                                        padding: '10px 18px',
+                                        borderRadius: '24px',
+                                        fontSize: '13px',
+                                        fontWeight: '600',
+                                        boxShadow: '0 4px 12px rgba(21, 33, 50, 0.15)'
+                                    }}>{shape}</span>
+                                ))}
+                            </div>
+                        </div>
+
+                        {/* Colores */}
+                        <div style={{ textAlign: 'center' }}>
+                            <h3 style={{
+                                fontSize: '11px',
+                                color: '#8A6623',
+                                textTransform: 'uppercase',
+                                letterSpacing: '0.12em',
+                                marginBottom: '12px',
+                                fontWeight: '700'
+                            }}>Colores Recomendados</h3>
+                            <div style={{ display: 'flex', flexWrap: 'wrap', gap: '8px', justifyContent: 'center' }}>
+                                {result.colors.map((color, idx) => (
+                                    <span key={idx} style={{
+                                        background: 'rgba(255,255,255,0.7)',
+                                        color: '#4a3f32',
+                                        padding: '8px 14px',
+                                        borderRadius: '20px',
+                                        fontSize: '12px',
+                                        fontWeight: '500',
+                                        border: '1px solid rgba(138, 102, 35, 0.2)'
+                                    }}>{color}</span>
+                                ))}
+                            </div>
+                        </div>
                     </div>
 
-                    <div className="wrapped-container" style={{ position: 'relative', zIndex: 1, paddingBottom: embedded ? '20px' : '60px', height: '100%', overflowY: 'auto' }}>
-                        <div
-                            className="wrapped-card"
-                            ref={cardRef}
+                    {/* Botones de acción - fuera de la tarjeta */}
+                    <div style={{ display: 'flex', flexDirection: 'column', gap: '12px', padding: '0 4px' }}>
+                        <Link
+                            href="/catalogo"
                             style={{
-                                background: 'linear-gradient(180deg, #EEEADE 0%, #e8e3d6 50%, #d9d1c2 100%)',
-                                padding: embedded ? '24px 20px' : '48px 32px',
-                                borderRadius: '32px',
-                                border: '1px solid rgba(138, 102, 35, 0.2)',
-                                boxShadow: '0 25px 50px -12px rgba(0, 0, 0, 0.15), 0 0 40px rgba(138, 102, 35, 0.1)',
-                                maxWidth: embedded ? '100%' : '420px',
-                                margin: '0 auto',
-                                maxHeight: embedded ? '600px' : 'none'
+                                display: 'block',
+                                textAlign: 'center',
+                                padding: '18px 24px',
+                                background: 'linear-gradient(135deg, #8A6623 0%, #a67c2e 100%)',
+                                color: '#fff',
+                                borderRadius: '16px',
+                                fontSize: '16px',
+                                fontWeight: '700',
+                                textDecoration: 'none',
+                                boxShadow: '0 8px 24px rgba(138, 102, 35, 0.25)',
+                                transition: 'transform 0.2s, box-shadow 0.2s'
                             }}
                         >
-                            {/* Header con badge */}
-                            <div className="wrapped-header" style={{ textAlign: 'center', marginBottom: '16px' }}>
-                                <span style={{
-                                    display: 'inline-block',
-                                    padding: '6px 16px',
-                                    background: '#152132',
-                                    color: '#EEEADE',
-                                    borderRadius: '20px',
-                                    fontSize: '10px',
-                                    fontWeight: '600',
-                                    letterSpacing: '0.1em',
-                                    marginBottom: '16px'
-                                }}>ANÁLISIS FACIAL</span>
+                            Ver Monturas Recomendadas
+                        </Link>
 
-                                {/* Icono de forma de rostro */}
-                                <div style={{
-                                    width: embedded ? '80px' : '100px',
-                                    height: embedded ? '80px' : '100px',
-                                    margin: '10px auto',
-                                    background: 'linear-gradient(135deg, rgba(138, 102, 35, 0.2), rgba(130, 108, 64, 0.1))',
-                                    borderRadius: result.name === 'Ovalado' ? '50% 50% 45% 45%' :
-                                        result.name === 'Redondo' ? '50%' :
-                                            result.name === 'Cuadrado' ? '20%' :
-                                                result.name === 'Corazón' ? '50% 50% 40% 40%' : '40% 40% 35% 35%',
-                                    border: '3px solid #8A6623',
-                                    display: 'flex',
-                                    alignItems: 'center',
-                                    justifyContent: 'center',
-                                    boxShadow: '0 0 40px rgba(138, 102, 35, 0.2)'
-                                }}>
-                                    <span style={{ fontSize: embedded ? '30px' : '40px', color: '#8A6623' }}>
-                                        {result.name === 'Ovalado' ? '👤' :
-                                            result.name === 'Redondo' ? '😊' :
-                                                result.name === 'Cuadrado' ? '😎' :
-                                                    result.name === 'Corazón' ? '💕' : '✨'}
-                                    </span>
-                                </div>
-                            </div>
-
-                            {/* Tipo de rostro */}
-                            <div style={{ textAlign: 'center', marginBottom: '20px' }}>
-                                <p style={{ fontSize: '14px', color: '#826C40', margin: '0 0 4px 0' }}>Tu tipo de rostro es</p>
-                                <h2 style={{ fontSize: embedded ? '28px' : '36px', fontWeight: 800, color: '#152132', margin: '0 0 8px 0' }}>Rostro {result.name}</h2>
-                                <p style={{ fontSize: '14px', color: '#826C40', margin: 0 }}>{result.description}</p>
-                            </div>
-
-                            {/* Análisis de características */}
-                            <div style={{
-                                background: 'rgba(21, 33, 50, 0.05)',
+                        <button
+                            onClick={handleShare}
+                            style={{
+                                padding: '16px 24px',
+                                background: 'rgba(255,255,255,0.8)',
+                                backdropFilter: 'blur(10px)',
+                                color: '#152132',
+                                border: '1px solid rgba(21, 33, 50, 0.1)',
                                 borderRadius: '16px',
-                                padding: '16px',
-                                marginBottom: '16px'
-                            }}>
-                                <h3 style={{ fontSize: '12px', color: '#8A6623', textTransform: 'uppercase', letterSpacing: '0.1em', marginBottom: '12px', fontWeight: '600' }}>Características</h3>
-                                <div style={{ display: 'flex', flexWrap: 'wrap', gap: '8px', marginBottom: '12px' }}>
-                                    {result.analysis.characteristics.map((char, idx) => (
-                                        <span key={idx} style={{
-                                            background: 'rgba(138, 102, 35, 0.15)',
-                                            color: '#1D1E21',
-                                            padding: '6px 12px',
-                                            borderRadius: '20px',
-                                            fontSize: '12px'
-                                        }}>{char}</span>
-                                    ))}
-                                </div>
-                                <p style={{ fontSize: '13px', color: '#1D1E21', margin: '0 0 8px 0', lineHeight: '1.5' }}>
-                                    <strong style={{ color: '#8A6623' }}>✓ Ideal:</strong> {result.analysis.bestFor}
-                                </p>
-                                <p style={{ fontSize: '13px', color: '#826C40', margin: 0, lineHeight: '1.5' }}>
-                                    <strong>⚠ Tip:</strong> {result.analysis.avoid}
-                                </p>
-                            </div>
+                                fontSize: '15px',
+                                fontWeight: '600',
+                                cursor: 'pointer',
+                                boxShadow: '0 4px 16px rgba(0,0,0,0.05)'
+                            }}
+                        >
+                            📤 Compartir Resultado
+                        </button>
 
-                            {/* Tono de piel si está disponible */}
-                            {skinToneResult && (
-                                <div style={{
-                                    background: 'rgba(21, 33, 50, 0.05)',
-                                    borderRadius: '16px',
-                                    padding: '16px',
-                                    marginBottom: '16px'
-                                }}>
-                                    <h3 style={{ fontSize: '12px', color: '#8A6623', textTransform: 'uppercase', letterSpacing: '0.1em', marginBottom: '12px', fontWeight: '600' }}>Tu Tono de Piel</h3>
-                                    <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
-                                        <div style={{
-                                            width: '40px',
-                                            height: '40px',
-                                            borderRadius: '50%',
-                                            backgroundColor: `rgb(${skinToneResult.rgb.join(',')})`,
-                                            border: '3px solid rgba(255,255,255,0.8)',
-                                            boxShadow: '0 2px 10px rgba(0,0,0,0.15)'
-                                        }} />
-                                        <div>
-                                            <p style={{ fontSize: '14px', fontWeight: '600', color: '#1D1E21', margin: '0 0 2px 0' }}>
-                                                Tono {skinToneResult.category === 'light' ? 'Claro' : skinToneResult.category === 'medium' ? 'Medio' : 'Oscuro'}
-                                            </p>
-                                            <p style={{ fontSize: '12px', color: '#826C40', margin: 0 }}>
-                                                Subtono {skinToneResult.undertone === 'warm' ? 'Cálido' : skinToneResult.undertone === 'cool' ? 'Frío' : 'Neutro'}
-                                            </p>
-                                        </div>
-                                    </div>
-                                </div>
-                            )}
-
-                            {/* Monturas recomendadas */}
-                            <div style={{ marginBottom: '16px', textAlign: 'center' }}>
-                                <h3 style={{ fontSize: '12px', color: '#8A6623', textTransform: 'uppercase', letterSpacing: '0.1em', marginBottom: '10px', fontWeight: '600' }}>Monturas Recomendadas</h3>
-                                <div style={{ display: 'flex', flexWrap: 'wrap', gap: '8px', justifyContent: 'center' }}>
-                                    {result.recommendedShapes.slice(0, 4).map((shape, idx) => (
-                                        <span key={idx} style={{
-                                            background: '#152132',
-                                            color: '#EEEADE',
-                                            padding: '8px 14px',
-                                            borderRadius: '20px',
-                                            fontSize: '12px',
-                                            fontWeight: '500'
-                                        }}>{shape}</span>
-                                    ))}
-                                </div>
-                            </div>
-
-                            {/* Colores recomendados */}
-                            <div style={{ textAlign: 'center' }}>
-                                <h3 style={{ fontSize: '12px', color: '#8A6623', textTransform: 'uppercase', letterSpacing: '0.1em', marginBottom: '10px', fontWeight: '600' }}>Colores Ideales</h3>
-                                <div style={{ display: 'flex', flexWrap: 'wrap', gap: '6px', justifyContent: 'center' }}>
-                                    {result.colors.map((color, idx) => (
-                                        <span key={idx} style={{
-                                            background: 'rgba(130, 108, 64, 0.15)',
-                                            color: '#1D1E21',
-                                            padding: '6px 12px',
-                                            borderRadius: '20px',
-                                            fontSize: '11px'
-                                        }}>{color}</span>
-                                    ))}
-                                </div>
-                            </div>
-                        </div>
-
-                        {/* Botones de acción */}
-                        <div className="wrapped-actions" style={{ marginTop: '20px', display: 'flex', flexDirection: 'column', gap: '10px', maxWidth: embedded ? '100%' : '420px', margin: '20px auto 0' }}>
-                            <button
-                                onClick={handleShare}
-                                style={{
-                                    padding: '14px',
-                                    background: 'rgba(21, 33, 50, 0.1)',
-                                    color: '#152132',
-                                    border: 'none',
-                                    borderRadius: '14px',
-                                    fontSize: '16px',
-                                    fontWeight: '600',
-                                    cursor: 'pointer'
-                                }}
-                            >
-                                Compartir
-                            </button>
-                            <Link
-                                href="/catalogo"
-                                style={{
-                                    textAlign: 'center',
-                                    padding: '14px',
-                                    background: '#8A6623',
-                                    color: '#EEEADE',
-                                    borderRadius: '14px',
-                                    fontSize: '16px',
-                                    fontWeight: '600',
-                                    textDecoration: 'none'
-                                }}
-                            >
-                                Ver monturas
-                            </Link>
-                            <button
-                                onClick={() => {
-                                    if (embedded) {
-                                        onClose();
-                                    }
-                                    setShowResults(false);
-                                    setCurrentStep(0);
-                                    setAnswers({});
-                                    setSkinToneResult(null);
-                                }}
-                                style={{
-                                    padding: '12px',
-                                    background: 'transparent',
-                                    color: '#826C40',
-                                    border: '1px solid rgba(130, 108, 64, 0.3)',
-                                    borderRadius: '14px',
-                                    fontSize: '14px',
-                                    cursor: 'pointer'
-                                }}
-                            >
-                                Volver al inicio
-                            </button>
-                        </div>
+                        <button
+                            onClick={() => {
+                                if (embedded) onClose();
+                                setShowResults(false);
+                                setCurrentStep(0);
+                                setAnswers({});
+                                setSkinToneResult(null);
+                            }}
+                            style={{
+                                padding: '14px',
+                                background: 'transparent',
+                                color: '#7a6b5a',
+                                border: 'none',
+                                fontSize: '14px',
+                                cursor: 'pointer',
+                                fontWeight: '500'
+                            }}
+                        >
+                            ← Hacer otro análisis
+                        </button>
                     </div>
                 </div>
             </div>
