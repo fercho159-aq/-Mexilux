@@ -268,8 +268,24 @@ export default function HomeQuiz({ isOpen, onClose, initialStep = 0, initialStyl
     // --- CAMERA MODE ---
     if (showCamera) {
         return (
-            <div style={containerStyle}>
-                <div style={{ position: 'relative', height: '100%', width: '100%', backgroundColor: '#000', borderRadius: embedded ? '20px' : '0' }}>
+            <div style={embedded ? {
+                width: '100%',
+                height: '100%',
+                minHeight: '500px',
+                position: 'relative',
+                overflow: 'hidden',
+                backgroundColor: 'transparent',
+                borderRadius: '20px'
+            } : containerStyle}>
+                <div style={{
+                    position: 'relative',
+                    height: '100%',
+                    minHeight: embedded ? '500px' : 'auto',
+                    width: '100%',
+                    backgroundColor: '#f5f7fa',
+                    borderRadius: embedded ? '20px' : '0',
+                    overflow: 'hidden'
+                }}>
                     <button
                         onClick={() => setShowCamera(false)}
                         style={{

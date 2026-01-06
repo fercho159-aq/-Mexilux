@@ -368,11 +368,10 @@ export default function FaceAnalyzer({ onComplete, onCancel, embedded = false }:
 
     return (
         <div style={embedded ? {
-            position: 'absolute',
-            top: 0,
-            left: 0,
+            position: 'relative',
             width: '100%',
             height: '100%',
+            minHeight: '500px',
             background: 'linear-gradient(135deg, #f5f7fa 0%, #e8ecf1 50%, #f0f4f8 100%)',
             zIndex: 10,
             display: 'flex',
@@ -381,8 +380,10 @@ export default function FaceAnalyzer({ onComplete, onCancel, embedded = false }:
             justifyContent: 'center',
             color: '#1a1a2e',
             fontFamily: 'system-ui, -apple-system, sans-serif',
-            borderRadius: 'inherit',
-            overflow: 'hidden'
+            borderRadius: '20px',
+            overflow: 'hidden',
+            boxSizing: 'border-box',
+            padding: '20px'
         } : {
             position: 'fixed',
             top: 0,
