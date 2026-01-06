@@ -248,7 +248,7 @@ export default function FaceAnalyzer({ onComplete, onCancel, embedded = false }:
         const getPt = (idx: number) => ({ x: landmarks[idx].x * width, y: landmarks[idx].y * height });
 
         ctx.save();
-        ctx.fillStyle = "rgba(0, 240, 255, 0.4)"; // Cyan for tech feel
+        ctx.fillStyle = "rgba(138, 102, 35, 0.6)"; // Golden-earth for elegant feel
         for (let i = 0; i < landmarks.length; i += 3) { // Draw fewer points for cleaner look
             const pt = getPt(i);
             ctx.beginPath();
@@ -372,13 +372,13 @@ export default function FaceAnalyzer({ onComplete, onCancel, embedded = false }:
             width: '100%',
             height: '100%',
             minHeight: '500px',
-            background: 'linear-gradient(135deg, #f5f7fa 0%, #e8ecf1 50%, #f0f4f8 100%)',
+            background: 'linear-gradient(135deg, #EEEADE 0%, #e8e3d6 50%, #d9d1c2 100%)',
             zIndex: 10,
             display: 'flex',
             flexDirection: 'column',
             alignItems: 'center',
             justifyContent: 'center',
-            color: '#1a1a2e',
+            color: '#1D1E21',
             fontFamily: 'system-ui, -apple-system, sans-serif',
             borderRadius: '20px',
             overflow: 'hidden',
@@ -390,24 +390,24 @@ export default function FaceAnalyzer({ onComplete, onCancel, embedded = false }:
             left: 0,
             width: '100vw',
             height: '100vh',
-            background: 'linear-gradient(135deg, #f5f7fa 0%, #e8ecf1 50%, #f0f4f8 100%)',
+            background: 'linear-gradient(135deg, #EEEADE 0%, #e8e3d6 50%, #d9d1c2 100%)',
             zIndex: 99999,
             display: 'flex',
             flexDirection: 'column',
             alignItems: 'center',
             justifyContent: 'center',
-            color: '#1a1a2e',
+            color: '#1D1E21',
             fontFamily: 'system-ui, -apple-system, sans-serif',
             overflow: 'hidden'
         }}>
-            {/* Decorative orbs like hero */}
+            {/* Decorative orbs - Sand/Earth tones */}
             <div style={{
                 position: 'absolute',
                 top: '-10%',
                 left: '-5%',
                 width: '400px',
                 height: '400px',
-                background: 'radial-gradient(circle, rgba(147, 112, 219, 0.4) 0%, transparent 70%)',
+                background: 'radial-gradient(circle, rgba(138, 102, 35, 0.3) 0%, transparent 70%)',
                 borderRadius: '50%',
                 filter: 'blur(60px)',
                 pointerEvents: 'none'
@@ -418,7 +418,7 @@ export default function FaceAnalyzer({ onComplete, onCancel, embedded = false }:
                 right: '-10%',
                 width: '500px',
                 height: '500px',
-                background: 'radial-gradient(circle, rgba(236, 72, 153, 0.3) 0%, transparent 70%)',
+                background: 'radial-gradient(circle, rgba(130, 108, 64, 0.25) 0%, transparent 70%)',
                 borderRadius: '50%',
                 filter: 'blur(80px)',
                 pointerEvents: 'none'
@@ -429,7 +429,7 @@ export default function FaceAnalyzer({ onComplete, onCancel, embedded = false }:
                 right: '10%',
                 width: '300px',
                 height: '300px',
-                background: 'radial-gradient(circle, rgba(59, 130, 246, 0.25) 0%, transparent 70%)',
+                background: 'radial-gradient(circle, rgba(21, 33, 50, 0.15) 0%, transparent 70%)',
                 borderRadius: '50%',
                 filter: 'blur(50px)',
                 pointerEvents: 'none'
@@ -442,7 +442,7 @@ export default function FaceAnalyzer({ onComplete, onCancel, embedded = false }:
                 letterSpacing: '0.5px',
                 marginBottom: '40px',
                 textAlign: 'center',
-                color: '#1a1a2e',
+                color: '#1D1E21',
                 position: 'relative',
                 zIndex: 1
             }}>
@@ -459,7 +459,7 @@ export default function FaceAnalyzer({ onComplete, onCancel, embedded = false }:
                 borderRadius: '50%',
                 border: '4px solid rgba(0,0,0,0.1)',
                 boxShadow: faceDetected
-                    ? '0 20px 60px rgba(59, 130, 246, 0.3), 0 0 0 4px rgba(59, 130, 246, 0.2)'
+                    ? '0 20px 60px rgba(138, 102, 35, 0.3), 0 0 0 4px rgba(138, 102, 35, 0.2)'
                     : '0 20px 60px rgba(0,0,0,0.15)',
                 overflow: 'hidden',
                 transition: 'all 0.5s ease',
@@ -514,7 +514,7 @@ export default function FaceAnalyzer({ onComplete, onCancel, embedded = false }:
                         left: 0,
                         width: '100%',
                         height: '100%',
-                        background: 'linear-gradient(to bottom, transparent, rgba(0,255,157,0.2), transparent)',
+                        background: 'linear-gradient(to bottom, transparent, rgba(138, 102, 35, 0.25), transparent)',
                         animation: 'scan-vertical 1.5s infinite linear'
                     }} />
                 )}
@@ -524,7 +524,7 @@ export default function FaceAnalyzer({ onComplete, onCancel, embedded = false }:
             <p style={{
                 marginTop: '30px',
                 fontSize: '16px',
-                color: 'rgba(26, 26, 46, 0.7)',
+                color: 'rgba(29, 30, 33, 0.7)',
                 minHeight: '24px',
                 textAlign: 'center',
                 fontWeight: 500,
@@ -551,7 +551,7 @@ export default function FaceAnalyzer({ onComplete, onCancel, embedded = false }:
                         {status === 'scanning' && (
                             <div style={{
                                 padding: '16px',
-                                background: '#000000',
+                                background: '#152132',
                                 color: '#ffffff',
                                 border: 'none',
                                 borderRadius: '50px',
@@ -572,7 +572,7 @@ export default function FaceAnalyzer({ onComplete, onCancel, embedded = false }:
                                     padding: '12px 20px',
                                     background: 'rgba(0,0,0,0.05)',
                                     border: '1px solid rgba(0,0,0,0.1)',
-                                    color: '#1a1a2e',
+                                    color: '#1D1E21',
                                     borderRadius: '50px',
                                     fontSize: '14px',
                                     cursor: status === 'scanning' ? 'not-allowed' : 'pointer',
@@ -609,7 +609,7 @@ export default function FaceAnalyzer({ onComplete, onCancel, embedded = false }:
                             }}
                             style={{
                                 padding: '14px',
-                                background: '#000000',
+                                background: '#152132',
                                 color: '#ffffff',
                                 border: 'none',
                                 borderRadius: '50px',
@@ -627,7 +627,7 @@ export default function FaceAnalyzer({ onComplete, onCancel, embedded = false }:
                                 padding: '12px',
                                 background: 'transparent',
                                 border: 'none',
-                                color: 'rgba(26, 26, 46, 0.6)',
+                                color: 'rgba(29, 30, 33, 0.6)',
                                 fontSize: '14px',
                                 cursor: 'pointer',
                                 textDecoration: 'underline'
