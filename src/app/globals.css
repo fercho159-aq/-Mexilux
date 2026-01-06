@@ -15,11 +15,11 @@
 
 :root {
   /* ─── Nueva Paleta ──────────────────────────────────────────────────── */
-  --carbon-black: #1D1E21;
-  --prussian-blue: #152132;
-  --golden-earth: #8A6623;
-  --olive-wood: #826C40;
-  --soft-linen: #EEEADE;
+  --carbon-black: #1D1E21ff;
+  --prussian-blue: #152132ff;
+  --golden-earth: #8A6623ff;
+  --olive-wood: #826C40ff;
+  --soft-linen: #EEEADEff;
 
   /* ─── Colores primarios (Actualizados) ──────────────────────────────── */
   --color-primary: var(--prussian-blue);
