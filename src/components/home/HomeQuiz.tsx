@@ -465,7 +465,7 @@ export default function HomeQuiz({ isOpen, onClose, initialStep = 0, initialStyl
             )}
 
             <main className="quiz-content" style={contentStyle}>
-                <div className="section-container" style={{ width: '100%', height: '100%', maxWidth: embedded ? '100%' : '800px', margin: '0 auto', padding: embedded ? '0' : '0 20px', display: 'flex', flexDirection: 'column' }}>
+                <div className="section-container" style={{ width: '100%', height: '100%', maxWidth: embedded ? '100%' : '800px', margin: '0 auto', padding: embedded ? '0 16px' : '0 20px', display: 'flex', flexDirection: 'column', boxSizing: 'border-box' }}>
 
                     {!embedded && (
                         <header className="quiz-page-header" style={{ textAlign: 'center', marginBottom: '40px' }}>
@@ -474,9 +474,9 @@ export default function HomeQuiz({ isOpen, onClose, initialStep = 0, initialStyl
                         </header>
                     )}
 
-                    <div className="quiz-wizard" style={{ flex: 1, display: 'flex', flexDirection: 'column' }}>
+                    <div className="quiz-wizard" style={{ flex: 1, display: 'flex', flexDirection: 'column', width: '100%' }}>
                         {/* Progress Bar */}
-                        <div className="quiz-progress" style={{ marginBottom: '24px' }}>
+                        <div className="quiz-progress" style={{ marginBottom: '24px', width: '100%' }}>
                             <div className="progress-bar" style={{ height: '4px', background: '#f0f0f0', borderRadius: '2px', overflow: 'hidden' }}>
                                 <div
                                     className="progress-fill"
@@ -489,13 +489,13 @@ export default function HomeQuiz({ isOpen, onClose, initialStep = 0, initialStyl
                         </div>
 
                         {/* Step Content */}
-                        <section className={`quiz-step ${isAnimating ? 'animating-out' : ''}`} style={{ flex: 1, overflowY: 'auto' }}>
+                        <section className={`quiz-step ${isAnimating ? 'animating-out' : ''}`} style={{ flex: 1, overflowY: 'auto', width: '100%' }}>
                             <h2 style={{ fontSize: embedded ? '20px' : '24px', textAlign: 'center', marginBottom: '8px' }}>{currentQuestion.title}</h2>
                             <p className="step-description" style={{ textAlign: 'center', color: '#666', marginBottom: '24px', fontSize: embedded ? '14px' : '16px' }}>{currentQuestion.subtitle}</p>
 
                             {/* Camera Option (Only for step 0) */}
                             {currentStep === 0 && (
-                                <div className="quiz-ai-section" style={{ marginBottom: '24px', textAlign: 'center' }}>
+                                <div className="quiz-ai-section" style={{ marginBottom: '24px', textAlign: 'center', width: '100%' }}>
                                     <button
                                         className="btn-ai-analyze"
                                         onClick={() => setShowCamera(true)}
@@ -512,7 +512,9 @@ export default function HomeQuiz({ isOpen, onClose, initialStep = 0, initialStyl
                                             alignItems: 'center',
                                             gap: '8px',
                                             boxShadow: '0 4px 14px rgba(0, 0, 0, 0.25)',
-                                            marginBottom: '16px'
+                                            marginBottom: '16px',
+                                            width: embedded ? '100%' : 'auto',
+                                            justifyContent: 'center'
                                         }}
                                     >
                                         <span>Analizar mi rostro con IA</span>
@@ -525,11 +527,12 @@ export default function HomeQuiz({ isOpen, onClose, initialStep = 0, initialStyl
                                 </div>
                             )}
 
-                            {/* Options Grid */}
+                            {/* Options Grid - Single column on mobile for full width */}
                             <div className="quiz-options-grid" style={{
-                                display: 'grid',
-                                gridTemplateColumns: embedded ? 'repeat(auto-fit, minmax(130px, 1fr))' : 'repeat(auto-fit, minmax(200px, 1fr))',
-                                gap: embedded ? '10px' : '16px'
+                                display: 'flex',
+                                flexDirection: 'column',
+                                gap: '10px',
+                                width: '100%'
                             }}>
                                 {currentQuestion.options.map((option) => (
                                     <label
@@ -537,14 +540,17 @@ export default function HomeQuiz({ isOpen, onClose, initialStep = 0, initialStyl
                                         className={`quiz-option-card ${answers[currentQuestion.id] === option.value ? 'selected' : ''}`}
                                         style={{
                                             display: 'flex',
-                                            flexDirection: 'column',
+                                            flexDirection: 'row',
                                             alignItems: 'center',
-                                            padding: embedded ? '16px' : '24px',
-                                            borderRadius: '16px',
+                                            padding: '14px 16px',
+                                            borderRadius: '12px',
                                             border: answers[currentQuestion.id] === option.value ? '2px solid #0071e3' : '1px solid #eee',
                                             cursor: 'pointer',
                                             transition: 'all 0.2s',
-                                            backgroundColor: answers[currentQuestion.id] === option.value ? '#f5f9ff' : '#fff'
+                                            backgroundColor: answers[currentQuestion.id] === option.value ? '#f5f9ff' : '#fff',
+                                            width: '100%',
+                                            boxSizing: 'border-box',
+                                            gap: '12px'
                                         }}
                                     >
                                         <input
@@ -555,16 +561,15 @@ export default function HomeQuiz({ isOpen, onClose, initialStep = 0, initialStyl
                                             onChange={() => handleOptionSelect(option.value)}
                                             style={{ display: 'none' }}
                                         />
-                                        <span className="option-emoji" style={{ fontSize: embedded ? '24px' : '32px', marginBottom: '8px' }}>{option.emoji}</span>
-                                        <span className="option-label" style={{ fontWeight: '600', marginBottom: '4px', fontSize: embedded ? '13px' : '16px', textAlign: 'center' }}>{option.label}</span>
-                                        {!embedded && <span className="option-tip" style={{ fontSize: '12px', color: '#888', textAlign: 'center' }}>{option.tip}</span>}
+                                        <span className="option-emoji" style={{ fontSize: '24px', flexShrink: 0 }}>{option.emoji}</span>
+                                        <span className="option-label" style={{ fontWeight: '600', fontSize: '15px', textAlign: 'left' }}>{option.label}</span>
                                     </label>
                                 ))}
                             </div>
                         </section>
 
                         {/* Navigation */}
-                        <div className="quiz-navigation" style={{ display: 'flex', justifyContent: 'space-between', marginTop: '24px', paddingTop: '16px', borderTop: '1px solid #f0f0f0' }}>
+                        <div className="quiz-navigation" style={{ display: 'flex', justifyContent: 'space-between', marginTop: '24px', paddingTop: '16px', borderTop: '1px solid #f0f0f0', width: '100%' }}>
                             <button
                                 className="btn btn-outline"
                                 onClick={handlePrevious}
