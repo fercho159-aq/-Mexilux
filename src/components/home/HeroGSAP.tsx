@@ -145,7 +145,7 @@ export default function HeroGSAP() {
                     display: flex;
                     align-items: center;
                     justify-content: center;
-                    background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+                    background: linear-gradient(135deg, #EEEADE 0%, #e0d9c8 50%, #d4c9b0 100%);
                     overflow: hidden;
                 }
 
@@ -167,7 +167,7 @@ export default function HeroGSAP() {
                 .blob-1 {
                     width: 600px;
                     height: 600px;
-                    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+                    background: linear-gradient(135deg, #8A6623 0%, #a67c2e 100%);
                     top: -20%;
                     left: -10%;
                     animation-delay: 0s;
@@ -176,7 +176,7 @@ export default function HeroGSAP() {
                 .blob-2 {
                     width: 500px;
                     height: 500px;
-                    background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+                    background: linear-gradient(135deg, #826C40 0%, #9a8352 100%);
                     top: 50%;
                     right: -15%;
                     animation-delay: -7s;
@@ -185,7 +185,7 @@ export default function HeroGSAP() {
                 .blob-3 {
                     width: 450px;
                     height: 450px;
-                    background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
+                    background: linear-gradient(135deg, #152132 0%, #1c2d42 100%);
                     bottom: -20%;
                     left: 30%;
                     animation-delay: -14s;
@@ -253,7 +253,7 @@ export default function HeroGSAP() {
                     display: inline-flex;
                     align-items: center;
                     padding: 1rem 2rem;
-                    background: #0071e3;
+                    background: #152132;
                     color: white;
                     border-radius: 980px;
                     font-size: 1.1rem;
@@ -263,7 +263,7 @@ export default function HeroGSAP() {
                 }
 
                 .gsap-btn-primary:hover {
-                    background: #0077ed;
+                    background: #1D1E21;
                     transform: scale(1.04);
                 }
 
@@ -272,7 +272,7 @@ export default function HeroGSAP() {
                     align-items: center;
                     padding: 1rem 2rem;
                     background: transparent;
-                    color: #0071e3;
+                    color: #8A6623;
                     border-radius: 980px;
                     font-size: 1.1rem;
                     font-weight: 500;
@@ -281,7 +281,7 @@ export default function HeroGSAP() {
                 }
 
                 .gsap-btn-secondary:hover {
-                    background: #f5f5f7;
+                    background: rgba(138, 102, 35, 0.1);
                 }
 
                 .gsap-scroll-indicator {
