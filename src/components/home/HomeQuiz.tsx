@@ -72,8 +72,8 @@ const FACE_TYPES: { [key: string]: { name: string; icon: string; description: st
 const QUIZ_STEPS = [
     {
         id: 'face-shape',
-        title: '¿Cómo describes tu rostro?',
-        subtitle: 'Mírate al espejo y elige la opción que más se parezca',
+        title: '¿Qué armazón se te ve más perro?',
+        subtitle: '¿No sabes ni qué onda con tu tipo de cara? Responde el quiz y te tiramos paro para encontrar el armazón ideal para ti.',
         options: Object.entries(FACE_TYPES).map(([key, face]) => ({
             value: key,
             label: face.name,
@@ -836,10 +836,10 @@ export default function HomeQuiz({ isOpen, onClose, initialStep = 0, initialStyl
                                         </button>
                                     )}
 
-                                    {/* Options Grid - Single column on mobile for full width */}
+                                    {/* Options Grid - 2 columns layout */}
                                     <div className="quiz-options-grid" style={{
                                         display: 'flex',
-                                        flexDirection: 'column',
+                                        flexWrap: 'wrap',
                                         gap: '10px',
                                         width: '100%'
                                     }}>
@@ -857,7 +857,7 @@ export default function HomeQuiz({ isOpen, onClose, initialStep = 0, initialStyl
                                                     cursor: 'pointer',
                                                     transition: 'all 0.2s',
                                                     backgroundColor: answers[currentQuestion.id] === option.value ? '#f5f9ff' : '#fff',
-                                                    width: '100%',
+                                                    width: 'calc(50% - 5px)',
                                                     boxSizing: 'border-box',
                                                     gap: '12px'
                                                 }}
