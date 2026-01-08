@@ -121,7 +121,7 @@ export default function SearchPageClient() {
             <div className="section-container">
                 {/* Search header */}
                 <header className="search-header">
-                    <h1>Buscar productos</h1>
+                    <h1>¿Qué se te perdió?</h1>
                     <div className="search-input-wrapper">
                         <input
                             type="search"

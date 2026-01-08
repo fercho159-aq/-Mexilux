@@ -13,7 +13,7 @@ function SearchLoading() {
         <main className="search-page">
             <div className="section-container">
                 <header className="search-header">
-                    <h1>Buscar productos</h1>
+                    <h1>¿Qué se te perdió?</h1>
                     <div className="search-input-wrapper">
                         <input
                             type="search"

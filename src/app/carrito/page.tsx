@@ -166,11 +166,11 @@ function CartContent() {
             <main className="cart-page">
                 <div className="section-container">
                     <div className="empty-cart">
-                        <span className="empty-icon">🛒</span>
-                        <h1>Tu carrito está vacío</h1>
-                        <p>Parece que aún no has agregado productos a tu carrito</p>
+                        <span className="empty-icon">👜</span>
+                        <h1>Tu bolsa está vacía</h1>
+                        <p>¿Y la de comprar no te la sabes? Inviértele</p>
                         <Link href="/catalogo" className="btn btn-primary btn-lg">
-                            Explorar catálogo
+                            Ver la MERCA..ncía
                         </Link>
                     </div>
                 </div>

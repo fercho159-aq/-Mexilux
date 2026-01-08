@@ -1,7 +1,7 @@
 'use client';
 
 import Image from 'next/image';
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, useCallback, useRef } from 'react';
 
 interface GalleryImage {
     url: string;
@@ -28,16 +28,21 @@ const SLIDE_INFO = [
 export default function ProductGallery({
     images,
     productName,
-    brandName,
-    material,
-    shape,
     discount
 }: ProductGalleryProps) {
     const [selectedIndex, setSelectedIndex] = useState(0);
     const [isAutoPlaying, setIsAutoPlaying] = useState(true);
 
+    // Touch/Swipe state
+    const touchStartX = useRef<number | null>(null);
+    const touchEndX = useRef<number | null>(null);
+    const slideRef = useRef<HTMLDivElement>(null);
+
     const currentImage = images[selectedIndex];
     const currentInfo = SLIDE_INFO[selectedIndex % SLIDE_INFO.length];
+
+    // Minimum swipe distance to trigger slide change
+    const minSwipeDistance = 50;
 
     // Auto-play del carrusel
     const nextSlide = useCallback(() => {
@@ -53,19 +58,89 @@ export default function ProductGallery({
         return () => clearInterval(timer);
     }, [isAutoPlaying, nextSlide, images.length]);
 
-    const handlePrev = () => {
+    const handlePrev = useCallback(() => {
         setIsAutoPlaying(false);
         setSelectedIndex((prev) => (prev - 1 + images.length) % images.length);
-    };
+    }, [images.length]);
 
-    const handleNext = () => {
+    const handleNext = useCallback(() => {
         setIsAutoPlaying(false);
         setSelectedIndex((prev) => (prev + 1) % images.length);
-    };
+    }, [images.length]);
 
     const handleDotClick = (index: number) => {
         setIsAutoPlaying(false);
         setSelectedIndex(index);
+    };
+
+    // Touch handlers for swipe
+    const handleTouchStart = (e: React.TouchEvent) => {
+        touchEndX.current = null;
+        touchStartX.current = e.targetTouches[0].clientX;
+    };
+
+    const handleTouchMove = (e: React.TouchEvent) => {
+        touchEndX.current = e.targetTouches[0].clientX;
+    };
+
+    const handleTouchEnd = () => {
+        if (!touchStartX.current || !touchEndX.current) return;
+
+        const distance = touchStartX.current - touchEndX.current;
+        const isLeftSwipe = distance > minSwipeDistance;
+        const isRightSwipe = distance < -minSwipeDistance;
+
+        if (isLeftSwipe) {
+            handleNext();
+        } else if (isRightSwipe) {
+            handlePrev();
+        }
+
+        // Reset
+        touchStartX.current = null;
+        touchEndX.current = null;
+    };
+
+    // Mouse drag handlers for desktop
+    const [isDragging, setIsDragging] = useState(false);
+    const dragStartX = useRef<number | null>(null);
+
+    const handleMouseDown = (e: React.MouseEvent) => {
+        setIsDragging(true);
+        dragStartX.current = e.clientX;
+    };
+
+    const handleMouseMove = (e: React.MouseEvent) => {
+        if (!isDragging) return;
+        touchEndX.current = e.clientX;
+    };
+
+    const handleMouseUp = () => {
+        if (!isDragging || !dragStartX.current) {
+            setIsDragging(false);
+            return;
+        }
+
+        const endX = touchEndX.current || dragStartX.current;
+        const distance = dragStartX.current - endX;
+
+        if (distance > minSwipeDistance) {
+            handleNext();
+        } else if (distance < -minSwipeDistance) {
+            handlePrev();
+        }
+
+        setIsDragging(false);
+        dragStartX.current = null;
+        touchEndX.current = null;
+    };
+
+    const handleMouseLeave = () => {
+        if (isDragging) {
+            setIsDragging(false);
+            dragStartX.current = null;
+            touchEndX.current = null;
+        }
     };
 
     return (
@@ -77,24 +152,39 @@ export default function ProductGallery({
                     <span className="apple-gallery-badge">-{discount}%</span>
                 )}
 
-                {/* Imagen principal con info overlay */}
-                <div className="apple-gallery-slide">
+                {/* Imagen principal con soporte de swipe */}
+                <div
+                    className="apple-gallery-slide"
+                    ref={slideRef}
+                    onTouchStart={handleTouchStart}
+                    onTouchMove={handleTouchMove}
+                    onTouchEnd={handleTouchEnd}
+                    onMouseDown={handleMouseDown}
+                    onMouseMove={handleMouseMove}
+                    onMouseUp={handleMouseUp}
+                    onMouseLeave={handleMouseLeave}
+                    style={{
+                        cursor: images.length > 1 ? (isDragging ? 'grabbing' : 'grab') : 'default',
+                        userSelect: 'none'
+                    }}
+                >
                     <div className="apple-gallery-image">
                         {currentImage?.url ? (
                             <Image
                                 src={currentImage.url}
                                 alt={currentImage.alt || productName}
                                 fill
-                                style={{ objectFit: 'contain' }}
+                                style={{ objectFit: 'contain', pointerEvents: 'none' }}
                                 priority
                                 sizes="(max-width: 768px) 100vw, 50vw"
+                                draggable={false}
                             />
                         ) : (
                             <span className="apple-gallery-emoji" aria-hidden="true">👓</span>
                         )}
                     </div>
 
-                    {/* Info overlay estilo Apple */}
+                    {/* Info overlay */}
                     <div className="apple-gallery-info">
                         <span className="apple-gallery-counter">
                             {selectedIndex + 1} / {images.length}
@@ -104,9 +194,9 @@ export default function ProductGallery({
                     </div>
                 </div>
 
-                {/* Navigation arrows */}
+                {/* Navigation arrows - Solo visible en desktop */}
                 {images.length > 1 && (
-                    <>
+                    <div className="gallery-nav-arrows">
                         <button
                             className="apple-gallery-nav apple-gallery-prev"
                             onClick={handlePrev}
@@ -125,7 +215,7 @@ export default function ProductGallery({
                                 <path d="m9 18 6-6-6-6" />
                             </svg>
                         </button>
-                    </>
+                    </div>
                 )}
             </div>
 
@@ -165,7 +255,14 @@ export default function ProductGallery({
                 </div>
             )}
 
-
+            {/* CSS para ocultar flechas en móvil */}
+            <style jsx>{`
+                @media (max-width: 768px) {
+                    .gallery-nav-arrows {
+                        display: none !important;
+                    }
+                }
+            `}</style>
         </section>
     );
 }

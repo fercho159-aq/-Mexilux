@@ -294,68 +294,133 @@ export default function HomePageClient({ featuredProducts = [] }: HomePageClient
             </section>
 
             {/* ════════════════════════════════════════════════════════════════════
-          PRODUCTOS DESTACADOS - Solo se muestra si hay productos
+          TRATAMIENTOS - Carrusel deslizable
           ════════════════════════════════════════════════════════════════════ */}
-            {featuredProducts.length > 0 && (
-                <section className="featured-products" aria-labelledby="featured-title">
-                    <div className="section-container">
-                        <ScrollAnimate animation="fade-up">
-                            <div className="section-header">
-                                <h2 id="featured-title" className="section-title">
-                                    Los favoritos de nuestros clientes
-                                </h2>
-                                <Link href="/catalogo?sort=popular" className="section-link">
-                                    Ver todos
-                                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                                        <path d="M5 12h14m-7-7 7 7-7 7" />
-                                    </svg>
-                                </Link>
-                            </div>
-                        </ScrollAnimate>
-
-                        <div className="products-grid">
-                            {featuredProducts.map((product, index) => (
-                                <ScrollAnimate key={product.id} animation="fade-up" delay={index * 100}>
-                                    <article className="product-card">
-                                        <Link href={`/catalogo/${product.slug}`} className="product-image-link">
-                                            <div className="product-image">
-                                                {product.image && product.image.startsWith('/') ? (
-                                                    <Image
-                                                        src={product.image}
-                                                        alt={product.name}
-                                                        fill
-                                                        style={{ objectFit: 'contain' }}
-                                                        sizes="(max-width: 768px) 50vw, 25vw"
-                                                    />
-                                                ) : (
-                                                    <span className="product-emoji" aria-hidden="true">👓</span>
-                                                )}
-                                            </div>
-                                        </Link>
-                                        <div className="product-info">
-                                            <span className="product-brand">{product.brand}</span>
-                                            <h3 className="product-name">
-                                                <Link href={`/catalogo/${product.slug}`}>{product.name}</Link>
-                                            </h3>
-                                            <div className="product-price">
-                                                <span className="price-current">{formatPrice(product.price)}</span>
-                                                {product.originalPrice && (
-                                                    <span className="price-original">{formatPrice(product.originalPrice)}</span>
-                                                )}
-                                            </div>
-                                        </div>
-                                        <div className="product-actions">
-                                            <Link href={`/catalogo/${product.slug}`} className="btn btn-product">
-                                                Ver detalles
-                                            </Link>
-                                        </div>
-                                    </article>
-                                </ScrollAnimate>
-                            ))}
+            <section className="treatments-section" aria-labelledby="treatments-title">
+                <div className="section-container">
+                    <ScrollAnimate animation="fade-up">
+                        <div className="section-header">
+                            <h2 id="treatments-title" className="section-title">
+                                Nuestros Tratamientos
+                            </h2>
+                            <p className="section-description">
+                                Mejora tu visión con nuestros tratamientos especializados
+                            </p>
                         </div>
+                    </ScrollAnimate>
+
+                    <div
+                        className="treatments-carousel"
+                        style={{
+                            display: 'flex',
+                            gap: '16px',
+                            overflowX: 'auto',
+                            scrollSnapType: 'x mandatory',
+                            scrollBehavior: 'smooth',
+                            paddingBottom: '16px',
+                            WebkitOverflowScrolling: 'touch',
+                            msOverflowStyle: 'none',
+                            scrollbarWidth: 'none'
+                        }}
+                    >
+                        {[
+                            {
+                                id: 'blueray',
+                                name: 'Blue Ray',
+                                description: 'Protección contra luz azul de pantallas',
+                                emoji: '💙',
+                                color: '#1a73e8'
+                            },
+                            {
+                                id: 'polarizado',
+                                name: 'Polarizado',
+                                description: 'Reduce reflejos, ideal para manejar',
+                                emoji: '🕶️',
+                                color: '#2d2d2d'
+                            },
+                            {
+                                id: 'fotocromatico',
+                                name: 'Fotocromático',
+                                description: 'Se oscurece con el sol automáticamente',
+                                emoji: '🌓',
+                                color: '#6b4c9a'
+                            },
+                            {
+                                id: 'antirreflejante',
+                                name: 'Antirreflejante',
+                                description: 'Elimina reflejos y mejora claridad',
+                                emoji: '✨',
+                                color: '#00a67d'
+                            },
+                            {
+                                id: 'tinte',
+                                name: 'Tintes de Color',
+                                description: 'Personaliza tus lentes con estilo',
+                                emoji: '🎨',
+                                color: '#e91e63'
+                            },
+                        ].map((treatment, index) => (
+                            <ScrollAnimate key={treatment.id} animation="fade-up" delay={index * 100}>
+                                <div
+                                    className="treatment-card"
+                                    style={{
+                                        minWidth: '280px',
+                                        maxWidth: '280px',
+                                        scrollSnapAlign: 'start',
+                                        background: `linear-gradient(135deg, ${treatment.color}15 0%, ${treatment.color}05 100%)`,
+                                        border: `2px solid ${treatment.color}30`,
+                                        borderRadius: '20px',
+                                        padding: '24px',
+                                        display: 'flex',
+                                        flexDirection: 'column',
+                                        gap: '12px',
+                                        cursor: 'pointer',
+                                        transition: 'all 0.3s ease'
+                                    }}
+                                >
+                                    <div style={{
+                                        width: '60px',
+                                        height: '60px',
+                                        borderRadius: '16px',
+                                        background: `${treatment.color}20`,
+                                        display: 'flex',
+                                        alignItems: 'center',
+                                        justifyContent: 'center',
+                                        fontSize: '28px'
+                                    }}>
+                                        {treatment.emoji}
+                                    </div>
+                                    <h3 style={{
+                                        fontSize: '18px',
+                                        fontWeight: '700',
+                                        color: '#152132',
+                                        margin: 0
+                                    }}>
+                                        {treatment.name}
+                                    </h3>
+                                    <p style={{
+                                        fontSize: '14px',
+                                        color: '#666',
+                                        margin: 0,
+                                        lineHeight: '1.5'
+                                    }}>
+                                        {treatment.description}
+                                    </p>
+                                </div>
+                            </ScrollAnimate>
+                        ))}
                     </div>
-                </section>
-            )}
+
+                    <p style={{
+                        textAlign: 'center',
+                        fontSize: '13px',
+                        color: '#999',
+                        marginTop: '8px'
+                    }}>
+                        ← Desliza para ver más →
+                    </p>
+                </div>
+            </section>
 
             {/* ════════════════════════════════════════════════════════════════════
           1.4 TESTIMONIOS

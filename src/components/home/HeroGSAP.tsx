@@ -107,18 +107,18 @@ export default function HeroGSAP() {
             {/* Content Overlay */}
             <div ref={textRef} className="gsap-hero-content">
                 <h1 ref={headlineRef} className="gsap-hero-headline">
-                    Visión Premium
+                    Ya te la sabes
                 </h1>
                 <p ref={sublineRef} className="gsap-hero-subline">
-                    Descubre la perfección en cada detalle.<br />
-                    Diseño que define tu estilo.
+                    ¿O no sabes qué armazón es el bueno para ti?<br />
+                    Te tiramos paro
                 </p>
                 <div ref={ctaRef} className="gsap-hero-cta">
-                    <Link href="/catalogo" className="gsap-btn-primary">
-                        Explorar Colección
+                    <Link href="/quiz" className="gsap-btn-primary">
+                        Hacer quiz
                     </Link>
                     <Link href="/nosotros" className="gsap-btn-secondary">
-                        Conócenos
+                        Nuestra Historia
                     </Link>
                 </div>
             </div>

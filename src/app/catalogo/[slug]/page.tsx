@@ -9,6 +9,7 @@ import type { Metadata } from 'next';
 import { notFound } from 'next/navigation';
 import { getFrameBySlug } from '@/lib/db';
 import ProductGallery from '@/components/product/ProductGallery';
+import ProductActions from '@/components/product/ProductActions';
 
 // Disable caching to always show fresh data
 export const dynamic = 'force-dynamic';
@@ -173,57 +174,13 @@ export default async function ProductPage({ params }: PageProps) {
                         </div>
                     )}
 
-                    {/* SECCIÓN DE COMPRA */}
-                    <div className="lens-config-section">
-                        <div className="config-options">
-                            {/* Botón principal - Agregar al carrito */}
-                            <Link
-                                href={`/carrito?add=${product.slug}&variant=${defaultVariant?.id || ''}`}
-                                className="btn btn-primary btn-config"
-                            >
-                                <span className="config-icon">🛒</span>
-                                <span className="config-text">
-                                    <strong>Órale pues necio, agrégamelo</strong>
-                                    <small>Solo armazón - {formatPrice(basePrice)}</small>
-                                </span>
-                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                                    <path d="M5 12h14m-7-7 7 7-7 7" />
-                                </svg>
-                            </Link>
-
-                            {/* Botón de compra rápida */}
-                            <Link
-                                href={`/checkout?buy=${product.slug}&variant=${defaultVariant?.id || ''}`}
-                                className="btn btn-config"
-                                style={{
-                                    background: 'linear-gradient(135deg, #006847 0%, #2e7d32 100%)',
-                                    color: 'white',
-                                    border: 'none'
-                                }}
-                            >
-                                <span className="config-icon">⚡</span>
-                                <span className="config-text">
-                                    <strong>¡Lo quiero ya!</strong>
-                                    <small>Ir directo al pago</small>
-                                </span>
-                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                                    <path d="M5 12h14m-7-7 7 7-7 7" />
-                                </svg>
-                            </Link>
-
-                            {/* Info sobre lentes graduados */}
-                            {product.supports_graduated_lenses && (
-                                <p style={{
-                                    fontSize: '0.875rem',
-                                    color: '#666',
-                                    textAlign: 'center',
-                                    marginTop: '1rem'
-                                }}>
-                                    💡 ¿Necesitas lentes graduados? Contáctanos por WhatsApp para cotizar.
-                                </p>
-                            )}
-                        </div>
-                    </div>
+                    {/* SECCIÓN DE COMPRA CON OPCIONES DE LENTES */}
+                    <ProductActions
+                        slug={product.slug}
+                        variantId={defaultVariant?.id || ''}
+                        basePrice={basePrice}
+                        formatPrice={formatPrice}
+                    />
 
                     {/* Delivery info con humor mexicano */}
                     <div className="delivery-info">
