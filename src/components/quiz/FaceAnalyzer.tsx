@@ -29,7 +29,6 @@ export default function FaceAnalyzer({ onComplete, onCancel, onManualSelect, emb
     const imageRef = useRef<HTMLImageElement>(null);
     const fileInputRef = useRef<HTMLInputElement>(null);
 
-    const [step, setStep] = useState<'initial' | 'analyzing'>('initial');
     const [status, setStatus] = useState<'loading' | 'ready' | 'scanning' | 'analyzing' | 'error'>('loading');
     const [mode, setMode] = useState<'camera' | 'image'>('camera');
     const [selectedImage, setSelectedImage] = useState<string | null>(null);
@@ -42,7 +41,6 @@ export default function FaceAnalyzer({ onComplete, onCancel, onManualSelect, emb
     const [scanPhase, setScanPhase] = useState(0);
 
     useEffect(() => {
-        if (step !== 'analyzing') return;
 
         const initMediaPipe = async () => {
             try {
@@ -80,7 +78,7 @@ export default function FaceAnalyzer({ onComplete, onCancel, onManualSelect, emb
             stopCamera();
             if (requestRef.current) cancelAnimationFrame(requestRef.current);
         };
-    }, [step]);
+    }, []);
 
     // Switch modes effect
     useEffect(() => {
@@ -439,390 +437,226 @@ export default function FaceAnalyzer({ onComplete, onCancel, onManualSelect, emb
                 pointerEvents: 'none'
             }} />
 
-            {step === 'initial' ? (
-                /* Pantalla inicial con 3 opciones */
-                <>
-                    <h2 style={{
-                        fontSize: '28px',
-                        fontWeight: '700',
-                        letterSpacing: '0.5px',
-                        marginBottom: '16px',
-                        textAlign: 'center',
-                        color: '#1D1E21',
-                        position: 'relative',
-                        zIndex: 1
-                    }}>
-                        ¿Cómo quieres descubrir tu tipo de rostro?
-                    </h2>
-                    <p style={{
-                        fontSize: '15px',
-                        color: 'rgba(29, 30, 33, 0.7)',
-                        textAlign: 'center',
-                        marginBottom: '40px',
-                        maxWidth: '300px',
-                        position: 'relative',
-                        zIndex: 1
-                    }}>
-                        Conocer tu tipo de rostro nos ayuda a recomendarte los mejores armazones
-                    </p>
+            {/* Title */}
+            <h2 style={{
+                fontSize: '28px',
+                fontWeight: '700',
+                letterSpacing: '0.5px',
+                marginBottom: '40px',
+                textAlign: 'center',
+                color: '#1D1E21',
+                position: 'relative',
+                zIndex: 1
+            }}>
+                Analizando tu Rostro
+            </h2>
 
-                    <div style={{
-                        display: 'flex',
-                        flexDirection: 'column',
-                        gap: '16px',
+            {/* Circular Camera/Image Container - Perfect Circle */}
+            <div style={{
+                position: 'relative',
+                width: 'min(80vw, 360px)',
+                height: 'min(80vw, 360px)',
+                minWidth: '280px',
+                minHeight: '280px',
+                borderRadius: '50%',
+                border: '4px solid rgba(0,0,0,0.1)',
+                boxShadow: faceDetected
+                    ? '0 20px 60px rgba(138, 102, 35, 0.3), 0 0 0 4px rgba(138, 102, 35, 0.2)'
+                    : '0 20px 60px rgba(0,0,0,0.15)',
+                overflow: 'hidden',
+                transition: 'all 0.5s ease',
+                background: '#fff',
+                zIndex: 1,
+                flexShrink: 0
+            }}>
+                {mode === 'camera' ? (
+                    <video
+                        ref={videoRef}
+                        style={{
+                            width: '100%',
+                            height: '100%',
+                            objectFit: 'cover',
+                            transform: 'scaleX(-1)'
+                        }}
+                        autoPlay
+                        playsInline
+                        muted
+                    />
+                ) : (
+                    <img
+                        ref={imageRef}
+                        src={selectedImage || ''}
+                        style={{
+                            width: '100%',
+                            height: '100%',
+                            objectFit: 'cover'
+                        }}
+                    />
+                )}
+
+                <canvas
+                    ref={canvasRef}
+                    style={{
+                        position: 'absolute',
+                        top: 0,
+                        left: 0,
                         width: '100%',
-                        maxWidth: '320px',
-                        position: 'relative',
-                        zIndex: 1
-                    }}>
-                        {/* Botón 1: Analizar mi rostro */}
-                        <button
-                            onClick={() => {
-                                setMode('camera');
-                                setStep('analyzing');
-                            }}
-                            style={{
-                                padding: '18px 24px',
+                        height: '100%',
+                        objectFit: 'cover', // Match video objectFit
+                        transform: mode === 'camera' ? 'scaleX(-1)' : 'none',
+                        pointerEvents: 'none'
+                    }}
+                />
+
+                {/* Scan Overlay Effect inside circle */}
+                {status === 'scanning' && (
+                    <div style={{
+                        position: 'absolute',
+                        top: 0,
+                        left: 0,
+                        width: '100%',
+                        height: '100%',
+                        background: 'linear-gradient(to bottom, transparent, rgba(138, 102, 35, 0.25), transparent)',
+                        animation: 'scan-vertical 1.5s infinite linear'
+                    }} />
+                )}
+            </div>
+
+            {/* Status / Feedback */}
+            <p style={{
+                marginTop: '30px',
+                fontSize: '16px',
+                color: 'rgba(29, 30, 33, 0.7)',
+                minHeight: '24px',
+                textAlign: 'center',
+                fontWeight: 500,
+                position: 'relative',
+                zIndex: 1
+            }}>
+                {feedback}
+            </p>
+
+            {/* Controls */}
+            <div style={{
+                marginTop: '40px',
+                display: 'flex',
+                flexDirection: 'column',
+                gap: '16px',
+                width: '100%',
+                maxWidth: '280px',
+                position: 'relative',
+                zIndex: 1
+            }}>
+                {mode === 'camera' ? (
+                    <>
+                        {/* Status indicator when scanning */}
+                        {status === 'scanning' && (
+                            <div style={{
+                                padding: '16px',
                                 background: '#152132',
                                 color: '#ffffff',
                                 border: 'none',
-                                borderRadius: '16px',
+                                borderRadius: '50px',
                                 fontSize: '16px',
-                                fontWeight: '600',
-                                cursor: 'pointer',
-                                boxShadow: '0 8px 24px rgba(21, 33, 50, 0.25)',
-                                display: 'flex',
-                                alignItems: 'center',
-                                justifyContent: 'center',
-                                gap: '12px',
-                                transition: 'transform 0.2s, box-shadow 0.2s'
-                            }}
-                        >
-                            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                                <circle cx="12" cy="12" r="3" />
-                                <path d="M12 2v2m0 16v2M4.93 4.93l1.41 1.41m11.32 11.32l1.41 1.41M2 12h2m16 0h2M4.93 19.07l1.41-1.41m11.32-11.32l1.41-1.41" />
-                            </svg>
-                            Analizar mi rostro
-                        </button>
+                                fontWeight: 'bold',
+                                textAlign: 'center',
+                                boxShadow: '0 10px 30px rgba(0,0,0,0.2)'
+                            }}>
+                                Analizando...
+                            </div>
+                        )}
 
-                        {/* Botón 2: Subir foto */}
+                        <div style={{ display: 'flex', gap: '10px', justifyContent: 'center' }}>
+                            <button
+                                onClick={() => fileInputRef.current?.click()}
+                                disabled={status === 'scanning'}
+                                style={{
+                                    padding: '12px 20px',
+                                    background: 'rgba(0,0,0,0.05)',
+                                    border: '1px solid rgba(0,0,0,0.1)',
+                                    color: '#1D1E21',
+                                    borderRadius: '50px',
+                                    fontSize: '14px',
+                                    cursor: status === 'scanning' ? 'not-allowed' : 'pointer',
+                                    opacity: status === 'scanning' ? 0.5 : 1
+                                }}
+                            >
+                                Subir Foto
+                            </button>
+                            <button
+                                onClick={onCancel}
+                                disabled={status === 'scanning'}
+                                style={{
+                                    padding: '12px 20px',
+                                    background: 'transparent',
+                                    border: '1px solid rgba(220, 38, 38, 0.3)',
+                                    color: '#dc2626',
+                                    borderRadius: '50px',
+                                    fontSize: '14px',
+                                    cursor: status === 'scanning' ? 'not-allowed' : 'pointer',
+                                    opacity: status === 'scanning' ? 0.5 : 1
+                                }}
+                            >
+                                Cancelar
+                            </button>
+                        </div>
+                    </>
+                ) : (
+                    <>
                         <button
                             onClick={() => {
-                                fileInputRef.current?.click();
+                                setMode('camera');
+                                setSelectedImage(null);
+                                setFaceDetected(false);
                             }}
                             style={{
-                                padding: '18px 24px',
-                                background: 'rgba(255, 255, 255, 0.8)',
-                                color: '#1D1E21',
-                                border: '2px solid rgba(21, 33, 50, 0.15)',
-                                borderRadius: '16px',
-                                fontSize: '16px',
+                                padding: '14px',
+                                background: '#152132',
+                                color: '#ffffff',
+                                border: 'none',
+                                borderRadius: '50px',
+                                fontSize: '14px',
                                 fontWeight: '600',
                                 cursor: 'pointer',
-                                boxShadow: '0 4px 12px rgba(0, 0, 0, 0.08)',
-                                display: 'flex',
-                                alignItems: 'center',
-                                justifyContent: 'center',
-                                gap: '12px',
-                                transition: 'transform 0.2s, box-shadow 0.2s'
+                                boxShadow: '0 4px 14px rgba(0,0,0,0.15)'
                             }}
                         >
-                            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                                <rect x="3" y="3" width="18" height="18" rx="2" />
-                                <circle cx="8.5" cy="8.5" r="1.5" />
-                                <path d="M21 15l-5-5L5 21" />
-                            </svg>
-                            Subir foto
+                            Usar Cámara
                         </button>
-
-                        {/* Botón 3: Ya sé mi tipo de rostro */}
                         <button
-                            onClick={() => {
-                                if (onManualSelect) onManualSelect();
-                            }}
+                            onClick={() => fileInputRef.current?.click()}
                             style={{
-                                padding: '18px 24px',
-                                background: 'transparent',
-                                color: 'rgba(29, 30, 33, 0.7)',
-                                border: '1px dashed rgba(29, 30, 33, 0.3)',
-                                borderRadius: '16px',
-                                fontSize: '16px',
-                                fontWeight: '500',
-                                cursor: 'pointer',
-                                display: 'flex',
-                                alignItems: 'center',
-                                justifyContent: 'center',
-                                gap: '12px',
-                                transition: 'all 0.2s'
-                            }}
-                        >
-                            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                                <path d="M9 11l3 3L22 4" />
-                                <path d="M21 12v7a2 2 0 01-2 2H5a2 2 0 01-2-2V5a2 2 0 012-2h11" />
-                            </svg>
-                            Ya sé mi tipo de rostro
-                        </button>
-
-                        {/* Botón cancelar */}
-                        <button
-                            onClick={onCancel}
-                            style={{
-                                marginTop: '8px',
                                 padding: '12px',
                                 background: 'transparent',
-                                color: 'rgba(29, 30, 33, 0.5)',
                                 border: 'none',
+                                color: 'rgba(29, 30, 33, 0.6)',
                                 fontSize: '14px',
                                 cursor: 'pointer',
                                 textDecoration: 'underline'
                             }}
                         >
-                            Cancelar
+                            Elegir otra foto
                         </button>
-                    </div>
+                    </>
+                )}
 
-                    {/* Hidden File Input for initial screen */}
-                    <input
-                        type="file"
-                        ref={fileInputRef}
-                        accept="image/*"
-                        className="hidden"
-                        onChange={(e) => {
-                            const file = e.target.files?.[0];
-                            if (!file) return;
-                            const url = URL.createObjectURL(file);
-                            setSelectedImage(url);
-                            setMode('image');
-                            setStep('analyzing');
-                        }}
-                        style={{ display: 'none' }}
-                    />
-                </>
-            ) : (
-                /* Pantalla de análisis (cámara/imagen) */
-                <>
-                    {/* Title */}
-                    <h2 style={{
-                        fontSize: '28px',
-                        fontWeight: '700',
-                        letterSpacing: '0.5px',
-                        marginBottom: '40px',
-                        textAlign: 'center',
-                        color: '#1D1E21',
-                        position: 'relative',
-                        zIndex: 1
-                    }}>
-                        Analizando tu Rostro
-                    </h2>
+                {/* Hidden File Input */}
+                <input
+                    type="file"
+                    ref={fileInputRef}
+                    accept="image/*"
+                    className="hidden"
+                    onChange={handleImageUpload}
+                    style={{ display: 'none' }}
+                />
+            </div>
 
-                    {/* Circular Camera/Image Container - Perfect Circle */}
-                    <div style={{
-                        position: 'relative',
-                        width: 'min(80vw, 360px)',
-                        height: 'min(80vw, 360px)',
-                        minWidth: '280px',
-                        minHeight: '280px',
-                        borderRadius: '50%',
-                        border: '4px solid rgba(0,0,0,0.1)',
-                        boxShadow: faceDetected
-                            ? '0 20px 60px rgba(138, 102, 35, 0.3), 0 0 0 4px rgba(138, 102, 35, 0.2)'
-                            : '0 20px 60px rgba(0,0,0,0.15)',
-                        overflow: 'hidden',
-                        transition: 'all 0.5s ease',
-                        background: '#fff',
-                        zIndex: 1,
-                        flexShrink: 0
-                    }}>
-                        {mode === 'camera' ? (
-                            <video
-                                ref={videoRef}
-                                style={{
-                                    width: '100%',
-                                    height: '100%',
-                                    objectFit: 'cover',
-                                    transform: 'scaleX(-1)'
-                                }}
-                                autoPlay
-                                playsInline
-                                muted
-                            />
-                        ) : (
-                            <img
-                                ref={imageRef}
-                                src={selectedImage || ''}
-                                style={{
-                                    width: '100%',
-                                    height: '100%',
-                                    objectFit: 'cover'
-                                }}
-                            />
-                        )}
-
-                        <canvas
-                            ref={canvasRef}
-                            style={{
-                                position: 'absolute',
-                                top: 0,
-                                left: 0,
-                                width: '100%',
-                                height: '100%',
-                                objectFit: 'cover', // Match video objectFit
-                                transform: mode === 'camera' ? 'scaleX(-1)' : 'none',
-                                pointerEvents: 'none'
-                            }}
-                        />
-
-                        {/* Scan Overlay Effect inside circle */}
-                        {status === 'scanning' && (
-                            <div style={{
-                                position: 'absolute',
-                                top: 0,
-                                left: 0,
-                                width: '100%',
-                                height: '100%',
-                                background: 'linear-gradient(to bottom, transparent, rgba(138, 102, 35, 0.25), transparent)',
-                                animation: 'scan-vertical 1.5s infinite linear'
-                            }} />
-                        )}
-                    </div>
-
-                    {/* Status / Feedback */}
-                    <p style={{
-                        marginTop: '30px',
-                        fontSize: '16px',
-                        color: 'rgba(29, 30, 33, 0.7)',
-                        minHeight: '24px',
-                        textAlign: 'center',
-                        fontWeight: 500,
-                        position: 'relative',
-                        zIndex: 1
-                    }}>
-                        {feedback}
-                    </p>
-
-                    {/* Controls */}
-                    <div style={{
-                        marginTop: '40px',
-                        display: 'flex',
-                        flexDirection: 'column',
-                        gap: '16px',
-                        width: '100%',
-                        maxWidth: '280px',
-                        position: 'relative',
-                        zIndex: 1
-                    }}>
-                        {mode === 'camera' ? (
-                            <>
-                                {/* Status indicator when scanning */}
-                                {status === 'scanning' && (
-                                    <div style={{
-                                        padding: '16px',
-                                        background: '#152132',
-                                        color: '#ffffff',
-                                        border: 'none',
-                                        borderRadius: '50px',
-                                        fontSize: '16px',
-                                        fontWeight: 'bold',
-                                        textAlign: 'center',
-                                        boxShadow: '0 10px 30px rgba(0,0,0,0.2)'
-                                    }}>
-                                        Analizando...
-                                    </div>
-                                )}
-
-                                <div style={{ display: 'flex', gap: '10px', justifyContent: 'center' }}>
-                                    <button
-                                        onClick={() => fileInputRef.current?.click()}
-                                        disabled={status === 'scanning'}
-                                        style={{
-                                            padding: '12px 20px',
-                                            background: 'rgba(0,0,0,0.05)',
-                                            border: '1px solid rgba(0,0,0,0.1)',
-                                            color: '#1D1E21',
-                                            borderRadius: '50px',
-                                            fontSize: '14px',
-                                            cursor: status === 'scanning' ? 'not-allowed' : 'pointer',
-                                            opacity: status === 'scanning' ? 0.5 : 1
-                                        }}
-                                    >
-                                        Subir Foto
-                                    </button>
-                                    <button
-                                        onClick={onCancel}
-                                        disabled={status === 'scanning'}
-                                        style={{
-                                            padding: '12px 20px',
-                                            background: 'transparent',
-                                            border: '1px solid rgba(220, 38, 38, 0.3)',
-                                            color: '#dc2626',
-                                            borderRadius: '50px',
-                                            fontSize: '14px',
-                                            cursor: status === 'scanning' ? 'not-allowed' : 'pointer',
-                                            opacity: status === 'scanning' ? 0.5 : 1
-                                        }}
-                                    >
-                                        Cancelar
-                                    </button>
-                                </div>
-                            </>
-                        ) : (
-                            <>
-                                <button
-                                    onClick={() => {
-                                        setMode('camera');
-                                        setSelectedImage(null);
-                                        setFaceDetected(false);
-                                    }}
-                                    style={{
-                                        padding: '14px',
-                                        background: '#152132',
-                                        color: '#ffffff',
-                                        border: 'none',
-                                        borderRadius: '50px',
-                                        fontSize: '14px',
-                                        fontWeight: '600',
-                                        cursor: 'pointer',
-                                        boxShadow: '0 4px 14px rgba(0,0,0,0.15)'
-                                    }}
-                                >
-                                    Usar Cámara
-                                </button>
-                                <button
-                                    onClick={() => fileInputRef.current?.click()}
-                                    style={{
-                                        padding: '12px',
-                                        background: 'transparent',
-                                        border: 'none',
-                                        color: 'rgba(29, 30, 33, 0.6)',
-                                        fontSize: '14px',
-                                        cursor: 'pointer',
-                                        textDecoration: 'underline'
-                                    }}
-                                >
-                                    Elegir otra foto
-                                </button>
-                            </>
-                        )}
-
-                        {/* Hidden File Input */}
-                        <input
-                            type="file"
-                            ref={fileInputRef}
-                            accept="image/*"
-                            className="hidden"
-                            onChange={handleImageUpload}
-                            style={{ display: 'none' }}
-                        />
-                    </div>
-
-                    <style jsx global>{`
+            <style jsx global>{`
                 @keyframes scan-vertical {
                     0% { transform: translateY(-100%); }
                     100% { transform: translateY(100%); }
                 }
             `}</style>
-                </>
-            )}
         </div>
     );
 }
