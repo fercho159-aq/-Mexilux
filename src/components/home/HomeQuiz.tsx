@@ -464,53 +464,6 @@ export default function HomeQuiz({ isOpen, onClose, initialStep = 0, initialStyl
                             </p>
                         </div>
 
-                        {/* Sección de características */}
-                        <div style={{
-                            background: 'rgba(138, 102, 35, 0.06)',
-                            borderRadius: '18px',
-                            padding: '20px',
-                            marginBottom: '20px'
-                        }}>
-                            <h3 style={{
-                                fontSize: '11px',
-                                color: '#8A6623',
-                                textTransform: 'uppercase',
-                                letterSpacing: '0.12em',
-                                marginBottom: '14px',
-                                fontWeight: '700'
-                            }}>Tus Características</h3>
-
-                            <div style={{ display: 'flex', flexWrap: 'wrap', gap: '8px', marginBottom: '16px' }}>
-                                {result.analysis.characteristics.map((char, idx) => (
-                                    <span key={idx} style={{
-                                        background: 'rgba(255, 255, 255, 0.8)',
-                                        color: '#3d3425',
-                                        padding: '8px 14px',
-                                        borderRadius: '24px',
-                                        fontSize: '12px',
-                                        fontWeight: '500',
-                                        border: '1px solid rgba(138, 102, 35, 0.15)'
-                                    }}>{char}</span>
-                                ))}
-                            </div>
-
-                            <div style={{
-                                background: 'rgba(255,255,255,0.6)',
-                                borderRadius: '12px',
-                                padding: '14px',
-                                marginBottom: '10px'
-                            }}>
-                                <p style={{ fontSize: '13px', color: '#2d2820', margin: 0, lineHeight: '1.6' }}>
-                                    <span style={{ color: '#8A6623', fontWeight: '600' }}>✓ </span>
-                                    {result.analysis.bestFor}
-                                </p>
-                            </div>
-
-                            <p style={{ fontSize: '12px', color: '#7a6b5a', margin: 0, lineHeight: '1.5', fontStyle: 'italic' }}>
-                                💡 {result.analysis.avoid}
-                            </p>
-                        </div>
-
                         {/* Tono de piel */}
                         {skinToneResult && (
                             <div style={{
@@ -568,28 +521,61 @@ export default function HomeQuiz({ isOpen, onClose, initialStep = 0, initialStyl
                             </div>
                         </div>
 
-                        {/* Colores */}
+                        {/* Colores Recomendados - Círculos con títulos */}
                         <div style={{ textAlign: 'center' }}>
                             <h3 style={{
                                 fontSize: '11px',
                                 color: '#8A6623',
                                 textTransform: 'uppercase',
                                 letterSpacing: '0.12em',
-                                marginBottom: '12px',
+                                marginBottom: '16px',
                                 fontWeight: '700'
                             }}>Colores Recomendados</h3>
-                            <div style={{ display: 'flex', flexWrap: 'wrap', gap: '8px', justifyContent: 'center' }}>
-                                {result.colors.map((color, idx) => (
-                                    <span key={idx} style={{
-                                        background: 'rgba(255,255,255,0.7)',
-                                        color: '#4a3f32',
-                                        padding: '8px 14px',
-                                        borderRadius: '20px',
-                                        fontSize: '12px',
-                                        fontWeight: '500',
-                                        border: '1px solid rgba(138, 102, 35, 0.2)'
-                                    }}>{color}</span>
-                                ))}
+                            <div style={{ display: 'flex', justifyContent: 'center', gap: '24px' }}>
+                                {result.colors.slice(0, 3).map((color, idx) => {
+                                    // Mapeo de nombres de colores a valores hex
+                                    const colorMap: Record<string, string> = {
+                                        'Negro clásico': '#1a1a1a',
+                                        'Negro': '#1a1a1a',
+                                        'Negro mate': '#2d2d2d',
+                                        'Carey': '#8B4513',
+                                        'Carey claro': '#CD853F',
+                                        'Tortoise oscuro': '#5D4037',
+                                        'Dorado': '#D4AF37',
+                                        'Dorado rosa': '#E8B4B8',
+                                        'Plateado': '#C0C0C0',
+                                        'Azul oscuro': '#1a3a5c',
+                                        'Azul marino': '#1e3a5f',
+                                        'Verde bosque': '#228B22',
+                                        'Verde Oliva': '#556B2F',
+                                        'Transparente': '#e8e8e8',
+                                        'Burgundy': '#722F37',
+                                        'Nude': '#E3C4A8',
+                                        'Café': '#8B4513'
+                                    };
+                                    const bgColor = colorMap[color] || '#888888';
+
+                                    return (
+                                        <div key={idx} style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '8px' }}>
+                                            <div style={{
+                                                width: '48px',
+                                                height: '48px',
+                                                borderRadius: '50%',
+                                                backgroundColor: bgColor,
+                                                border: '3px solid rgba(255,255,255,0.9)',
+                                                boxShadow: '0 4px 12px rgba(0,0,0,0.15)'
+                                            }} />
+                                            <span style={{
+                                                fontSize: '11px',
+                                                color: '#5a5045',
+                                                fontWeight: '500',
+                                                maxWidth: '70px',
+                                                textAlign: 'center',
+                                                lineHeight: '1.3'
+                                            }}>{color}</span>
+                                        </div>
+                                    );
+                                })}
                             </div>
                         </div>
                     </div>
