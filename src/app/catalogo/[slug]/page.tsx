@@ -179,7 +179,6 @@ export default async function ProductPage({ params }: PageProps) {
                         slug={product.slug}
                         variantId={defaultVariant?.id || ''}
                         basePrice={basePrice}
-                        formatPrice={formatPrice}
                     />
 
                     {/* Delivery info con humor mexicano */}

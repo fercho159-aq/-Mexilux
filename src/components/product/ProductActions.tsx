@@ -23,12 +23,16 @@ interface ProductActionsProps {
     slug: string;
     variantId: string;
     basePrice: number;
-    formatPrice: (price: number) => string;
 }
 
-export default function ProductActions({ slug, variantId, basePrice, formatPrice }: ProductActionsProps) {
+export default function ProductActions({ slug, variantId, basePrice }: ProductActionsProps) {
     const [selectedLens, setSelectedLens] = useState<string>('basic');
     const [showLensOptions, setShowLensOptions] = useState(false);
+
+    // Format price locally since functions cannot be passed from Server Components
+    const formatPrice = (price: number) => {
+        return `$${price.toLocaleString('es-MX')}`;
+    };
 
     const selectedOption = LENS_OPTIONS.find(opt => opt.id === selectedLens) || LENS_OPTIONS[0];
     const totalPrice = basePrice + selectedOption.price;
