@@ -306,6 +306,7 @@ export default function HomeQuiz({ isOpen, onClose, initialStep = 0, initialStyl
                     <FaceAnalyzer
                         onComplete={handleAnalysisComplete}
                         onCancel={() => setShowCamera(false)}
+                        onManualSelect={() => setShowCamera(false)}
                         embedded={embedded}
                     />
                 </div>

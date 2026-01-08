@@ -262,6 +262,7 @@ export default function QuizPage() {
                 <FaceAnalyzer
                     onComplete={handleAnalysisComplete}
                     onCancel={() => setShowCamera(false)}
+                    onManualSelect={() => setShowCamera(false)}
                 />
             </main>
         );
