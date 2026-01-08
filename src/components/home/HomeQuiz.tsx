@@ -121,8 +121,10 @@ export default function HomeQuiz({ isOpen, onClose, initialStep = 0, initialStyl
     const [showResults, setShowResults] = useState(false);
     const [isAnimating, setIsAnimating] = useState(false);
     const [showCamera, setShowCamera] = useState(false);
+    const [showManualOptions, setShowManualOptions] = useState(false);
     const [skinToneResult, setSkinToneResult] = useState<AnalysisResult['skinTone'] | null>(null);
     const cardRef = useRef<HTMLDivElement>(null);
+    const fileInputRef = useRef<HTMLInputElement>(null);
 
     const totalSteps = QUIZ_STEPS.length;
     const progress = ((currentStep + 1) / totalSteps) * 100;
@@ -705,101 +707,219 @@ export default function HomeQuiz({ isOpen, onClose, initialStep = 0, initialStyl
 
                         {/* Step Content */}
                         <section className={`quiz-step ${isAnimating ? 'animating-out' : ''}`} style={{ flex: 1, overflowY: 'auto', width: '100%' }}>
-                            <h2 style={{ fontSize: embedded ? '20px' : '24px', textAlign: 'center', marginBottom: '8px' }}>{currentQuestion.title}</h2>
-                            <p className="step-description" style={{ textAlign: 'center', color: '#666', marginBottom: '24px', fontSize: embedded ? '14px' : '16px' }}>{currentQuestion.subtitle}</p>
+                            <h2 style={{ fontSize: embedded ? '20px' : '24px', textAlign: 'center', marginBottom: '8px' }}>
+                                {currentStep === 0 && !showManualOptions ? '¿Cómo quieres descubrir tu tipo de rostro?' : currentQuestion.title}
+                            </h2>
+                            <p className="step-description" style={{ textAlign: 'center', color: '#666', marginBottom: '24px', fontSize: embedded ? '14px' : '16px' }}>
+                                {currentStep === 0 && !showManualOptions ? 'Conocer tu tipo de rostro nos ayuda a recomendarte los mejores armazones' : currentQuestion.subtitle}
+                            </p>
 
-                            {/* Camera Option (Only for step 0) */}
-                            {currentStep === 0 && (
-                                <div className="quiz-ai-section" style={{ marginBottom: '24px', textAlign: 'center', width: '100%' }}>
+                            {/* Pantalla inicial con 3 opciones (Solo para paso 0 cuando no se muestran opciones manuales) */}
+                            {currentStep === 0 && !showManualOptions ? (
+                                <div style={{ display: 'flex', flexDirection: 'column', gap: '16px', width: '100%', maxWidth: '400px', margin: '0 auto' }}>
+                                    {/* Botón 1: Analizar mi rostro */}
                                     <button
-                                        className="btn-ai-analyze"
                                         onClick={() => setShowCamera(true)}
                                         style={{
-                                            background: '#000',
-                                            color: '#fff',
+                                            padding: '18px 24px',
+                                            background: '#152132',
+                                            color: '#ffffff',
                                             border: 'none',
-                                            padding: embedded ? '12px 24px' : '16px 32px',
-                                            borderRadius: '50px',
-                                            fontSize: embedded ? '14px' : '16px',
+                                            borderRadius: '16px',
+                                            fontSize: '16px',
                                             fontWeight: '600',
                                             cursor: 'pointer',
-                                            display: 'inline-flex',
-                                            alignItems: 'center',
-                                            gap: '8px',
-                                            boxShadow: '0 4px 14px rgba(0, 0, 0, 0.25)',
-                                            marginBottom: '16px',
-                                            width: embedded ? '100%' : 'auto',
-                                            justifyContent: 'center'
-                                        }}
-                                    >
-                                        <span>Analizar mi rostro con IA</span>
-                                    </button>
-                                    <div className="quiz-ai-divider" style={{ borderTop: '1px solid #eee', position: 'relative', margin: '16px 0', width: '100%' }}>
-                                        <span style={{ position: 'absolute', top: '-10px', left: '50%', transform: 'translateX(-50%)', background: '#fff', padding: '0 10px', color: '#999', fontSize: '12px' }}>
-                                            o selecciona manualmente
-                                        </span>
-                                    </div>
-                                </div>
-                            )}
-
-                            {/* Options Grid - Single column on mobile for full width */}
-                            <div className="quiz-options-grid" style={{
-                                display: 'flex',
-                                flexDirection: 'column',
-                                gap: '10px',
-                                width: '100%'
-                            }}>
-                                {currentQuestion.options.map((option) => (
-                                    <label
-                                        key={option.value}
-                                        className={`quiz-option-card ${answers[currentQuestion.id] === option.value ? 'selected' : ''}`}
-                                        style={{
+                                            boxShadow: '0 8px 24px rgba(21, 33, 50, 0.25)',
                                             display: 'flex',
-                                            flexDirection: 'row',
                                             alignItems: 'center',
-                                            padding: '14px 16px',
-                                            borderRadius: '12px',
-                                            border: answers[currentQuestion.id] === option.value ? '2px solid #0071e3' : '1px solid #eee',
-                                            cursor: 'pointer',
-                                            transition: 'all 0.2s',
-                                            backgroundColor: answers[currentQuestion.id] === option.value ? '#f5f9ff' : '#fff',
-                                            width: '100%',
-                                            boxSizing: 'border-box',
-                                            gap: '12px'
+                                            justifyContent: 'center',
+                                            gap: '12px',
+                                            transition: 'transform 0.2s, box-shadow 0.2s'
                                         }}
                                     >
-                                        <input
-                                            type="radio"
-                                            name={currentQuestion.id}
-                                            value={option.value}
-                                            checked={answers[currentQuestion.id] === option.value}
-                                            onChange={() => handleOptionSelect(option.value)}
-                                            style={{ display: 'none' }}
-                                        />
-                                        <span className="option-emoji" style={{ fontSize: '24px', flexShrink: 0 }}>{option.emoji}</span>
-                                        <span className="option-label" style={{ fontWeight: '600', fontSize: '15px', textAlign: 'left' }}>{option.label}</span>
-                                    </label>
-                                ))}
-                            </div>
+                                        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                                            <circle cx="12" cy="12" r="3" />
+                                            <path d="M12 2v2m0 16v2M4.93 4.93l1.41 1.41m11.32 11.32l1.41 1.41M2 12h2m16 0h2M4.93 19.07l1.41-1.41m11.32-11.32l1.41-1.41" />
+                                        </svg>
+                                        Analizar mi rostro
+                                    </button>
+
+                                    {/* Botón 2: Subir foto */}
+                                    <button
+                                        onClick={() => fileInputRef.current?.click()}
+                                        style={{
+                                            padding: '18px 24px',
+                                            background: 'rgba(255, 255, 255, 0.9)',
+                                            color: '#1D1E21',
+                                            border: '2px solid rgba(21, 33, 50, 0.15)',
+                                            borderRadius: '16px',
+                                            fontSize: '16px',
+                                            fontWeight: '600',
+                                            cursor: 'pointer',
+                                            boxShadow: '0 4px 12px rgba(0, 0, 0, 0.08)',
+                                            display: 'flex',
+                                            alignItems: 'center',
+                                            justifyContent: 'center',
+                                            gap: '12px',
+                                            transition: 'transform 0.2s, box-shadow 0.2s'
+                                        }}
+                                    >
+                                        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                                            <rect x="3" y="3" width="18" height="18" rx="2" />
+                                            <circle cx="8.5" cy="8.5" r="1.5" />
+                                            <path d="M21 15l-5-5L5 21" />
+                                        </svg>
+                                        Subir foto
+                                    </button>
+
+                                    {/* Botón 3: Ya sé mi tipo de rostro */}
+                                    <button
+                                        onClick={() => setShowManualOptions(true)}
+                                        style={{
+                                            padding: '18px 24px',
+                                            background: 'transparent',
+                                            color: 'rgba(29, 30, 33, 0.7)',
+                                            border: '1px dashed rgba(29, 30, 33, 0.3)',
+                                            borderRadius: '16px',
+                                            fontSize: '16px',
+                                            fontWeight: '500',
+                                            cursor: 'pointer',
+                                            display: 'flex',
+                                            alignItems: 'center',
+                                            justifyContent: 'center',
+                                            gap: '12px',
+                                            transition: 'all 0.2s'
+                                        }}
+                                    >
+                                        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                                            <path d="M9 11l3 3L22 4" />
+                                            <path d="M21 12v7a2 2 0 01-2 2H5a2 2 0 01-2-2V5a2 2 0 012-2h11" />
+                                        </svg>
+                                        Ya sé mi tipo de rostro
+                                    </button>
+
+                                    {/* Input oculto para subir foto */}
+                                    <input
+                                        type="file"
+                                        ref={fileInputRef}
+                                        accept="image/*"
+                                        onChange={(e) => {
+                                            const file = e.target.files?.[0];
+                                            if (file) {
+                                                // Procesar la foto subida - mostrar cámara con la imagen
+                                                setShowCamera(true);
+                                            }
+                                        }}
+                                        style={{ display: 'none' }}
+                                    />
+                                </div>
+                            ) : (
+                                <>
+                                    {/* Botón volver a opciones iniciales (solo para paso 0 con opciones manuales) */}
+                                    {currentStep === 0 && showManualOptions && (
+                                        <button
+                                            onClick={() => setShowManualOptions(false)}
+                                            style={{
+                                                marginBottom: '16px',
+                                                padding: '8px 16px',
+                                                background: 'transparent',
+                                                border: 'none',
+                                                color: '#666',
+                                                fontSize: '14px',
+                                                cursor: 'pointer',
+                                                display: 'flex',
+                                                alignItems: 'center',
+                                                gap: '4px'
+                                            }}
+                                        >
+                                            ← Volver a opciones
+                                        </button>
+                                    )}
+
+                                    {/* Options Grid - Single column on mobile for full width */}
+                                    <div className="quiz-options-grid" style={{
+                                        display: 'flex',
+                                        flexDirection: 'column',
+                                        gap: '10px',
+                                        width: '100%'
+                                    }}>
+                                        {currentQuestion.options.map((option) => (
+                                            <label
+                                                key={option.value}
+                                                className={`quiz-option-card ${answers[currentQuestion.id] === option.value ? 'selected' : ''}`}
+                                                style={{
+                                                    display: 'flex',
+                                                    flexDirection: 'row',
+                                                    alignItems: 'center',
+                                                    padding: '14px 16px',
+                                                    borderRadius: '12px',
+                                                    border: answers[currentQuestion.id] === option.value ? '2px solid #0071e3' : '1px solid #eee',
+                                                    cursor: 'pointer',
+                                                    transition: 'all 0.2s',
+                                                    backgroundColor: answers[currentQuestion.id] === option.value ? '#f5f9ff' : '#fff',
+                                                    width: '100%',
+                                                    boxSizing: 'border-box',
+                                                    gap: '12px'
+                                                }}
+                                            >
+                                                <input
+                                                    type="radio"
+                                                    name={currentQuestion.id}
+                                                    value={option.value}
+                                                    checked={answers[currentQuestion.id] === option.value}
+                                                    onChange={() => handleOptionSelect(option.value)}
+                                                    style={{ display: 'none' }}
+                                                />
+                                                <span className="option-emoji" style={{ fontSize: '24px', flexShrink: 0 }}>{option.emoji}</span>
+                                                <span className="option-label" style={{ fontWeight: '600', fontSize: '15px', textAlign: 'left' }}>{option.label}</span>
+                                            </label>
+                                        ))}
+                                    </div>
+                                </>
+                            )}
                         </section>
 
                         {/* Navigation */}
                         <div className="quiz-navigation" style={{ display: 'flex', justifyContent: 'space-between', marginTop: '24px', paddingTop: '16px', borderTop: '1px solid #f0f0f0', width: '100%' }}>
-                            <button
-                                className="btn btn-outline"
-                                onClick={handlePrevious}
-                                style={{
-                                    padding: '8px 16px',
-                                    border: '1px solid #ddd',
-                                    borderRadius: '8px',
-                                    background: 'transparent',
-                                    cursor: 'pointer',
-                                    fontSize: '14px',
-                                    color: '#666'
-                                }}
-                            >
-                                ← {currentStep === 0 ? 'Cancelar' : 'Anterior'}
-                            </button>
+                            {currentStep === 0 && !showManualOptions ? (
+                                /* Solo botón cancelar en pantalla inicial */
+                                <button
+                                    onClick={onClose}
+                                    style={{
+                                        padding: '8px 16px',
+                                        border: '1px solid #ddd',
+                                        borderRadius: '8px',
+                                        background: 'transparent',
+                                        cursor: 'pointer',
+                                        fontSize: '14px',
+                                        color: '#666'
+                                    }}
+                                >
+                                    ← Cancelar
+                                </button>
+                            ) : (
+                                <button
+                                    className="btn btn-outline"
+                                    onClick={() => {
+                                        if (currentStep === 0 && showManualOptions) {
+                                            setShowManualOptions(false);
+                                        } else {
+                                            handlePrevious();
+                                        }
+                                    }}
+                                    style={{
+                                        padding: '8px 16px',
+                                        border: '1px solid #ddd',
+                                        borderRadius: '8px',
+                                        background: 'transparent',
+                                        cursor: 'pointer',
+                                        fontSize: '14px',
+                                        color: '#666'
+                                    }}
+                                >
+                                    ← {currentStep === 0 ? 'Volver' : 'Anterior'}
+                                </button>
+                            )}
                         </div>
                     </div>
                 </div>
