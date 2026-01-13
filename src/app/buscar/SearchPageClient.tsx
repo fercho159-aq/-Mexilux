@@ -222,9 +222,6 @@ export default function SearchPageClient() {
                         <Link href="/catalogo?genero=mujer" className="category-link">
                             🇲🇽 Mexicana
                         </Link>
-                        <Link href="/catalogo?genero=ninos" className="category-link">
-                            👦 Niños
-                        </Link>
                     </div>
                 </section>
             </div>
