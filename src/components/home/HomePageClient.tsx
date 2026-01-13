@@ -4,6 +4,7 @@ import Link from 'next/link';
 import Image from 'next/image';
 import HomeQuiz from '@/components/home/HomeQuiz';
 import InfluencerCarousel from '@/components/home/InfluencerCarousel';
+import TestimonialsCarousel from '@/components/home/TestimonialsCarousel';
 import { ScrollAnimate } from '@/components/ui/ScrollAnimate';
 import { NewsletterForm } from '@/components/ui/NewsletterForm';
 import HeroGSAP from './HeroGSAP';
@@ -29,36 +30,6 @@ const CATEGORIES = [
         slug: 'mujer',
         count: 203,
         featured: 'Gucci, Prada, Dior',
-    },
-];
-
-// ═══════════════════════════════════════════════════════════════════════════
-// 1.4 TESTIMONIOS
-// ═══════════════════════════════════════════════════════════════════════════
-const TESTIMONIALS = [
-    {
-        id: 1,
-        name: 'María García',
-        role: 'Cliente desde 2022',
-        content: 'Excelente atención y calidad. Mi examen de vista fue muy completo y los lentes quedaron perfectos. Totalmente recomendados.',
-        rating: 5,
-        image: '👩‍💼',
-    },
-    {
-        id: 2,
-        name: 'Carlos Hernández',
-        role: 'Cliente desde 2021',
-        content: 'Los lentes progresivos que me hicieron son los mejores que he tenido. El configurador online es súper fácil de usar.',
-        rating: 5,
-        image: '👨‍💻',
-    },
-    {
-        id: 3,
-        name: 'Ana Martínez',
-        role: 'Cliente desde 2023',
-        content: 'Compré lentes para toda mi familia. La atención personalizada y los precios justos hacen la diferencia.',
-        rating: 5,
-        image: '👩‍👧‍👦',
     },
 ];
 
@@ -364,58 +335,9 @@ export default function HomePageClient({ featuredProducts = [] }: HomePageClient
             </section>
 
             {/* ════════════════════════════════════════════════════════════════════
-          1.4 TESTIMONIOS
+          1.4 TESTIMONIOS - CARRUSEL
           ════════════════════════════════════════════════════════════════════ */}
-            <section className="testimonials-section" aria-labelledby="testimonials-title">
-                <div className="section-container">
-                    <ScrollAnimate animation="fade-up">
-                        <div className="section-header">
-                            <h2 id="testimonials-title" className="section-title">
-                                Lo que dicen nuestros clientes
-                            </h2>
-                            <p className="section-description">
-                                Miles de personas confían en Mexilux para expresar su estilo
-                            </p>
-                        </div>
-                    </ScrollAnimate>
-
-                    <div className="testimonials-grid">
-                        {TESTIMONIALS.map((testimonial, index) => (
-                            <ScrollAnimate key={testimonial.id} animation="fade-up" delay={index * 150}>
-                                <article className="testimonial-card">
-                                    <div className="testimonial-rating" aria-label={`${testimonial.rating} estrellas`}>
-                                        {'★'.repeat(testimonial.rating)}
-                                    </div>
-                                    <blockquote className="testimonial-content">
-                                        "{testimonial.content}"
-                                    </blockquote>
-                                    <footer className="testimonial-author">
-                                        <span className="author-image" aria-hidden="true">{testimonial.image}</span>
-                                        <div className="author-info">
-                                            <cite className="author-name">{testimonial.name}</cite>
-                                            <span className="author-role">{testimonial.role}</span>
-                                        </div>
-                                    </footer>
-                                </article>
-                            </ScrollAnimate>
-                        ))}
-                    </div>
-
-                    {/* Google Reviews Badge */}
-                    <ScrollAnimate animation="zoom-in" delay={300}>
-                        <div className="reviews-badge">
-                            <div className="reviews-score">
-                                <span className="score-number">4.9</span>
-                                <span className="score-stars">★★★★★</span>
-                            </div>
-                            <div className="reviews-info">
-                                <span className="reviews-source">Google Reviews</span>
-                                <span className="reviews-count">Basado en 500+ reseñas</span>
-                            </div>
-                        </div>
-                    </ScrollAnimate>
-                </div>
-            </section>
+            <TestimonialsCarousel />
 
             {/* ════════════════════════════════════════════════════════════════════
           NEWSLETTER

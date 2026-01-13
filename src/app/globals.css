@@ -1692,6 +1692,22 @@ button {
   }
 }
 
+/* ─── TREATMENTS SECTION ───────────────────────────────────────────────────── */
+
+.treatments-section {
+  padding: var(--space-4xl) 0;
+  background: var(--color-bg-secondary);
+}
+
+.treatments-carousel {
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+}
+
+.treatments-carousel::-webkit-scrollbar {
+  display: none;
+}
+
 /* ─── STYLE QUIZ SECTION ───────────────────────────────────────────────────── */
 
 .style-quiz-section {
