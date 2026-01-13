@@ -4,12 +4,11 @@ import { useState } from 'react';
 import Link from 'next/link';
 
 const MENU_ITEMS = [
+    { href: '/quiz', label: 'Encuentra tu flow' },
+    { href: '/tratamientos', label: 'Tratamientos' },
     { href: '/catalogo', label: 'Catálogo' },
-    { href: '/catalogo/lentes-de-sol', label: 'Polarizados' },
-    { href: '/catalogo/lentes-oftalmicos', label: 'Oftálmicos' },
-    { href: '/quiz', label: 'Encuentra tu estilo' },
-    { href: '/nosotros', label: 'Nosotros' },
-    { href: '/contacto', label: 'Contacto' },
+    { href: '/nosotros', label: '¿Qué es Mexilux?' },
+    { href: '/contacto', label: 'Contáctanos' },
 ];
 
 export default function Header() {
@@ -93,8 +92,32 @@ export default function Header() {
                         paddingTop: '80px',
                         animation: 'fadeIn 0.2s ease',
                     }}
-                    onClick={() => setIsMenuOpen(false)}
                 >
+                    {/* Close button */}
+                    <button
+                        onClick={() => setIsMenuOpen(false)}
+                        aria-label="Cerrar menú"
+                        style={{
+                            position: 'absolute',
+                            top: '24px',
+                            right: '24px',
+                            width: '48px',
+                            height: '48px',
+                            borderRadius: '50%',
+                            background: '#f5f5f5',
+                            border: 'none',
+                            cursor: 'pointer',
+                            display: 'flex',
+                            alignItems: 'center',
+                            justifyContent: 'center',
+                            fontSize: '24px',
+                            color: '#1a1a2e',
+                            transition: 'all 0.2s ease',
+                        }}
+                    >
+                        ✕
+                    </button>
+
                     <nav
                         style={{
                             display: 'flex',
