@@ -627,3 +627,18 @@ model admin_sessions {
   admin_user admin_users @relation(fields: [admin_user_id], references: [id], onDelete: Cascade)
 }
 
+// ═══════════════════════════════════════════════════════════════════════════
+// UGC VIDEOS (Carrusel de Influencers)
+// ═══════════════════════════════════════════════════════════════════════════
+
+model ugc_videos {
+  id            String   @id @default(dbgenerated("uuid_generate_v4()")) @db.Uuid
+  name          String   @db.VarChar(100)
+  video_url     String
+  thumbnail_url String?
+  is_verified   Boolean  @default(false)
+  sort_order    Int      @default(0)
+  is_active     Boolean  @default(true)
+  created_at    DateTime @default(now()) @db.Timestamptz(6)
+  updated_at    DateTime @default(now()) @db.Timestamptz(6)
+}

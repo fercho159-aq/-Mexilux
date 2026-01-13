@@ -4,6 +4,7 @@ import Link from 'next/link';
 import Image from 'next/image';
 import { useState } from 'react';
 import HomeQuiz from '@/components/home/HomeQuiz';
+import InfluencerCarousel from '@/components/home/InfluencerCarousel';
 import { ScrollAnimate } from '@/components/ui/ScrollAnimate';
 import { NewsletterForm } from '@/components/ui/NewsletterForm';
 import HeroGSAP from './HeroGSAP';
@@ -220,6 +221,11 @@ export default function HomePageClient({ featuredProducts = [] }: HomePageClient
                     </ScrollAnimate>
                 </div>
             </section>
+
+            {/* ════════════════════════════════════════════════════════════════════
+          CARRUSEL DE INFLUENCERS - "Descubre cómo luce"
+          ════════════════════════════════════════════════════════════════════ */}
+            <InfluencerCarousel />
 
             {/* ════════════════════════════════════════════════════════════════════
           1.3 QUIZ DE ESTILO RÁPIDO
