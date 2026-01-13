@@ -217,7 +217,9 @@ export default function HomePageClient({ featuredProducts = [] }: HomePageClient
                             style={{
                                 minHeight: '500px',
                                 transition: 'all 0.3s ease',
-                                gridTemplateColumns: '1fr'
+                                gridTemplateColumns: '1fr',
+                                padding: 0,
+                                overflow: 'hidden'
                             }}
                         >
                             <HomeQuiz
