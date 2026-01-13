@@ -1884,7 +1884,7 @@ button {
   border: none !important;
   box-shadow: none !important;
   background: transparent !important;
-  padding: 0 !important;
+  padding: var(--space-lg) !important;
 }
 
 .quiz-card>.quiz-container .quiz-step {
