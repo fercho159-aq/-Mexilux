@@ -1862,7 +1862,30 @@ button {
 /* Quiz embebido - ocupa todo el espacio */
 .quiz-card>.quiz-container {
   width: 100%;
+  height: 100%;
   grid-column: 1 / -1;
+}
+
+.quiz-card>.quiz-container .quiz-wizard-content {
+  height: 100%;
+  padding: 0;
+}
+
+.quiz-card>.quiz-container .section-container {
+  height: 100%;
+  padding: var(--space-lg);
+}
+
+.quiz-card>.quiz-container .quiz-wizard {
+  height: auto;
+  flex: 1;
+}
+
+.quiz-card>.quiz-container .quiz-step {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: flex-start;
 }
 
 @media (max-width: 768px) {

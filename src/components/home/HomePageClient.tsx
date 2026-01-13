@@ -247,6 +247,7 @@ export default function HomePageClient({ featuredProducts = [] }: HomePageClient
                                     onClose={() => setIsQuizOpen(false)}
                                     initialStyle={quizStyle}
                                     embedded={true}
+                                    skipIntro={true}
                                 />
                             ) : (
                                 <>

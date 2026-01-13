@@ -113,15 +113,16 @@ export interface HomeQuizProps {
     initialStep?: number;
     initialStyle?: string;
     embedded?: boolean;
+    skipIntro?: boolean;
 }
 
-export default function HomeQuiz({ isOpen, onClose, initialStep = 0, initialStyle, embedded = false }: HomeQuizProps) {
+export default function HomeQuiz({ isOpen, onClose, initialStep = 0, initialStyle, embedded = false, skipIntro = false }: HomeQuizProps) {
     const [currentStep, setCurrentStep] = useState(initialStep);
     const [answers, setAnswers] = useState<Record<string, string>>(initialStyle ? { style: initialStyle } : {});
     const [showResults, setShowResults] = useState(false);
     const [isAnimating, setIsAnimating] = useState(false);
     const [showCamera, setShowCamera] = useState(false);
-    const [showManualOptions, setShowManualOptions] = useState(false);
+    const [showManualOptions, setShowManualOptions] = useState(skipIntro);
     const [skinToneResult, setSkinToneResult] = useState<AnalysisResult['skinTone'] | null>(null);
     const cardRef = useRef<HTMLDivElement>(null);
     const fileInputRef = useRef<HTMLInputElement>(null);
