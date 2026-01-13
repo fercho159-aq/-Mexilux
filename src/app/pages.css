@@ -2384,6 +2384,17 @@
     margin-bottom: var(--space-xl);
 }
 
+.empty-cart .empty-icon-container {
+    display: flex;
+    justify-content: center;
+    margin-bottom: var(--space-xl);
+}
+
+.empty-cart .tote-bag-icon {
+    color: #9ca3af;
+    opacity: 0.8;
+}
+
 .empty-cart h1 {
     margin: 0 0 var(--space-md);
 }

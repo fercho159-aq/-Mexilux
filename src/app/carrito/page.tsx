@@ -166,7 +166,24 @@ function CartContent() {
             <main className="cart-page">
                 <div className="section-container">
                     <div className="empty-cart">
-                        <span className="empty-icon">👜</span>
+                        <div className="empty-icon-container">
+                            <svg
+                                width="80"
+                                height="80"
+                                viewBox="0 0 24 24"
+                                fill="none"
+                                stroke="currentColor"
+                                strokeWidth="1.5"
+                                strokeLinecap="round"
+                                strokeLinejoin="round"
+                                className="tote-bag-icon"
+                            >
+                                {/* Tote bag body */}
+                                <path d="M6 6h12l1 14H5L6 6z" />
+                                {/* Handles */}
+                                <path d="M9 6V4a3 3 0 0 1 6 0v2" />
+                            </svg>
+                        </div>
                         <h1>Tu bolsa está vacía</h1>
                         <p>¿Y la de comprar no te la sabes? Inviértele</p>
                         <Link href="/catalogo" className="btn btn-primary btn-lg">
