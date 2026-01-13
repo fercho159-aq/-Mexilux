@@ -145,7 +145,11 @@ export default function InfluencerCarousel({ initialVideos }: InfluencerCarousel
                 <div className="influencer-video-container">
                   {/* Video Element */}
                   <video
-                    ref={(el) => video.position === 'center' && setVideoRef(video.id, el)}
+                    ref={(el) => {
+                      if (video.position === 'center') {
+                        setVideoRef(video.id, el);
+                      }
+                    }}
                     src={video.video_url}
                     poster={video.thumbnail_url}
                     loop
