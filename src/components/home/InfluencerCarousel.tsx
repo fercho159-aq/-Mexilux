@@ -44,6 +44,8 @@ export default function InfluencerCarousel({ initialVideos }: InfluencerCarousel
   const [videos, setVideos] = useState<UGCVideo[]>(initialVideos || PLACEHOLDER_VIDEOS);
   const [activeIndex, setActiveIndex] = useState(0);
   const [isPlaying, setIsPlaying] = useState(false);
+  const [isAnimating, setIsAnimating] = useState(false);
+  const [slideDirection, setSlideDirection] = useState<'left' | 'right' | null>(null);
   const videoRefs = useRef<Map<string, HTMLVideoElement>>(new Map());
 
   useEffect(() => {
@@ -60,6 +62,8 @@ export default function InfluencerCarousel({ initialVideos }: InfluencerCarousel
   }, [initialVideos]);
 
   const navigateCarousel = (direction: 'left' | 'right') => {
+    if (isAnimating) return; // Prevent spam clicking
+
     // Pause current video
     const currentVideo = videoRefs.current.get(videos[activeIndex]?.id);
     if (currentVideo) {
@@ -68,11 +72,24 @@ export default function InfluencerCarousel({ initialVideos }: InfluencerCarousel
     }
     setIsPlaying(false);
 
-    if (direction === 'left') {
-      setActiveIndex(prev => (prev === 0 ? videos.length - 1 : prev - 1));
-    } else {
-      setActiveIndex(prev => (prev === videos.length - 1 ? 0 : prev + 1));
-    }
+    // Start animation
+    setSlideDirection(direction);
+    setIsAnimating(true);
+
+    // Update index after a small delay for animation
+    setTimeout(() => {
+      if (direction === 'left') {
+        setActiveIndex(prev => (prev === 0 ? videos.length - 1 : prev - 1));
+      } else {
+        setActiveIndex(prev => (prev === videos.length - 1 ? 0 : prev + 1));
+      }
+
+      // Reset animation state
+      setTimeout(() => {
+        setIsAnimating(false);
+        setSlideDirection(null);
+      }, 50);
+    }, 300);
   };
 
   const handlePlayPause = () => {
@@ -135,11 +152,11 @@ export default function InfluencerCarousel({ initialVideos }: InfluencerCarousel
           </button>
 
           {/* Carousel Container */}
-          <div className="influencer-carousel">
+          <div className={`influencer-carousel ${isAnimating ? `sliding-${slideDirection}` : ''}`}>
             {visibleVideos.map((video) => (
               <div
                 key={`${video.id}-${video.position}`}
-                className={`influencer-card influencer-card-${video.position}`}
+                className={`influencer-card influencer-card-${video.position} ${isAnimating ? 'animating' : ''}`}
                 onClick={() => video.position !== 'center' && navigateCarousel(video.position === 'left' ? 'left' : 'right')}
               >
                 <div className="influencer-video-container">
@@ -297,6 +314,53 @@ export default function InfluencerCarousel({ initialVideos }: InfluencerCarousel
                 .influencer-card-center {
                     z-index: 10;
                     transform: scale(1);
+                }
+
+                /* Slide Animations */
+                .influencer-carousel.sliding-left .influencer-card {
+                    animation: slideLeft 0.3s ease-out forwards;
+                }
+
+                .influencer-carousel.sliding-right .influencer-card {
+                    animation: slideRight 0.3s ease-out forwards;
+                }
+
+                @keyframes slideLeft {
+                    0% {
+                        transform: translateX(0);
+                        opacity: 1;
+                    }
+                    50% {
+                        transform: translateX(50px);
+                        opacity: 0.5;
+                    }
+                    100% {
+                        transform: translateX(0);
+                        opacity: 1;
+                    }
+                }
+
+                @keyframes slideRight {
+                    0% {
+                        transform: translateX(0);
+                        opacity: 1;
+                    }
+                    50% {
+                        transform: translateX(-50px);
+                        opacity: 0.5;
+                    }
+                    100% {
+                        transform: translateX(0);
+                        opacity: 1;
+                    }
+                }
+
+                .influencer-card.animating {
+                    pointer-events: none;
+                }
+
+                .influencer-nav:active {
+                    transform: scale(0.95);
                 }
 
                 .influencer-video-container {
