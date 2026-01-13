@@ -2,7 +2,6 @@
 
 import Link from 'next/link';
 import Image from 'next/image';
-import { useState } from 'react';
 import HomeQuiz from '@/components/home/HomeQuiz';
 import InfluencerCarousel from '@/components/home/InfluencerCarousel';
 import { ScrollAnimate } from '@/components/ui/ScrollAnimate';
@@ -31,18 +30,6 @@ const CATEGORIES = [
         count: 203,
         featured: 'Gucci, Prada, Dior',
     },
-];
-
-// ═══════════════════════════════════════════════════════════════════════════
-// 1.3 QUIZ "TU ESTILO" - Opciones rápidas
-// ═══════════════════════════════════════════════════════════════════════════
-const STYLE_QUIZ_OPTIONS = [
-    { icon: '👔', label: 'Ejecutivo', value: 'executive' },
-    { icon: '🎨', label: 'Creativo', value: 'creative' },
-    { icon: '⚽', label: 'Deportivo', value: 'sporty' },
-    { icon: '✨', label: 'Elegante', value: 'elegant' },
-    { icon: '🌴', label: 'Casual', value: 'casual' },
-    { icon: '🎸', label: 'Trendy', value: 'trendy' },
 ];
 
 // ═══════════════════════════════════════════════════════════════════════════
@@ -100,14 +87,6 @@ interface HomePageClientProps {
 }
 
 export default function HomePageClient({ featuredProducts = [] }: HomePageClientProps) {
-    const [isQuizOpen, setIsQuizOpen] = useState(false);
-    const [quizStyle, setQuizStyle] = useState<string | undefined>();
-
-    const handleStartQuiz = (style?: string) => {
-        setQuizStyle(style);
-        setIsQuizOpen(true);
-    };
-
     const formatPrice = (price: number) => `$${price.toLocaleString('es-MX')}`;
 
     return (
@@ -238,63 +217,16 @@ export default function HomePageClient({ featuredProducts = [] }: HomePageClient
                             style={{
                                 minHeight: '500px',
                                 transition: 'all 0.3s ease',
-                                gridTemplateColumns: isQuizOpen ? '1fr' : '1fr 1fr'
+                                gridTemplateColumns: '1fr'
                             }}
                         >
-                            {isQuizOpen ? (
-                                <HomeQuiz
-                                    isOpen={true}
-                                    onClose={() => setIsQuizOpen(false)}
-                                    initialStyle={quizStyle}
-                                    embedded={true}
-                                    skipIntro={true}
-                                />
-                            ) : (
-                                <>
-                                    <div className="quiz-content">
-                                        <span className="quiz-badge">🎯 Encuentra tu estilo</span>
-                                        <h2 id="quiz-title" className="quiz-title">
-                                            ¿No sabes qué lentes te quedan?
-                                        </h2>
-                                        <p className="quiz-description">
-                                            Responde 3 preguntas rápidas y te recomendaremos las monturas
-                                            perfectas para tu tipo de rostro y estilo de vida.
-                                        </p>
-
-                                        <div className="quiz-options">
-                                            <span className="quiz-label">¿Cuál es tu estilo?</span>
-                                            <div className="quiz-buttons">
-                                                {STYLE_QUIZ_OPTIONS.map((option) => (
-                                                    <button
-                                                        key={option.value}
-                                                        onClick={() => handleStartQuiz(option.value)}
-                                                        className="quiz-option-btn"
-                                                    >
-                                                        <span className="option-icon">{option.icon}</span>
-                                                        <span className="option-label">{option.label}</span>
-                                                    </button>
-                                                ))}
-                                            </div>
-                                        </div>
-
-                                        <button onClick={() => handleStartQuiz()} className="btn btn-quiz">
-                                            Hacer el quiz completo
-                                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                                                <path d="M5 12h14m-7-7 7 7-7 7" />
-                                            </svg>
-                                        </button>
-                                    </div>
-
-                                    <div className="quiz-visual" aria-hidden="true">
-                                        <div className="quiz-graphic">
-                                            <div className="face-shape face-oval">Ovalado</div>
-                                            <div className="face-shape face-square">Cuadrado</div>
-                                            <div className="face-shape face-round">Redondo</div>
-                                            <div className="face-shape face-heart">Corazón</div>
-                                        </div>
-                                    </div>
-                                </>
-                            )}
+                            <HomeQuiz
+                                isOpen={true}
+                                onClose={() => { }} // No closing needed as it's permanent
+                                initialStyle={undefined}
+                                embedded={true}
+                                skipIntro={false} // Show the 'How do you want to discover...' screen
+                            />
                         </div>
                     </ScrollAnimate>
                 </div>
