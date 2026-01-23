@@ -1,6 +1,10 @@
 @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap');
 @import "tailwindcss";
 
+/* Cargar configuración legacy de Tailwind */
+@config "../../tailwind.config.js";
+/* Rebuild trigger 2026-01-23 */
+
 /**
  * ═══════════════════════════════════════════════════════════════════════════
  * MEXILUX - ESTILOS GLOBALES (Apple Style)
@@ -15,6 +19,9 @@
    ═══════════════════════════════════════════════════════════════════════════ */
 
 :root {
+  /* ─── Tailwind v4 Fixes ────────────────────────────────────────────── */
+  --spacing: 0.25rem;
+
   /* ─── Nueva Paleta ──────────────────────────────────────────────────── */
   --carbon-black: #1D1E21ff;
   --prussian-blue: #152132ff;

@@ -60,7 +60,7 @@ export default async function CheckoutPage({ searchParams }: PageProps) {
     }
 
     return (
-        <main className="checkout-page pt-24 min-h-screen bg-gray-50 pb-12">
+        <main className="checkout-page pt-24 min-h-screen bg-gray-50 pb-12 flex justify-center w-full">
             <CheckoutClient initialItem={initialItem} />
         </main>
     );
