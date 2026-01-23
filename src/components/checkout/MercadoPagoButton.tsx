@@ -10,21 +10,26 @@ initMercadoPago(process.env.NEXT_PUBLIC_MP_PUBLIC_KEY!, {
     locale: 'es-MX',
 });
 
-interface MercadoPagoButtonProps {
-    product: {
-        id: string;
-        title: string;
-        price: number;
-    };
+interface CheckoutItem {
+    id: string;
+    title: string;
+    price: number;
+    quantity: number;
 }
 
-export default function MercadoPagoButton({ product }: MercadoPagoButtonProps) {
+interface MercadoPagoButtonProps {
+    items: CheckoutItem[];
+}
+
+export default function MercadoPagoButton({ items }: MercadoPagoButtonProps) {
     const [preferenceId, setPreferenceId] = useState<string | null>(null);
     const [isLoading, setIsLoading] = useState(false);
 
     useEffect(() => {
-        // Create preference when component mounts or product changes
+        // Create preference when component mounts or items change
         const createPreference = async () => {
+            if (items.length === 0) return;
+
             setIsLoading(true);
             try {
                 const response = await fetch('/api/mercadopago/create_preference', {
@@ -33,10 +38,7 @@ export default function MercadoPagoButton({ product }: MercadoPagoButtonProps) {
                         'Content-Type': 'application/json',
                     },
                     body: JSON.stringify({
-                        id: product.id,
-                        title: product.title,
-                        price: product.price,
-                        quantity: 1,
+                        items: items
                     }),
                 });
 
@@ -51,13 +53,11 @@ export default function MercadoPagoButton({ product }: MercadoPagoButtonProps) {
             }
         };
 
-        if (product.price > 0) {
-            createPreference();
-        }
-    }, [product]);
+        createPreference();
+    }, [items]);
 
     if (isLoading) {
-        return <div className="mp-loading">Cargando opciones de pago...</div>;
+        return <div className="mp-loading animate-pulse h-12 bg-gray-100 rounded-md text-center flex items-center justify-center text-gray-500 text-sm">Cargando opciones de pago...</div>;
     }
 
     return (

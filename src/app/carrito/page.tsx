@@ -318,9 +318,9 @@ function CartContent() {
                             <span>{formatPrice(total)}</span>
                         </div>
 
-                        <button className="btn btn-primary btn-lg btn-block">
+                        <Link href="/checkout" className="btn btn-primary btn-lg btn-block text-center">
                             Proceder al pago
-                        </button>
+                        </Link>
 
                         <div className="payment-methods">
                             <p>Aceptamos:</p>
