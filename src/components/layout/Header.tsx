@@ -7,6 +7,7 @@ const MENU_ITEMS = [
     { href: '/quiz', label: 'Encuentra tu flow' },
     { href: '/tratamientos', label: 'Tratamientos' },
     { href: '/catalogo', label: 'Catálogo' },
+    { href: '/blog', label: 'Cosas Mexas' },
     { href: '/nosotros', label: '¿Qué es Mexilux?' },
     { href: '/contacto', label: 'Contáctanos' },
 ];

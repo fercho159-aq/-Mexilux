@@ -9,6 +9,7 @@ import Image from 'next/image';
 import type { Metadata } from 'next';
 import { notFound } from 'next/navigation';
 import { getFrameBySlug } from '@/lib/db';
+import MercadoPagoButton from '@/components/checkout/MercadoPagoButton';
 
 export const metadata: Metadata = {
     title: 'Checkout | Mexilux',
@@ -116,6 +117,22 @@ export default async function CheckoutPage({ searchParams }: PageProps) {
                     {/* Formulario de contacto */}
                     <section className="checkout-form-section">
                         <h2>¿Cómo te contactamos?</h2>
+
+                        {/* Mercado Pago Section */}
+                        <div className="mb-6 p-4 bg-gray-50 rounded-lg border border-gray-200">
+                            <h3 className="text-sm font-semibold mb-3 text-gray-700">Paga seguro con Mercado Pago:</h3>
+                            <MercadoPagoButton
+                                product={{
+                                    id: productSlug,
+                                    title: `${product.brand?.name || ''} ${product.name}`,
+                                    price: totalPrice
+                                }}
+                            />
+                            <div className="relative my-6 text-center">
+                                <span className="bg-white px-2 text-sm text-gray-500 relative z-10">O cotiza por WhatsApp</span>
+                                <div className="absolute top-1/2 left-0 w-full h-px bg-gray-200 -z-0"></div>
+                            </div>
+                        </div>
                         <p className="checkout-subtitle">
                             Déjanos tus datos y te contactamos por WhatsApp para confirmar tu pedido 📱
                         </p>

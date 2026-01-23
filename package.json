@@ -16,6 +16,7 @@
   },
   "dependencies": {
     "@mediapipe/tasks-vision": "^0.10.22-rc.20250304",
+    "@mercadopago/sdk-react": "^1.0.7",
     "@prisma/client": "^5.22.0",
     "@radix-ui/react-dialog": "^1.1.15",
     "@radix-ui/react-progress": "^1.1.8",
@@ -35,6 +36,7 @@
     "js-cookie": "^3.0.5",
     "jsonwebtoken": "^9.0.3",
     "lucide-react": "^0.561.0",
+    "mercadopago": "^2.12.0",
     "next": "16.0.10",
     "prisma": "^5.22.0",
     "react": "19.2.1",
