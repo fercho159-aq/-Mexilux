@@ -2,10 +2,19 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { MercadoPagoConfig, Preference } from 'mercadopago';
 
-const client = new MercadoPagoConfig({ accessToken: process.env.MP_ACCESS_TOKEN! });
-
 export async function POST(request: NextRequest) {
     try {
+        // Validar que el access token esté configurado
+        const accessToken = process.env.MP_ACCESS_TOKEN;
+        if (!accessToken) {
+            console.error('MP_ACCESS_TOKEN is not configured');
+            return NextResponse.json(
+                { error: 'Payment configuration error. Please contact support.' },
+                { status: 500 }
+            );
+        }
+
+        const client = new MercadoPagoConfig({ accessToken });
         const body = await request.json();
 
         let items = [];
@@ -47,8 +56,15 @@ export async function POST(request: NextRequest) {
         });
 
         return NextResponse.json({ id: result.id });
-    } catch (error) {
-        console.error('Error creating preference:', error);
-        return NextResponse.json({ error: 'Internal Server Error' }, { status: 500 });
+    } catch (error: any) {
+        console.error('Error creating MercadoPago preference:', {
+            message: error?.message,
+            cause: error?.cause,
+            status: error?.status,
+        });
+        return NextResponse.json(
+            { error: 'Error creating payment preference. Please try again.' },
+            { status: 500 }
+        );
     }
 }
