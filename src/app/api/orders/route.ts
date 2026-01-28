@@ -209,24 +209,20 @@ export async function POST(request: NextRequest) {
                 };
 
                 // Create snapshot of lens configuration if present
-                let lensConfigSnapshot = null;
-                if (cartItem.lens_configuration) {
-                    const config = cartItem.lens_configuration;
-                    lensConfigSnapshot = {
-                        usageType: config.usage_type,
-                        materialId: config.material_id,
-                        materialName: config.material?.name || null,
-                        treatmentIds: config.treatment_ids,
-                        pricing: config.pricing,
-                    };
-                }
+                const lensConfigSnapshot = cartItem.lens_configuration ? {
+                    usageType: cartItem.lens_configuration.usage_type,
+                    materialId: cartItem.lens_configuration.material_id,
+                    materialName: cartItem.lens_configuration.material?.name || null,
+                    treatmentIds: cartItem.lens_configuration.treatment_ids,
+                    pricing: cartItem.lens_configuration.pricing,
+                } : undefined;
 
                 await tx.order_items.create({
                     data: {
                         order_id: newOrder.id,
                         frame_snapshot: frameSnapshot,
                         color_variant_snapshot: colorVariantSnapshot,
-                        lens_configuration_snapshot: lensConfigSnapshot,
+                        ...(lensConfigSnapshot && { lens_configuration_snapshot: lensConfigSnapshot }),
                         quantity: cartItem.quantity,
                         unit_price: cartItem.unit_price,
                         total_price: cartItem.total_price,
