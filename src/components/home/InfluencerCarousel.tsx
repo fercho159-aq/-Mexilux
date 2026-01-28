@@ -57,9 +57,6 @@ export default function InfluencerCarousel({ initialVideos }: InfluencerCarousel
   const [videos, setVideos] = useState<UGCVideo[]>(initialVideos || PLACEHOLDER_VIDEOS);
   const [activeIndex, setActiveIndex] = useState(0);
   const [playingId, setPlayingId] = useState<string | null>(null);
-  const [isDragging, setIsDragging] = useState(false);
-  const [startX, setStartX] = useState(0);
-  const [dragOffset, setDragOffset] = useState(0);
   const videoRefs = useRef<Map<string, HTMLVideoElement>>(new Map());
   const containerRef = useRef<HTMLDivElement>(null);
 
@@ -101,90 +98,74 @@ export default function InfluencerCarousel({ initialVideos }: InfluencerCarousel
     }
   };
 
-  const goToNext = () => {
-    if (playingId) {
-      const video = videoRefs.current.get(playingId);
-      video?.pause();
-      setPlayingId(null);
+  const scrollToVideo = (index: number) => {
+    if (containerRef.current) {
+      const container = containerRef.current;
+      const cardWidth = 280; // card width (260) + gap (20)
+      const containerCenter = container.clientWidth / 2;
+      const cardCenter = cardWidth / 2;
+
+      // Calculate position to center the card
+      // We want: (index * cardWidth) + cardCenter = scrollLeft + containerCenter
+      // scrollLeft = (index * cardWidth) - containerCenter + cardCenter
+
+      // Note: card width in CSS is 260px, gap is 20px. 
+      // Let's rely on scrollIntoView or simple calculation.
+      // Simple offset calculation:
+      const cardElement = container.children[0].children[index] as HTMLElement;
+      if (cardElement) {
+        const scrollLeft = cardElement.offsetLeft - (container.clientWidth - cardElement.clientWidth) / 2;
+        container.scrollTo({ left: scrollLeft, behavior: 'smooth' });
+      }
     }
-    setActiveIndex((prev) => (prev + 1) % videos.length);
+    setActiveIndex(index);
+  };
+
+  const handleScroll = () => {
+    if (containerRef.current) {
+      const container = containerRef.current;
+      const center = container.scrollLeft + container.clientWidth / 2;
+      const cardElements = container.querySelectorAll('.card-wrapper');
+
+      let closestIndex = 0;
+      let closestDistance = Infinity;
+
+      cardElements.forEach((el, index) => {
+        const box = (el as HTMLElement).getBoundingClientRect();
+        // Since we are in a scroll container, we need to be careful with getBoundingClientRect relative to viewport
+        // But we can just use the container's center relative to viewport.
+
+        const containerRect = container.getBoundingClientRect();
+        const containerCenter = containerRect.left + containerRect.width / 2;
+        const elementCenter = box.left + box.width / 2;
+        const distance = Math.abs(containerCenter - elementCenter);
+
+        if (distance < closestDistance) {
+          closestDistance = distance;
+          closestIndex = index;
+        }
+      });
+
+      if (closestIndex !== activeIndex) {
+        setActiveIndex(closestIndex);
+        // Pause playing video if scrolled away? Optional.
+        // if (playingId) {
+        //    const video = videoRefs.current.get(playingId);
+        //    video?.pause();
+        //    setPlayingId(null);
+        // }
+      }
+    }
+  };
+
+  const goToNext = () => {
+    const nextIndex = Math.min(activeIndex + 1, videos.length - 1);
+    scrollToVideo(nextIndex);
   };
 
   const goToPrev = () => {
-    if (playingId) {
-      const video = videoRefs.current.get(playingId);
-      video?.pause();
-      setPlayingId(null);
-    }
-    setActiveIndex((prev) => (prev - 1 + videos.length) % videos.length);
-  };
-
-  // Touch/Mouse handlers for swipe
-  const handleDragStart = (clientX: number) => {
-    setIsDragging(true);
-    setStartX(clientX);
-    setDragOffset(0);
-  };
-
-  const handleDragMove = (clientX: number) => {
-    if (!isDragging) return;
-    const diff = clientX - startX;
-    setDragOffset(diff);
-  };
-
-  const handleDragEnd = () => {
-    if (!isDragging) return;
-    setIsDragging(false);
-
-    const threshold = 80;
-    if (dragOffset > threshold) {
-      goToPrev();
-    } else if (dragOffset < -threshold) {
-      goToNext();
-    }
-    setDragOffset(0);
-  };
-
-  const getCardStyle = (index: number): React.CSSProperties => {
-    const diff = index - activeIndex;
-    const normalizedDiff = ((diff % videos.length) + videos.length) % videos.length;
-    const position = normalizedDiff > videos.length / 2 ? normalizedDiff - videos.length : normalizedDiff;
-
-    const baseScale = 0.9;
-
-    // Use percentage for responsive spacing (100% = card width, + 15px gap approx)
-    // We can use calc() or just a percentage that looks good. 105% is tight, 110% is good.
-    const spacingPercent = 110;
-
-    let translateX = position * spacingPercent;
-    let scale = position === 0 ? 1 : baseScale;
-    let zIndex = 10 - Math.abs(position);
-    let opacity = Math.abs(position) <= 2 ? 1 : 0; // Show immediate neighbors, hide far ones to prevent glitches if wrapping is weird
-
-    // Apply drag offset to valid neighbor cards if we want a smooth continuous drag feeling
-    // modifying specific cards based on dragOffset relies on px vs % conversion which is tricky here.
-    // For now, let's keep the drag effect only on the active card or simplify.
-    // Actually, to make the WHOLE carousel move with drag, we should apply dragOffset (converted to %) to all.
-    // But dragOffset is in pixels.
-    // Let's leave dragOffset visual only on the center card for now as per original code, or remove it to avoid sync issues.
-    // Code below applies it to 'position === 0'.
-
-    // Better strategy for smooth drag:
-    // Convert px dragOffset to an approximate percentage or just add it as px in calc().
-    // width of card is approx 260px.
-    // 1px approx 0.4%.
-
-    return {
-      position: 'absolute',
-      width: '100%',
-      height: '100%',
-      // Use calc to combine % position and px drag
-      transform: `translateX(calc(${translateX}% + ${isDragging ? dragOffset : 0}px)) scale(${scale})`,
-      zIndex,
-      opacity,
-      transition: isDragging ? 'none' : 'all 0.4s cubic-bezier(0.25, 1, 0.5, 1)',
-      pointerEvents: position === 0 ? 'auto' : 'none',
-    };
+    const prevIndex = Math.max(activeIndex - 1, 0);
+    scrollToVideo(prevIndex);
   };
 
   if (videos.length === 0) return null;
@@ -204,38 +185,42 @@ export default function InfluencerCarousel({ initialVideos }: InfluencerCarousel
         </ScrollAnimate>
 
         <ScrollAnimate animation="fade-up">
-          <div
-            ref={containerRef}
-            className="carousel-container"
-            onMouseDown={(e) => handleDragStart(e.clientX)}
-            onMouseMove={(e) => handleDragMove(e.clientX)}
-            onMouseUp={handleDragEnd}
-            onMouseLeave={handleDragEnd}
-            onTouchStart={(e) => handleDragStart(e.touches[0].clientX)}
-            onTouchMove={(e) => handleDragMove(e.touches[0].clientX)}
-            onTouchEnd={handleDragEnd}
-          >
-            <div className="cards-stack">
-              {videos.map((video, index) => (
-                <div
-                  key={video.id}
-                  className="card-wrapper"
-                  style={getCardStyle(index)}
-                >
-                  <div className="influencer-video-container">
-                    <video
-                      ref={(el) => setVideoRef(video.id, el)}
-                      src={video.video_url}
-                      poster={video.thumbnail_url}
-                      loop
-                      muted
-                      playsInline
-                      preload="metadata"
-                      className="influencer-video"
-                    />
-                    <div className="influencer-overlay" />
+          <div className="carousel-wrapper">
+            {/* Left Arrow - visible on desktop */}
+            <button
+              className={`nav-arrow left ${activeIndex === 0 ? 'disabled' : ''}`}
+              onClick={goToPrev}
+              disabled={activeIndex === 0}
+              aria-label="Anterior video"
+            >
+              ←
+            </button>
 
-                    {index === activeIndex && (
+            <div
+              ref={containerRef}
+              className="carousel-container"
+              onScroll={handleScroll}
+            >
+              <div className="track">
+                {videos.map((video, index) => (
+                  <div
+                    key={video.id}
+                    className={`card-wrapper ${index === activeIndex ? 'active' : ''}`}
+                    onClick={() => index !== activeIndex && scrollToVideo(index)}
+                  >
+                    <div className="influencer-video-container">
+                      <video
+                        ref={(el) => setVideoRef(video.id, el)}
+                        src={video.video_url}
+                        poster={video.thumbnail_url}
+                        loop
+                        muted
+                        playsInline
+                        preload="metadata"
+                        className="influencer-video"
+                      />
+                      <div className="influencer-overlay" />
+
                       <button
                         className={`influencer-play-btn ${playingId === video.id ? 'playing' : ''}`}
                         onClick={(e) => {
@@ -255,25 +240,34 @@ export default function InfluencerCarousel({ initialVideos }: InfluencerCarousel
                           </svg>
                         )}
                       </button>
-                    )}
 
-                    <div className="influencer-info">
-                      <span className="influencer-name">
-                        {video.name}
-                        {video.is_verified && (
-                          <span className="verified-badge">
-                            <svg viewBox="0 0 24 24" fill="currentColor">
-                              <path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z" />
-                            </svg>
-                          </span>
-                        )}
-                      </span>
+                      <div className="influencer-info">
+                        <span className="influencer-name">
+                          {video.name}
+                          {video.is_verified && (
+                            <span className="verified-badge">
+                              <svg viewBox="0 0 24 24" fill="currentColor">
+                                <path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z" />
+                              </svg>
+                            </span>
+                          )}
+                        </span>
+                      </div>
                     </div>
                   </div>
-                </div>
-              ))}
+                ))}
+              </div>
             </div>
 
+            {/* Right Arrow */}
+            <button
+              className={`nav-arrow right ${activeIndex === videos.length - 1 ? 'disabled' : ''}`}
+              onClick={goToNext}
+              disabled={activeIndex === videos.length - 1}
+              aria-label="Siguiente video"
+            >
+              →
+            </button>
           </div>
 
           {/* Dots indicator */}
@@ -282,14 +276,12 @@ export default function InfluencerCarousel({ initialVideos }: InfluencerCarousel
               <button
                 key={index}
                 className={`dot ${index === activeIndex ? 'active' : ''}`}
-                onClick={() => setActiveIndex(index)}
+                onClick={() => scrollToVideo(index)}
                 aria-label={`Ir a video ${index + 1}`}
               />
             ))}
           </div>
         </ScrollAnimate>
-
-        <p className="swipe-hint">← Desliza para cambiar →</p>
       </div>
 
       <style jsx>{`
@@ -299,30 +291,52 @@ export default function InfluencerCarousel({ initialVideos }: InfluencerCarousel
           overflow: hidden;
         }
 
+        .carousel-wrapper {
+            position: relative;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            max-width: 1000px;
+            margin: 0 auto;
+        }
+
         .carousel-container {
-          position: relative;
-          height: 480px;
-          display: flex;
-          align-items: center;
-          justify-content: center;
-          cursor: grab;
-          user-select: none;
-          touch-action: pan-y pinch-zoom;
+          width: 100%;
+          overflow-x: auto;
+          overflow-y: hidden;
+          scroll-snap-type: x mandatory;
+          scroll-behavior: smooth;
+          -webkit-overflow-scrolling: touch;
+          scrollbar-width: none; /* Firefox */
+          padding: 40px 20px;
+        }
+        
+        .carousel-container::-webkit-scrollbar {
+            display: none;
         }
 
-        .carousel-container:active {
-          cursor: grabbing;
-        }
-
-        .cards-stack {
-          position: relative;
-          width: 260px;
-          height: 460px;
+        .track {
+            display: flex;
+            gap: 20px;
+            padding: 0 35%; /* Centering padding */
+            width: max-content;
         }
 
         .card-wrapper {
-          width: 100%;
-          height: 100%;
+            width: 260px;
+            height: 460px;
+            scroll-snap-align: center;
+            flex-shrink: 0;
+            transition: transform 0.3s ease, opacity 0.3s ease;
+            transform: scale(0.92);
+            opacity: 0.7;
+            cursor: pointer;
+        }
+        
+        .card-wrapper.active {
+            transform: scale(1);
+            opacity: 1;
+            z-index: 2;
         }
 
         .influencer-video-container {
@@ -331,9 +345,8 @@ export default function InfluencerCarousel({ initialVideos }: InfluencerCarousel
           border-radius: 28px;
           overflow: hidden;
           background: linear-gradient(135deg, #152132 0%, #1c2d42 100%);
-          box-shadow:
-            0 25px 50px rgba(21, 33, 50, 0.4),
-            0 10px 20px rgba(0, 0, 0, 0.2);
+          position: relative;
+          box-shadow: 0 15px 35px rgba(0, 0, 0, 0.15);
         }
 
         .influencer-video {
@@ -345,14 +358,8 @@ export default function InfluencerCarousel({ initialVideos }: InfluencerCarousel
         .influencer-overlay {
           position: absolute;
           inset: 0;
-          background: linear-gradient(
-            180deg,
-            rgba(0, 0, 0, 0) 0%,
-            rgba(0, 0, 0, 0) 50%,
-            rgba(0, 0, 0, 0.7) 100%
-          );
+          background: linear-gradient(180deg, rgba(0,0,0,0) 0%, rgba(0,0,0,0) 60%, rgba(0,0,0,0.8) 100%);
           pointer-events: none;
-          border-radius: 28px;
         }
 
         .influencer-play-btn {
@@ -363,24 +370,32 @@ export default function InfluencerCarousel({ initialVideos }: InfluencerCarousel
           width: 64px;
           height: 64px;
           border-radius: 50%;
-          background: rgba(255, 255, 255, 0.95);
-          border: none;
+          background: rgba(255, 255, 255, 0.25);
+          backdrop-filter: blur(4px);
+          border: 1px solid rgba(255,255,255,0.4);
           cursor: pointer;
           display: flex;
           align-items: center;
           justify-content: center;
           transition: all 0.2s ease;
-          box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
           z-index: 5;
+          opacity: 0; 
+        }
+        
+        .card-wrapper.active .influencer-play-btn {
+            opacity: 1;
+            background: rgba(255, 255, 255, 0.9);
+        }
+        .card-wrapper.active .influencer-play-btn.playing {
+            opacity: 0; /* Hide when playing to not obstruct view, or show minimal? */
+        }
+        .card-wrapper.active .influencer-video-container:hover .influencer-play-btn.playing {
+            opacity: 1; /* Show on hover */
         }
 
         .influencer-play-btn:hover {
           transform: translate(-50%, -50%) scale(1.1);
           background: white;
-        }
-
-        .influencer-play-btn:active {
-          transform: translate(-50%, -50%) scale(0.95);
         }
 
         .influencer-play-btn svg {
@@ -389,14 +404,8 @@ export default function InfluencerCarousel({ initialVideos }: InfluencerCarousel
           color: #152132;
           margin-left: 4px;
         }
-
-        .influencer-play-btn.playing {
-          background: #152132;
-        }
-
         .influencer-play-btn.playing svg {
-          color: white;
-          margin-left: 0;
+            margin-left: 0;
         }
 
         .influencer-info {
@@ -413,13 +422,13 @@ export default function InfluencerCarousel({ initialVideos }: InfluencerCarousel
           font-weight: 700;
           display: flex;
           align-items: center;
-          gap: 10px;
-          text-shadow: 0 2px 12px rgba(0, 0, 0, 0.5);
+          gap: 6px;
+          text-shadow: 0 2px 4px rgba(0,0,0,0.5);
         }
 
         .verified-badge {
-          width: 22px;
-          height: 22px;
+          width: 18px;
+          height: 18px;
           border-radius: 50%;
           background: #1da1f2;
           display: inline-flex;
@@ -429,16 +438,42 @@ export default function InfluencerCarousel({ initialVideos }: InfluencerCarousel
         }
 
         .verified-badge svg {
-          width: 14px;
-          height: 14px;
+          width: 10px;
+          height: 10px;
           color: white;
         }
 
+        .nav-arrow {
+            background: #fff;
+            border: 1px solid #eee;
+            width: 44px;
+            height: 44px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+            z-index: 10;
+            transition: all 0.2s;
+            color: #152132;
+            font-size: 18px;
+        }
+        .nav-arrow:hover:not(:disabled) {
+            background: #152132;
+            color: #fff;
+        }
+        .nav-arrow.disabled {
+            opacity: 0.3;
+            cursor: not-allowed;
+            pointer-events: none;
+        }
+        
         .dots-indicator {
           display: flex;
           justify-content: center;
           gap: 8px;
-          margin-top: 24px;
+          margin-top: 10px;
         }
 
         .dot {
@@ -458,67 +493,17 @@ export default function InfluencerCarousel({ initialVideos }: InfluencerCarousel
           border-radius: 4px;
         }
 
-        .dot:hover:not(.active) {
-          background: #bbb;
-        }
-
-        .swipe-hint {
-          text-align: center;
-          font-size: 13px;
-          color: #999;
-          margin-top: 16px;
-        }
-
-        @media (min-width: 768px) {
-          .carousel-container {
-            height: 520px;
-          }
-
-          .cards-stack {
-            width: 280px;
-            height: 500px;
-          }
-
-          .swipe-hint {
-            display: none;
-          }
-        }
-
-        @media (max-width: 767px) {
-          .influencer-section {
-            padding: 40px 0 30px;
-          }
-
-          .carousel-container {
-            height: 420px;
-          }
-
-          .cards-stack {
-            width: 220px;
-            height: 390px;
-          }
-
-          .influencer-video-container {
-            border-radius: 24px;
-          }
-
-          .influencer-overlay {
-            border-radius: 24px;
-          }
-
-          .influencer-play-btn {
-            width: 56px;
-            height: 56px;
-          }
-
-          .influencer-play-btn svg {
-            width: 24px;
-            height: 24px;
-          }
-
-          .influencer-name {
-            font-size: 18px;
-          }
+        @media (max-width: 768px) {
+            .track {
+                padding: 0 50px; /* Less padding on mobile to show more of next card */
+            }
+            .nav-arrow {
+                display: none;
+            }
+            .card-wrapper {
+                width: 240px;
+                height: 400px;
+            }
         }
       `}</style>
     </section>
