@@ -150,29 +150,39 @@ export default function InfluencerCarousel({ initialVideos }: InfluencerCarousel
     const normalizedDiff = ((diff % videos.length) + videos.length) % videos.length;
     const position = normalizedDiff > videos.length / 2 ? normalizedDiff - videos.length : normalizedDiff;
 
-    const baseOffset = 15;
-    const baseScale = 0.92;
-    const baseRotate = 3;
+    const baseScale = 0.9;
 
-    let translateX = position * baseOffset;
-    let translateY = Math.abs(position) * 8;
-    let scale = Math.pow(baseScale, Math.abs(position));
-    let rotate = position * baseRotate;
+    // Use percentage for responsive spacing (100% = card width, + 15px gap approx)
+    // We can use calc() or just a percentage that looks good. 105% is tight, 110% is good.
+    const spacingPercent = 110;
+
+    let translateX = position * spacingPercent;
+    let scale = position === 0 ? 1 : baseScale;
     let zIndex = 10 - Math.abs(position);
-    let opacity = Math.abs(position) <= 2 ? 1 - Math.abs(position) * 0.25 : 0;
+    let opacity = Math.abs(position) <= 2 ? 1 : 0; // Show immediate neighbors, hide far ones to prevent glitches if wrapping is weird
 
-    // Apply drag offset to front card
-    if (position === 0 && isDragging) {
-      translateX += dragOffset * 0.5;
-      rotate += dragOffset * 0.05;
-    }
+    // Apply drag offset to valid neighbor cards if we want a smooth continuous drag feeling
+    // modifying specific cards based on dragOffset relies on px vs % conversion which is tricky here.
+    // For now, let's keep the drag effect only on the active card or simplify.
+    // Actually, to make the WHOLE carousel move with drag, we should apply dragOffset (converted to %) to all.
+    // But dragOffset is in pixels.
+    // Let's leave dragOffset visual only on the center card for now as per original code, or remove it to avoid sync issues.
+    // Code below applies it to 'position === 0'.
+
+    // Better strategy for smooth drag:
+    // Convert px dragOffset to an approximate percentage or just add it as px in calc().
+    // width of card is approx 260px.
+    // 1px approx 0.4%.
 
     return {
       position: 'absolute',
-      transform: `translateX(${translateX}px) translateY(${translateY}px) scale(${scale}) rotate(${rotate}deg)`,
+      width: '100%',
+      height: '100%',
+      // Use calc to combine % position and px drag
+      transform: `translateX(calc(${translateX}% + ${isDragging ? dragOffset : 0}px)) scale(${scale})`,
       zIndex,
       opacity,
-      transition: isDragging ? 'none' : 'all 0.4s cubic-bezier(0.4, 0, 0.2, 1)',
+      transition: isDragging ? 'none' : 'all 0.4s cubic-bezier(0.25, 1, 0.5, 1)',
       pointerEvents: position === 0 ? 'auto' : 'none',
     };
   };
