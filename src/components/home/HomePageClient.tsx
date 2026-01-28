@@ -221,115 +221,174 @@ export default function HomePageClient({ featuredProducts = [] }: HomePageClient
                         </div>
                     </ScrollAnimate>
 
-                    <div
-                        className="treatments-carousel"
-                        style={{
-                            display: 'flex',
-                            gap: '16px',
-                            overflowX: 'auto',
-                            scrollSnapType: 'x mandatory',
-                            scrollBehavior: 'smooth',
-                            paddingBottom: '16px',
-                            WebkitOverflowScrolling: 'touch',
-                            msOverflowStyle: 'none',
-                            scrollbarWidth: 'none'
-                        }}
-                    >
-                        {[
-                            {
-                                id: 'blueray',
-                                name: 'Blue Ray',
-                                description: 'Protección contra luz azul de pantallas',
-                                emoji: '💙',
-                                color: '#1a73e8'
-                            },
-                            {
-                                id: 'polarizado',
-                                name: 'Polarizado',
-                                description: 'Reduce reflejos, ideal para manejar',
-                                emoji: '🕶️',
-                                color: '#2d2d2d'
-                            },
-                            {
-                                id: 'fotocromatico',
-                                name: 'Fotocromático',
-                                description: 'Se oscurece con el sol automáticamente',
-                                emoji: '🌓',
-                                color: '#6b4c9a'
-                            },
-                            {
-                                id: 'antirreflejante',
-                                name: 'Antirreflejante',
-                                description: 'Elimina reflejos y mejora claridad',
-                                emoji: '✨',
-                                color: '#00a67d'
-                            },
-                            {
-                                id: 'tinte',
-                                name: 'Tintes de Color',
-                                description: 'Personaliza tus lentes con estilo',
-                                emoji: '🎨',
-                                color: '#e91e63'
-                            },
-                        ].map((treatment, index) => (
-                            <ScrollAnimate key={treatment.id} animation="fade-up" delay={index * 100}>
+                    <ScrollAnimate animation="fade-up">
+                        <div
+                            className="treatments-carousel"
+                            onMouseDown={(e) => {
+                                const el = e.currentTarget;
+                                el.dataset.isDown = 'true';
+                                el.dataset.startX = String(e.pageX - el.offsetLeft);
+                                el.dataset.scrollLeft = String(el.scrollLeft);
+                            }}
+                            onMouseLeave={(e) => {
+                                e.currentTarget.dataset.isDown = 'false';
+                            }}
+                            onMouseUp={(e) => {
+                                e.currentTarget.dataset.isDown = 'false';
+                            }}
+                            onMouseMove={(e) => {
+                                const el = e.currentTarget;
+                                if (el.dataset.isDown !== 'true') return;
+                                e.preventDefault();
+                                const x = e.pageX - el.offsetLeft;
+                                const walk = (x - Number(el.dataset.startX)) * 2;
+                                el.scrollLeft = Number(el.dataset.scrollLeft) - walk;
+                            }}
+                        >
+                            {[
+                                {
+                                    id: 'blueray',
+                                    name: 'Blue Ray',
+                                    description: 'Protección contra luz azul de pantallas',
+                                    emoji: '💙',
+                                    color: '#1a73e8'
+                                },
+                                {
+                                    id: 'polarizado',
+                                    name: 'Polarizado',
+                                    description: 'Reduce reflejos, ideal para manejar',
+                                    emoji: '🕶️',
+                                    color: '#2d2d2d'
+                                },
+                                {
+                                    id: 'fotocromatico',
+                                    name: 'Fotocromático',
+                                    description: 'Se oscurece con el sol automáticamente',
+                                    emoji: '🌓',
+                                    color: '#6b4c9a'
+                                },
+                                {
+                                    id: 'antirreflejante',
+                                    name: 'Antirreflejante',
+                                    description: 'Elimina reflejos y mejora claridad',
+                                    emoji: '✨',
+                                    color: '#00a67d'
+                                },
+                                {
+                                    id: 'tinte',
+                                    name: 'Tintes de Color',
+                                    description: 'Personaliza tus lentes con estilo',
+                                    emoji: '🎨',
+                                    color: '#e91e63'
+                                },
+                            ].map((treatment) => (
                                 <div
+                                    key={treatment.id}
                                     className="treatment-card"
                                     style={{
-                                        minWidth: '280px',
-                                        maxWidth: '280px',
-                                        scrollSnapAlign: 'start',
-                                        background: `linear-gradient(135deg, ${treatment.color}15 0%, ${treatment.color}05 100%)`,
-                                        border: `2px solid ${treatment.color}30`,
-                                        borderRadius: '20px',
-                                        padding: '24px',
-                                        display: 'flex',
-                                        flexDirection: 'column',
-                                        gap: '12px',
-                                        cursor: 'pointer',
-                                        transition: 'all 0.3s ease'
+                                        background: `linear-gradient(135deg, ${treatment.color}10 0%, ${treatment.color}05 100%)`,
+                                        border: `1.5px solid ${treatment.color}20`,
                                     }}
                                 >
-                                    <div style={{
-                                        width: '60px',
-                                        height: '60px',
-                                        borderRadius: '16px',
-                                        background: `${treatment.color}20`,
-                                        display: 'flex',
-                                        alignItems: 'center',
-                                        justifyContent: 'center',
-                                        fontSize: '28px'
+                                    <div className="treatment-icon" style={{
+                                        background: `${treatment.color}15`,
                                     }}>
                                         {treatment.emoji}
                                     </div>
-                                    <h3 style={{
-                                        fontSize: '18px',
-                                        fontWeight: '700',
-                                        color: '#152132',
-                                        margin: 0
-                                    }}>
+                                    <h3 className="treatment-name">
                                         {treatment.name}
                                     </h3>
-                                    <p style={{
-                                        fontSize: '14px',
-                                        color: '#666',
-                                        margin: 0,
-                                        lineHeight: '1.5'
-                                    }}>
+                                    <p className="treatment-desc">
                                         {treatment.description}
                                     </p>
                                 </div>
-                            </ScrollAnimate>
-                        ))}
-                    </div>
+                            ))}
+                        </div>
+                    </ScrollAnimate>
+
+                    <style jsx>{`
+                        .treatments-carousel {
+                            display: flex;
+                            gap: 16px;
+                            overflow-x: auto;
+                            padding: 16px 4px 24px;
+                            scroll-snap-type: x mandatory;
+                            scroll-behavior: smooth;
+                            cursor: grab;
+                            user-select: none;
+                            -webkit-overflow-scrolling: touch;
+                            scrollbar-width: none;
+                            -ms-overflow-style: none;
+                        }
+                        .treatments-carousel::-webkit-scrollbar {
+                            display: none;
+                        }
+                        .treatments-carousel:active {
+                            cursor: grabbing;
+                        }
+                        .treatment-card {
+                            min-width: 260px;
+                            flex-shrink: 0;
+                            scroll-snap-align: start;
+                            border-radius: '20px';
+                            padding: 24px;
+                            display: flex;
+                            flex-direction: column;
+                            gap: 14px;
+                            transition: transform 0.3s ease, box-shadow 0.3s ease;
+                            border-radius: 20px;
+                        }
+                        .treatment-card:hover {
+                            transform: translateY(-4px);
+                            box-shadow: 0 12px 24px rgba(0,0,0,0.1);
+                        }
+                        .treatment-icon {
+                            width: 56px;
+                            height: 56px;
+                            border-radius: 16px;
+                            display: flex;
+                            align-items: center;
+                            justify-content: center;
+                            font-size: 28px;
+                        }
+                        .treatment-name {
+                            font-size: 18px;
+                            font-weight: 700;
+                            color: #152132;
+                            margin: 0;
+                        }
+                        .treatment-desc {
+                            font-size: 14px;
+                            color: #666;
+                            margin: 0;
+                            line-height: 1.5;
+                        }
+                        @media (max-width: 768px) {
+                            .treatment-card {
+                                min-width: 220px;
+                                padding: 20px;
+                            }
+                            .treatment-icon {
+                                width: 48px;
+                                height: 48px;
+                                font-size: 24px;
+                            }
+                            .treatment-name {
+                                font-size: 16px;
+                            }
+                            .treatment-desc {
+                                font-size: 13px;
+                            }
+                        }
+                    `}</style>
 
                     <p style={{
                         textAlign: 'center',
                         fontSize: '13px',
                         color: '#999',
-                        marginTop: '8px'
+                        marginTop: '4px'
                     }}>
-                        ← Desliza para ver más →
+                        ← Arrastra para ver más →
                     </p>
                 </div>
             </section>

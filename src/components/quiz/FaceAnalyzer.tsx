@@ -8,6 +8,7 @@ interface FaceAnalyzerProps {
     onCancel: () => void;
     onManualSelect?: () => void;
     embedded?: boolean;
+    initialImage?: string | null;
 }
 
 export type FaceShape = 'oval' | 'round' | 'square' | 'heart' | 'oblong';
@@ -23,16 +24,16 @@ export interface AnalysisResult {
     };
 }
 
-export default function FaceAnalyzer({ onComplete, onCancel, onManualSelect, embedded = false }: FaceAnalyzerProps) {
+export default function FaceAnalyzer({ onComplete, onCancel, onManualSelect, embedded = false, initialImage = null }: FaceAnalyzerProps) {
     const videoRef = useRef<HTMLVideoElement>(null);
     const canvasRef = useRef<HTMLCanvasElement>(null);
     const imageRef = useRef<HTMLImageElement>(null);
     const fileInputRef = useRef<HTMLInputElement>(null);
 
     const [status, setStatus] = useState<'loading' | 'ready' | 'scanning' | 'analyzing' | 'error'>('loading');
-    const [mode, setMode] = useState<'camera' | 'image'>('camera');
-    const [selectedImage, setSelectedImage] = useState<string | null>(null);
-    const [feedback, setFeedback] = useState("Iniciando sistema...");
+    const [mode, setMode] = useState<'camera' | 'image'>(initialImage ? 'image' : 'camera');
+    const [selectedImage, setSelectedImage] = useState<string | null>(initialImage);
+    const [feedback, setFeedback] = useState(initialImage ? "Procesando imagen..." : "Iniciando sistema...");
     const [faceDetected, setFaceDetected] = useState(false);
 
     const faceLandmarkerRef = useRef<FaceLandmarker | null>(null);
@@ -59,10 +60,17 @@ export default function FaceAnalyzer({ onComplete, onCancel, onManualSelect, emb
                 });
 
                 setStatus('ready');
-                setFeedback("Cámara lista. Colócate en el centro.");
-                setTimeout(() => {
-                    if (mode === 'camera') startCamera();
-                }, 500);
+
+                // Si hay imagen inicial, configurar para modo imagen
+                if (initialImage) {
+                    setFeedback("Analizando tu foto...");
+                    faceLandmarkerRef.current.setOptions({ runningMode: "IMAGE" });
+                } else {
+                    setFeedback("Cámara lista. Colócate en el centro.");
+                    setTimeout(() => {
+                        if (mode === 'camera') startCamera();
+                    }, 500);
+                }
             } catch (error) {
                 console.error("Error loading MediaPipe:", error);
                 setStatus('error');
@@ -82,19 +90,41 @@ export default function FaceAnalyzer({ onComplete, onCancel, onManualSelect, emb
 
     // Switch modes effect
     useEffect(() => {
-        if (status === 'ready') {
-            if (mode === 'camera') {
+        if (status === 'ready' || status === 'loading') {
+            if (mode === 'camera' && !selectedImage) {
                 // Switch back to VIDEO mode for camera
                 if (faceLandmarkerRef.current) {
                     faceLandmarkerRef.current.setOptions({ runningMode: "VIDEO" });
                 }
-                startCamera();
-            } else {
-                stopCamera();
-                setFeedback("Sube una foto clara de tu rostro.");
+                if (status === 'ready') {
+                    startCamera();
+                }
             }
         }
     }, [mode, status]);
+
+    // Handle image load and trigger analysis
+    const handleImageLoad = useCallback(() => {
+        if (mode === 'image' && selectedImage && faceLandmarkerRef.current) {
+            // Small delay to ensure DOM is ready
+            setTimeout(() => {
+                analyzeUploadedImage();
+            }, 300);
+        }
+    }, [mode, selectedImage]);
+
+    // Handle initial image when MediaPipe is ready
+    useEffect(() => {
+        if (status === 'ready' && mode === 'image' && initialImage && imageRef.current) {
+            // MediaPipe is ready and we have an initial image, trigger analysis
+            const img = imageRef.current;
+            if (img.complete) {
+                // Image already loaded, analyze now
+                setTimeout(() => analyzeUploadedImage(), 300);
+            }
+            // If not complete, handleImageLoad will be called by onLoad event
+        }
+    }, [status, mode, initialImage]);
 
     const stopCamera = () => {
         if (streamRef.current) {
@@ -172,13 +202,13 @@ export default function FaceAnalyzer({ onComplete, onCancel, onManualSelect, emb
         const file = e.target.files?.[0];
         if (!file) return;
 
+        stopCamera(); // Stop camera immediately
         const url = URL.createObjectURL(file);
         setSelectedImage(url);
         setMode('image');
         setFaceDetected(false);
-
-        // Slightly delayed call to ensure state updates
-        setTimeout(() => analyzeUploadedImage(), 100);
+        setFeedback("Procesando imagen...");
+        // Analysis will be triggered by useEffect when image is ready
     };
 
     const analyzeUploadedImage = async () => {
@@ -486,6 +516,7 @@ export default function FaceAnalyzer({ onComplete, onCancel, onManualSelect, emb
                     <img
                         ref={imageRef}
                         src={selectedImage || ''}
+                        onLoad={handleImageLoad}
                         style={{
                             width: '100%',
                             height: '100%',

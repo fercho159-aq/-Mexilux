@@ -124,6 +124,7 @@ export default function HomeQuiz({ isOpen, onClose, initialStep = 0, initialStyl
     const [showCamera, setShowCamera] = useState(false);
     const [showManualOptions, setShowManualOptions] = useState(skipIntro);
     const [skinToneResult, setSkinToneResult] = useState<AnalysisResult['skinTone'] | null>(null);
+    const [uploadedImage, setUploadedImage] = useState<string | null>(null);
     const cardRef = useRef<HTMLDivElement>(null);
     const fileInputRef = useRef<HTMLInputElement>(null);
 
@@ -151,6 +152,11 @@ export default function HomeQuiz({ isOpen, onClose, initialStep = 0, initialStyl
         }));
         setSkinToneResult(result.skinTone);
         setShowCamera(false);
+        setUploadedImage(null);
+        // Reset file input to allow re-uploading same file
+        if (fileInputRef.current) {
+            fileInputRef.current.value = '';
+        }
         setTimeout(() => {
             if (currentStep < totalSteps - 1) {
                 setCurrentStep(prev => prev + 1);
@@ -308,9 +314,16 @@ export default function HomeQuiz({ isOpen, onClose, initialStep = 0, initialStyl
                     </button>
                     <FaceAnalyzer
                         onComplete={handleAnalysisComplete}
-                        onCancel={() => setShowCamera(false)}
-                        onManualSelect={() => setShowCamera(false)}
+                        onCancel={() => {
+                            setShowCamera(false);
+                            setUploadedImage(null);
+                        }}
+                        onManualSelect={() => {
+                            setShowCamera(false);
+                            setUploadedImage(null);
+                        }}
                         embedded={embedded}
+                        initialImage={uploadedImage}
                     />
                 </div>
             </div>
@@ -793,7 +806,9 @@ export default function HomeQuiz({ isOpen, onClose, initialStep = 0, initialStyl
                                         onChange={(e) => {
                                             const file = e.target.files?.[0];
                                             if (file) {
-                                                // Procesar la foto subida - mostrar cámara con la imagen
+                                                // Crear URL de la imagen y pasarla al analizador
+                                                const imageUrl = URL.createObjectURL(file);
+                                                setUploadedImage(imageUrl);
                                                 setShowCamera(true);
                                             }
                                         }}
@@ -825,8 +840,8 @@ export default function HomeQuiz({ isOpen, onClose, initialStep = 0, initialStyl
 
                                     {/* Options Grid - 2 columns layout */}
                                     <div className="quiz-options-grid" style={{
-                                        display: 'flex',
-                                        flexWrap: 'wrap',
+                                        display: 'grid',
+                                        gridTemplateColumns: 'repeat(2, 1fr)',
                                         gap: '10px',
                                         width: '100%'
                                     }}>
@@ -838,15 +853,15 @@ export default function HomeQuiz({ isOpen, onClose, initialStep = 0, initialStyl
                                                     display: 'flex',
                                                     flexDirection: 'row',
                                                     alignItems: 'center',
-                                                    padding: '14px 16px',
+                                                    padding: '14px 18px',
                                                     borderRadius: '12px',
                                                     border: answers[currentQuestion.id] === option.value ? '2px solid #0071e3' : '1px solid #eee',
                                                     cursor: 'pointer',
                                                     transition: 'all 0.2s',
                                                     backgroundColor: answers[currentQuestion.id] === option.value ? '#f5f9ff' : '#fff',
-                                                    width: 'calc(50% - 5px)',
                                                     boxSizing: 'border-box',
-                                                    gap: '12px'
+                                                    gap: '10px',
+                                                    minWidth: 0
                                                 }}
                                             >
                                                 <input
@@ -857,8 +872,8 @@ export default function HomeQuiz({ isOpen, onClose, initialStep = 0, initialStyl
                                                     onChange={() => handleOptionSelect(option.value)}
                                                     style={{ display: 'none' }}
                                                 />
-                                                <span className="option-emoji" style={{ fontSize: '24px', flexShrink: 0 }}>{option.emoji}</span>
-                                                <span className="option-label" style={{ fontWeight: '600', fontSize: '15px', textAlign: 'left' }}>{option.label}</span>
+                                                <span className="option-emoji" style={{ fontSize: '22px', flexShrink: 0 }}>{option.emoji}</span>
+                                                <span className="option-label" style={{ fontWeight: '600', fontSize: '14px', textAlign: 'left', whiteSpace: 'nowrap' }}>{option.label}</span>
                                             </label>
                                         ))}
                                     </div>

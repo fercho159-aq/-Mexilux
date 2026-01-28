@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, useCallback, useRef } from 'react';
 import { ScrollAnimate } from '@/components/ui/ScrollAnimate';
 
 interface Testimonial {
@@ -58,6 +58,11 @@ const TESTIMONIALS: Testimonial[] = [
 export default function TestimonialsCarousel() {
     const [activeIndex, setActiveIndex] = useState(0);
     const [isAutoPlaying, setIsAutoPlaying] = useState(true);
+    const [isDragging, setIsDragging] = useState(false);
+    const [startX, setStartX] = useState(0);
+    const [currentTranslate, setCurrentTranslate] = useState(0);
+    const [prevTranslate, setPrevTranslate] = useState(0);
+    const trackRef = useRef<HTMLDivElement>(null);
 
     const nextSlide = useCallback(() => {
         setActiveIndex((prev) => (prev + 1) % TESTIMONIALS.length);
@@ -69,15 +74,54 @@ export default function TestimonialsCarousel() {
 
     // Auto-play
     useEffect(() => {
-        if (!isAutoPlaying) return;
+        if (!isAutoPlaying || isDragging) return;
         const interval = setInterval(nextSlide, 5000);
         return () => clearInterval(interval);
-    }, [isAutoPlaying, nextSlide]);
+    }, [isAutoPlaying, isDragging, nextSlide]);
 
     const handleInteraction = () => {
         setIsAutoPlaying(false);
-        // Resume after 10 seconds of inactivity
         setTimeout(() => setIsAutoPlaying(true), 10000);
+    };
+
+    // Touch/Mouse handlers
+    const handleDragStart = (clientX: number) => {
+        setIsDragging(true);
+        setStartX(clientX);
+        setPrevTranslate(activeIndex * -100);
+        setCurrentTranslate(activeIndex * -100);
+        handleInteraction();
+    };
+
+    const handleDragMove = (clientX: number) => {
+        if (!isDragging || !trackRef.current) return;
+        const diff = clientX - startX;
+        const containerWidth = trackRef.current.parentElement?.offsetWidth || 1;
+        const percentMove = (diff / containerWidth) * 100;
+        setCurrentTranslate(prevTranslate + percentMove);
+    };
+
+    const handleDragEnd = () => {
+        if (!isDragging) return;
+        setIsDragging(false);
+
+        const threshold = 15; // percentage
+        const diff = currentTranslate - prevTranslate;
+
+        if (diff < -threshold && activeIndex < TESTIMONIALS.length - 1) {
+            setActiveIndex(activeIndex + 1);
+        } else if (diff > threshold && activeIndex > 0) {
+            setActiveIndex(activeIndex - 1);
+        }
+
+        setCurrentTranslate(activeIndex * -100);
+    };
+
+    const getTransform = () => {
+        if (isDragging) {
+            return `translateX(${currentTranslate}%)`;
+        }
+        return `translateX(-${activeIndex * 100}%)`;
     };
 
     return (
@@ -107,10 +151,23 @@ export default function TestimonialsCarousel() {
                     </button>
 
                     {/* Carousel Track */}
-                    <div className="testimonials-carousel">
+                    <div
+                        className="testimonials-carousel"
+                        onMouseDown={(e) => handleDragStart(e.clientX)}
+                        onMouseMove={(e) => handleDragMove(e.clientX)}
+                        onMouseUp={handleDragEnd}
+                        onMouseLeave={handleDragEnd}
+                        onTouchStart={(e) => handleDragStart(e.touches[0].clientX)}
+                        onTouchMove={(e) => handleDragMove(e.touches[0].clientX)}
+                        onTouchEnd={handleDragEnd}
+                    >
                         <div
+                            ref={trackRef}
                             className="testimonials-track"
-                            style={{ transform: `translateX(-${activeIndex * 100}%)` }}
+                            style={{
+                                transform: getTransform(),
+                                transition: isDragging ? 'none' : 'transform 0.4s cubic-bezier(0.4, 0, 0.2, 1)'
+                            }}
                         >
                             {TESTIMONIALS.map((testimonial) => (
                                 <article key={testimonial.id} className="testimonial-slide">
@@ -158,6 +215,8 @@ export default function TestimonialsCarousel() {
                     ))}
                 </div>
 
+                <p className="swipe-hint">← Desliza para ver más →</p>
+
                 {/* Google Reviews Badge */}
                 <ScrollAnimate animation="zoom-in" delay={300}>
                     <div className="reviews-badge">
@@ -179,18 +238,24 @@ export default function TestimonialsCarousel() {
                     display: flex;
                     align-items: center;
                     gap: 16px;
-                    margin: 32px 0;
+                    margin: 32px 0 16px;
                 }
 
                 .testimonials-carousel {
                     flex: 1;
                     overflow: hidden;
                     border-radius: 20px;
+                    cursor: grab;
+                    touch-action: pan-y pinch-zoom;
+                    user-select: none;
+                }
+
+                .testimonials-carousel:active {
+                    cursor: grabbing;
                 }
 
                 .testimonials-track {
                     display: flex;
-                    transition: transform 0.5s cubic-bezier(0.4, 0, 0.2, 1);
                 }
 
                 .testimonial-slide {
@@ -206,6 +271,7 @@ export default function TestimonialsCarousel() {
                     padding: 32px;
                     box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
                     border: 1px solid rgba(0, 0, 0, 0.05);
+                    pointer-events: none;
                 }
 
                 .testimonial-rating {
@@ -282,7 +348,7 @@ export default function TestimonialsCarousel() {
                     display: flex;
                     justify-content: center;
                     gap: 8px;
-                    margin-top: 24px;
+                    margin-top: 16px;
                 }
 
                 .testimonial-dot {
@@ -293,6 +359,7 @@ export default function TestimonialsCarousel() {
                     border: none;
                     cursor: pointer;
                     transition: all 0.3s ease;
+                    padding: 0;
                 }
 
                 .testimonial-dot.active {
@@ -305,13 +372,21 @@ export default function TestimonialsCarousel() {
                     background: #9ca3af;
                 }
 
+                .swipe-hint {
+                    text-align: center;
+                    font-size: 13px;
+                    color: #999;
+                    margin: 12px 0 24px;
+                    display: none;
+                }
+
                 @media (max-width: 768px) {
                     .testimonial-nav {
                         display: none;
                     }
 
                     .testimonials-carousel-wrapper {
-                        margin: 24px 0;
+                        margin: 24px 0 12px;
                     }
 
                     .testimonial-card-carousel {
@@ -320,6 +395,10 @@ export default function TestimonialsCarousel() {
 
                     .testimonial-content {
                         font-size: 1rem;
+                    }
+
+                    .swipe-hint {
+                        display: block;
                     }
                 }
             `}</style>
