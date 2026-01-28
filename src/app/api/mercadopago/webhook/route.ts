@@ -6,6 +6,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import prisma from '@/lib/db/prisma';
 import { MercadoPagoConfig, Payment } from 'mercadopago';
+import { order_status } from '@prisma/client';
 import crypto from 'crypto';
 
 // Verify webhook signature (optional but recommended)
@@ -124,7 +125,7 @@ export async function POST(request: NextRequest) {
         }
 
         // Map MercadoPago status to our order status
-        let newOrderStatus = order.status;
+        let newOrderStatus: order_status = order.status;
         let shouldUpdatePayment = false;
 
         switch (paymentStatus) {
@@ -157,7 +158,7 @@ export async function POST(request: NextRequest) {
         const updateData: {
             payment_reference: string;
             payment_method: string;
-            status?: string;
+            status?: order_status;
             paid_at?: Date;
             notes?: string;
             updated_at: Date;
