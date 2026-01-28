@@ -21,7 +21,7 @@ export async function POST(request: NextRequest) {
 
         // Check if we received an array of items or a single item
         if (body.items && Array.isArray(body.items)) {
-            items = body.items.map((item: any) => ({
+            items = body.items.map((item: { id?: string; title: string; quantity?: number; price?: number; unit_price?: number }) => ({
                 id: item.id || 'item-id',
                 title: item.title,
                 quantity: Number(item.quantity) || 1,
@@ -41,17 +41,45 @@ export async function POST(request: NextRequest) {
             return NextResponse.json({ error: 'Missing items data' }, { status: 400 });
         }
 
+        // Optional: External reference for tracking (order ID or order number)
+        const externalReference = body.orderId || body.orderNumber || body.external_reference;
+
+        // Optional: Payer information
+        const payer = body.payer ? {
+            name: body.payer.name,
+            surname: body.payer.surname,
+            email: body.payer.email,
+            phone: body.payer.phone ? {
+                area_code: body.payer.phone.area_code || '',
+                number: body.payer.phone.number || body.payer.phone,
+            } : undefined,
+        } : undefined;
+
+        // Calculate shipping if provided
+        const shipments = body.shipping ? {
+            cost: Number(body.shipping),
+            mode: 'not_specified' as const,
+        } : undefined;
+
         const preference = new Preference(client);
 
         const result = await preference.create({
             body: {
                 items: items,
+                payer: payer,
+                shipments: shipments,
+                external_reference: externalReference,
+                notification_url: body.notificationUrl || `${request.nextUrl.origin}/api/mercadopago/webhook`,
                 back_urls: {
-                    success: `${request.nextUrl.origin}/checkout/success`,
-                    failure: `${request.nextUrl.origin}/checkout/failure`,
-                    pending: `${request.nextUrl.origin}/checkout/pending`,
+                    success: `${request.nextUrl.origin}/checkout/success${externalReference ? `?order=${externalReference}` : ''}`,
+                    failure: `${request.nextUrl.origin}/checkout/failure${externalReference ? `?order=${externalReference}` : ''}`,
+                    pending: `${request.nextUrl.origin}/checkout/pending${externalReference ? `?order=${externalReference}` : ''}`,
                 },
                 auto_return: 'approved',
+                statement_descriptor: 'MEXILUX',
+                expires: true,
+                expiration_date_from: new Date().toISOString(),
+                expiration_date_to: new Date(Date.now() + 24 * 60 * 60 * 1000).toISOString(), // 24 hours
             },
         });
 

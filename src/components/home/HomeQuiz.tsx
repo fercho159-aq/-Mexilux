@@ -682,7 +682,7 @@ export default function HomeQuiz({ isOpen, onClose, initialStep = 0, initialStyl
             )}
 
             <main className="quiz-wizard-content" style={contentStyle}>
-                <div className="section-container" style={{ width: '100%', height: '100%', maxWidth: embedded ? '100%' : '800px', margin: '0 auto', padding: embedded ? '0 16px' : '0 20px', display: 'flex', flexDirection: 'column', boxSizing: 'border-box' }}>
+                <div className="section-container" style={{ width: '100%', height: '100%', maxWidth: embedded ? '100%' : '800px', margin: '0 auto', padding: embedded ? '0 8px' : '0 20px', display: 'flex', flexDirection: 'column', boxSizing: 'border-box' }}>
 
                     {!embedded && (
                         <header className="quiz-page-header" style={{ textAlign: 'center', marginBottom: '40px' }}>
@@ -845,37 +845,41 @@ export default function HomeQuiz({ isOpen, onClose, initialStep = 0, initialStyl
                                         gap: '10px',
                                         width: '100%'
                                     }}>
-                                        {currentQuestion.options.map((option) => (
-                                            <label
-                                                key={option.value}
-                                                className={`quiz-option-card ${answers[currentQuestion.id] === option.value ? 'selected' : ''}`}
-                                                style={{
-                                                    display: 'flex',
-                                                    flexDirection: 'row',
-                                                    alignItems: 'center',
-                                                    padding: '14px 18px',
-                                                    borderRadius: '12px',
-                                                    border: answers[currentQuestion.id] === option.value ? '2px solid #0071e3' : '1px solid #eee',
-                                                    cursor: 'pointer',
-                                                    transition: 'all 0.2s',
-                                                    backgroundColor: answers[currentQuestion.id] === option.value ? '#f5f9ff' : '#fff',
-                                                    boxSizing: 'border-box',
-                                                    gap: '10px',
-                                                    minWidth: 0
-                                                }}
-                                            >
-                                                <input
-                                                    type="radio"
-                                                    name={currentQuestion.id}
-                                                    value={option.value}
-                                                    checked={answers[currentQuestion.id] === option.value}
-                                                    onChange={() => handleOptionSelect(option.value)}
-                                                    style={{ display: 'none' }}
-                                                />
-                                                <span className="option-emoji" style={{ fontSize: '22px', flexShrink: 0 }}>{option.emoji}</span>
-                                                <span className="option-label" style={{ fontWeight: '600', fontSize: '14px', textAlign: 'left', whiteSpace: 'nowrap' }}>{option.label}</span>
-                                            </label>
-                                        ))}
+                                        {currentQuestion.options.map((option, index) => {
+                                            const isLastAndOdd = index === currentQuestion.options.length - 1 && currentQuestion.options.length % 2 !== 0;
+                                            return (
+                                                <label
+                                                    key={option.value}
+                                                    className={`quiz-option-card ${answers[currentQuestion.id] === option.value ? 'selected' : ''}`}
+                                                    style={{
+                                                        display: 'flex',
+                                                        flexDirection: 'row',
+                                                        alignItems: 'center',
+                                                        padding: '12px 10px',
+                                                        borderRadius: '12px',
+                                                        cursor: 'pointer',
+                                                        transition: 'all 0.2s',
+                                                        backgroundColor: answers[currentQuestion.id] === option.value ? '#f5f9ff' : '#fff',
+                                                        boxSizing: 'border-box',
+                                                        gap: '8px',
+                                                        minWidth: 0,
+                                                        overflow: 'hidden',
+                                                        gridColumn: isLastAndOdd ? 'span 2' : 'auto'
+                                                    }}
+                                                >
+                                                    <input
+                                                        type="radio"
+                                                        name={currentQuestion.id}
+                                                        value={option.value}
+                                                        checked={answers[currentQuestion.id] === option.value}
+                                                        onChange={() => handleOptionSelect(option.value)}
+                                                        style={{ display: 'none' }}
+                                                    />
+                                                    <span className="option-emoji" style={{ fontSize: '22px', flexShrink: 0 }}>{option.emoji}</span>
+                                                    <span className="option-label" style={{ fontWeight: '600', fontSize: '12px', textAlign: 'left', lineHeight: '1.2' }}>{option.label}</span>
+                                                </label>
+                                            );
+                                        })}
                                     </div>
                                 </>
                             )}
