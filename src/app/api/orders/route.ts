@@ -7,6 +7,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import prisma from '@/lib/db/prisma';
 import { cookies } from 'next/headers';
+import { order_status } from '@prisma/client';
 
 // Generate unique order number
 function generateOrderNumber(): string {
@@ -40,9 +41,9 @@ export async function GET(request: NextRequest) {
         const limit = parseInt(searchParams.get('limit') || '10');
         const status = searchParams.get('status');
 
-        const where: { user_id: string; status?: string } = { user_id: userId };
-        if (status) {
-            where.status = status;
+        const where: { user_id: string; status?: order_status } = { user_id: userId };
+        if (status && Object.values(order_status).includes(status as order_status)) {
+            where.status = status as order_status;
         }
 
         const [orders, total] = await Promise.all([
