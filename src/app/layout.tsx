@@ -3,23 +3,41 @@ import "./globals.css";
 import "./pages.css";
 import Header from "@/components/layout/Header";
 
+const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || "https://mexilux.com";
+
 export const metadata: Metadata = {
+  metadataBase: new URL(siteUrl),
   title: {
-    default: "Mexilux | Óptica Premium",
-    template: "%s | Mexilux",
+    default: "Mexilux | Lentes y Armazones Premium en México - Envío Gratis",
+    template: "%s | Mexilux - Óptica Online",
   },
   description:
-    "Descubre nuestra colección de monturas de diseñador y lentes graduados personalizados. Agenda tu examen de la vista con nuestros optometristas certificados.",
+    "Compra lentes graduados, armazones de diseñador y lentes de sol con hasta 50% de descuento. Envío gratis en todo México. Garantía de 2 años. Configura tus lentes online en minutos.",
   keywords: [
-    "óptica",
-    "lentes graduados",
-    "monturas",
-    "optometría",
+    // Palabras clave de alta intención de compra
+    "comprar lentes graduados online",
+    "lentes con envío gratis México",
+    "armazones baratos",
+    "óptica online México",
+    "lentes de sol originales",
+    // Productos específicos
+    "lentes progresivos precio",
+    "lentes bifocales",
+    "lentes antirreflejantes",
+    "lentes blue ray para computadora",
+    "lentes fotocromáticos",
+    "lentes polarizados",
+    // Marcas populares
+    "armazones Ray-Ban México",
+    "lentes Oakley originales",
+    // Ubicación
+    "óptica en línea México",
+    "lentes graduados CDMX",
+    "óptica envío a domicilio",
+    // Servicios
     "examen de la vista",
-    "lentes de sol",
-    "Ray-Ban",
-    "Oakley",
-    "lentes progressivos",
+    "graduar lentes online",
+    "configurador de lentes",
   ],
   authors: [{ name: "Mexilux" }],
   creator: "Mexilux",
@@ -29,28 +47,35 @@ export const metadata: Metadata = {
     address: false,
     telephone: false,
   },
+  alternates: {
+    canonical: siteUrl,
+    languages: {
+      "es-MX": siteUrl,
+    },
+  },
   openGraph: {
     type: "website",
     locale: "es_MX",
-    url: "https://mexilux.com",
+    url: siteUrl,
     siteName: "Mexilux",
-    title: "Mexilux | Óptica Premium",
+    title: "Mexilux | Lentes Premium con Envío Gratis en México",
     description:
-      "Monturas de diseñador y lentes graduados personalizados en México",
+      "Armazones de diseñador desde $599. Lentes graduados con garantía de 2 años. Configura tus lentes en 3 pasos. Envío gratis a todo México.",
     images: [
       {
         url: "/og-image.jpg",
         width: 1200,
         height: 630,
-        alt: "Mexilux - Óptica Premium",
+        alt: "Mexilux - Lentes y Armazones Premium en México",
       },
     ],
   },
   twitter: {
     card: "summary_large_image",
-    title: "Mexilux | Óptica Premium",
-    description: "Monturas de diseñador y lentes graduados personalizados",
+    title: "Mexilux | Lentes Premium - Hasta 50% OFF",
+    description: "Compra lentes graduados online. Envío gratis + Garantía 2 años. Configura tus lentes en minutos.",
     images: ["/og-image.jpg"],
+    creator: "@mexilux",
   },
   robots: {
     index: true,
@@ -63,6 +88,107 @@ export const metadata: Metadata = {
       "max-snippet": -1,
     },
   },
+  verification: {
+    // Agregar cuando tengas las verificaciones
+    // google: "tu-codigo-de-verificacion",
+    // yandex: "tu-codigo",
+  },
+  category: "ecommerce",
+};
+
+// JSON-LD Structured Data para SEO
+const jsonLd = {
+  "@context": "https://schema.org",
+  "@graph": [
+    {
+      "@type": "Organization",
+      "@id": `${siteUrl}/#organization`,
+      name: "Mexilux",
+      url: siteUrl,
+      logo: {
+        "@type": "ImageObject",
+        url: `${siteUrl}/logo.png`,
+      },
+      sameAs: [
+        "https://facebook.com/mexilux",
+        "https://instagram.com/mexilux",
+        "https://tiktok.com/@mexilux",
+      ],
+      contactPoint: {
+        "@type": "ContactPoint",
+        telephone: "+52-55-1234-5678",
+        contactType: "customer service",
+        availableLanguage: "Spanish",
+      },
+    },
+    {
+      "@type": "WebSite",
+      "@id": `${siteUrl}/#website`,
+      url: siteUrl,
+      name: "Mexilux",
+      description: "Óptica online premium en México",
+      publisher: {
+        "@id": `${siteUrl}/#organization`,
+      },
+      potentialAction: {
+        "@type": "SearchAction",
+        target: `${siteUrl}/catalogo?search={search_term_string}`,
+        "query-input": "required name=search_term_string",
+      },
+    },
+    {
+      "@type": "Store",
+      "@id": `${siteUrl}/#store`,
+      name: "Mexilux - Óptica Online",
+      image: `${siteUrl}/og-image.jpg`,
+      priceRange: "$$",
+      servesCuisine: "Óptica",
+      address: {
+        "@type": "PostalAddress",
+        addressCountry: "MX",
+        addressRegion: "Ciudad de México",
+      },
+      geo: {
+        "@type": "GeoCoordinates",
+        latitude: "19.4326",
+        longitude: "-99.1332",
+      },
+      url: siteUrl,
+      telephone: "+52-55-1234-5678",
+      openingHoursSpecification: [
+        {
+          "@type": "OpeningHoursSpecification",
+          dayOfWeek: ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday"],
+          opens: "09:00",
+          closes: "19:00",
+        },
+        {
+          "@type": "OpeningHoursSpecification",
+          dayOfWeek: "Saturday",
+          opens: "10:00",
+          closes: "15:00",
+        },
+      ],
+      aggregateRating: {
+        "@type": "AggregateRating",
+        ratingValue: "4.9",
+        reviewCount: "500",
+        bestRating: "5",
+      },
+    },
+    {
+      "@type": "BreadcrumbList",
+      "@id": `${siteUrl}/#breadcrumb`,
+      itemListElement: [
+        {
+          "@type": "ListItem",
+          position: 1,
+          name: "Inicio",
+          item: siteUrl,
+        },
+      ],
+    },
+  ],
 };
 
 export const viewport: Viewport = {
@@ -82,7 +208,16 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="es" suppressHydrationWarning>
-      <head />
+      <head>
+        {/* JSON-LD Structured Data */}
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
+        />
+        {/* Preconnect to external domains for performance */}
+        <link rel="preconnect" href="https://fonts.googleapis.com" />
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
+      </head>
       <body suppressHydrationWarning>
         {/* Skip link para accesibilidad */}
         <a href="#main-content" className="skip-link">

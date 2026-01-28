@@ -1,0 +1,22 @@
+# Robots.txt para Mexilux
+# https://mexilux.com
+
+User-agent: *
+Allow: /
+
+# Bloquear rutas de administración y APIs
+Disallow: /api/
+Disallow: /admin/
+Disallow: /_next/
+Disallow: /checkout/
+Disallow: /cart/
+
+# Permitir archivos estáticos importantes
+Allow: /api/og/*
+Allow: /_next/static/
+
+# Sitemap
+Sitemap: https://mexilux.com/sitemap.xml
+
+# Crawl-delay para ser amigable con el servidor
+Crawl-delay: 1
