@@ -2,6 +2,7 @@ import { redirect } from 'next/navigation';
 import { getAdminSession } from '@/lib/auth/admin';
 import prisma from '@/lib/db/prisma';
 import { AdminSidebar } from '../dashboard/AdminSidebar';
+import { Pencil, Trash2 } from 'lucide-react';
 import '../admin.css';
 
 export default async function AdminCategoriasPage() {
@@ -42,8 +43,8 @@ export default async function AdminCategoriasPage() {
                                         <td>{cat.sort_order}</td>
                                         <td>
                                             <div className="action-buttons">
-                                                <button className="btn-icon" title="Editar">✏️</button>
-                                                <button className="btn-icon delete" title="Eliminar">🗑️</button>
+                                                <button className="btn-icon" title="Editar"><Pencil size={14} /></button>
+                                                <button className="btn-icon delete" title="Eliminar"><Trash2 size={14} /></button>
                                             </div>
                                         </td>
                                     </tr>

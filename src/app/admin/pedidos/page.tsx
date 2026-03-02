@@ -4,17 +4,19 @@ import prisma from '@/lib/db/prisma';
 import Link from 'next/link';
 import { AdminSidebar } from '../dashboard/AdminSidebar';
 import '../admin.css';
+import { Clock, Check, Wrench, Search, Package, Truck, CheckCircle, XCircle, Undo2, HelpCircle, Eye, Printer, ClipboardList } from 'lucide-react';
+import { ReactNode } from 'react';
 
-const STATUS_CONFIG: Record<string, { label: string; icon: string; badgeClass: string }> = {
-    pending_payment: { label: 'Pago Pendiente', icon: '⏳', badgeClass: 'badge-draft' },
-    payment_confirmed: { label: 'Confirmado', icon: '✓', badgeClass: 'badge-active' },
-    in_production: { label: 'En Producción', icon: '🔧', badgeClass: 'badge-draft' },
-    quality_control: { label: 'Control Calidad', icon: '🔍', badgeClass: 'badge-draft' },
-    ready_for_shipping: { label: 'Listo para Envío', icon: '📦', badgeClass: 'badge-active' },
-    shipped: { label: 'Enviado', icon: '🚚', badgeClass: 'badge-active' },
-    delivered: { label: 'Entregado', icon: '✅', badgeClass: 'badge-active' },
-    cancelled: { label: 'Cancelado', icon: '❌', badgeClass: 'badge-out' },
-    returned: { label: 'Devuelto', icon: '↩️', badgeClass: 'badge-out' },
+const STATUS_CONFIG: Record<string, { label: string; icon: ReactNode; badgeClass: string }> = {
+    pending_payment: { label: 'Pago Pendiente', icon: <Clock size={14} />, badgeClass: 'badge-draft' },
+    payment_confirmed: { label: 'Confirmado', icon: <Check size={14} />, badgeClass: 'badge-active' },
+    in_production: { label: 'En Producción', icon: <Wrench size={14} />, badgeClass: 'badge-draft' },
+    quality_control: { label: 'Control Calidad', icon: <Search size={14} />, badgeClass: 'badge-draft' },
+    ready_for_shipping: { label: 'Listo para Envío', icon: <Package size={14} />, badgeClass: 'badge-active' },
+    shipped: { label: 'Enviado', icon: <Truck size={14} />, badgeClass: 'badge-active' },
+    delivered: { label: 'Entregado', icon: <CheckCircle size={14} />, badgeClass: 'badge-active' },
+    cancelled: { label: 'Cancelado', icon: <XCircle size={14} />, badgeClass: 'badge-out' },
+    returned: { label: 'Devuelto', icon: <Undo2 size={14} />, badgeClass: 'badge-out' },
 };
 
 interface PageProps {
@@ -128,7 +130,7 @@ export default async function AdminPedidosPage({ searchParams }: PageProps) {
                                 </thead>
                                 <tbody>
                                     {orders.map((order) => {
-                                        const cfg = STATUS_CONFIG[order.status] || { label: order.status, icon: '❓', badgeClass: 'badge-draft' };
+                                        const cfg = STATUS_CONFIG[order.status] || { label: order.status, icon: <HelpCircle size={14} />, badgeClass: 'badge-draft' };
                                         return (
                                             <tr key={order.id}>
                                                 <td>
@@ -172,10 +174,10 @@ export default async function AdminPedidosPage({ searchParams }: PageProps) {
                                                 <td>
                                                     <div className="action-buttons">
                                                         <Link href={`/admin/pedidos/${order.id}`} className="btn-icon" title="Ver detalles">
-                                                            👁️
+                                                            <Eye size={16} />
                                                         </Link>
                                                         <button className="btn-icon" title="Imprimir">
-                                                            🖨️
+                                                            <Printer size={16} />
                                                         </button>
                                                     </div>
                                                 </td>
@@ -186,7 +188,7 @@ export default async function AdminPedidosPage({ searchParams }: PageProps) {
                             </table>
                         ) : (
                             <div style={{ padding: '4rem', textAlign: 'center' }}>
-                                <div style={{ fontSize: '3rem', marginBottom: '1rem' }}>📋</div>
+                                <div style={{ marginBottom: '1rem', display: 'flex', justifyContent: 'center' }}><ClipboardList size={48} /></div>
                                 <h3 style={{ margin: '0 0 0.5rem 0', color: '#3f4254' }}>No hay pedidos</h3>
                                 <p style={{ margin: 0, color: '#b5b5c3' }}>
                                     {statusFilter

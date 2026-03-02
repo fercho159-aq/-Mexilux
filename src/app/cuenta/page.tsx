@@ -9,6 +9,7 @@
 import { useState } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
+import { Eye, AlertTriangle } from 'lucide-react';
 
 export default function CuentaPage() {
     const router = useRouter();
@@ -101,7 +102,7 @@ export default function CuentaPage() {
                 <div className="auth-branding">
                     <div className="branding-content">
                         <Link href="/" className="auth-logo">
-                            <span className="logo-icon">👁️</span>
+                            <span className="logo-icon"><Eye size={16} /></span>
                             <span className="logo-text">Mexilux</span>
                         </Link>
                         <h1>Bienvenido a Mexilux</h1>
@@ -142,7 +143,7 @@ export default function CuentaPage() {
                         {/* Error message */}
                         {error && (
                             <div className="auth-error">
-                                <span>⚠️</span> {error}
+                                <span><AlertTriangle size={14} /></span> {error}
                             </div>
                         )}
 

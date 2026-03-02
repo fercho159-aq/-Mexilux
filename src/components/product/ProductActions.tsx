@@ -8,15 +8,16 @@ interface LensOption {
     name: string;
     description: string;
     price: number;
-    emoji: string;
 }
 
 const LENS_OPTIONS: LensOption[] = [
-    { id: 'basic', name: 'Sin tratamiento', description: 'Solo armazón', price: 0, emoji: '👓' },
-    { id: 'blueray', name: 'Blue Ray', description: 'Protección luz azul', price: 300, emoji: '💙' },
-    { id: 'polarizado', name: 'Polarizado', description: 'Ideal para sol', price: 450, emoji: '🕶️' },
-    { id: 'fotocromatico', name: 'Fotocromático', description: 'Se oscurece con el sol', price: 550, emoji: '🌓' },
-    { id: 'tinte', name: 'Tinte de color', description: 'Estilo único', price: 200, emoji: '🎨' },
+    { id: 'blueray', name: 'Blue Ray', description: 'Proteccion luz azul', price: 450 },
+    { id: 'polarizado', name: 'Polarizado', description: 'Ideal para sol', price: 1200 },
+    { id: 'fotocromatico', name: 'Fotocromatico', description: 'Se oscurece con el sol', price: 1800 },
+    { id: 'antirreflejante', name: 'Antirreflejante', description: 'Elimina reflejos', price: 350 },
+    { id: 'antirayado', name: 'Anti-Rayado', description: 'Mayor durabilidad', price: 200 },
+    { id: 'hidrofobico', name: 'Hidrofobico', description: 'Repele agua y grasa', price: 250 },
+    { id: 'tinte', name: 'Tinte de color', description: 'Estilo unico', price: 300 },
 ];
 
 interface ProductActionsProps {
@@ -26,123 +27,185 @@ interface ProductActionsProps {
 }
 
 export default function ProductActions({ slug, variantId, basePrice }: ProductActionsProps) {
-    const [selectedLens, setSelectedLens] = useState<string>('basic');
-    const [showLensOptions, setShowLensOptions] = useState(false);
+    const [selectedTreatments, setSelectedTreatments] = useState<string[]>([]);
+    const [showTreatments, setShowTreatments] = useState(false);
 
-    // Format price locally since functions cannot be passed from Server Components
     const formatPrice = (price: number) => {
         return `$${price.toLocaleString('es-MX')}`;
     };
 
-    const selectedOption = LENS_OPTIONS.find(opt => opt.id === selectedLens) || LENS_OPTIONS[0];
-    const totalPrice = basePrice + selectedOption.price;
+    const toggleTreatment = (id: string) => {
+        setSelectedTreatments(prev =>
+            prev.includes(id) ? prev.filter(t => t !== id) : [...prev, id]
+        );
+    };
+
+    const treatmentsTotal = selectedTreatments.reduce((sum, id) => {
+        const opt = LENS_OPTIONS.find(o => o.id === id);
+        return sum + (opt?.price || 0);
+    }, 0);
+
+    const totalPrice = basePrice + treatmentsTotal;
+
+    const treatmentsParam = selectedTreatments.length > 0 ? `&treatments=${selectedTreatments.join(',')}` : '';
 
     return (
         <div className="lens-config-section">
             <div className="config-options">
 
-                {/* Selector de tipo de lente */}
+                {/* Toggle de tratamientos */}
                 <div style={{ marginBottom: '16px' }}>
                     <button
-                        onClick={() => setShowLensOptions(!showLensOptions)}
+                        onClick={() => setShowTreatments(!showTreatments)}
                         style={{
                             width: '100%',
                             padding: '14px 16px',
-                            background: '#f5f5f5',
-                            border: '2px solid #e0e0e0',
+                            background: showTreatments ? '#152132' : '#f5f5f7',
+                            color: showTreatments ? 'white' : '#152132',
+                            border: 'none',
                             borderRadius: '12px',
                             cursor: 'pointer',
                             display: 'flex',
                             alignItems: 'center',
                             justifyContent: 'space-between',
-                            fontSize: '14px'
+                            fontSize: '14px',
+                            fontWeight: 600,
+                            transition: 'all 0.2s ease',
                         }}
                     >
                         <span style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
-                            <span style={{ fontSize: '20px' }}>{selectedOption.emoji}</span>
+                            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                                <circle cx="12" cy="12" r="10" />
+                                <line x1="12" y1="8" x2="12" y2="16" />
+                                <line x1="8" y1="12" x2="16" y2="12" />
+                            </svg>
                             <span>
-                                <strong>{selectedOption.name}</strong>
-                                {selectedOption.price > 0 && (
-                                    <span style={{ color: '#666', marginLeft: '8px' }}>
-                                        +{formatPrice(selectedOption.price)}
+                                Agregar tratamientos
+                                {selectedTreatments.length > 0 && (
+                                    <span style={{
+                                        marginLeft: '8px',
+                                        fontSize: '12px',
+                                        opacity: 0.7,
+                                    }}>
+                                        ({selectedTreatments.length} seleccionados)
                                     </span>
                                 )}
                             </span>
                         </span>
                         <svg
-                            width="20"
-                            height="20"
+                            width="18"
+                            height="18"
                             viewBox="0 0 24 24"
                             fill="none"
                             stroke="currentColor"
                             strokeWidth="2"
                             style={{
-                                transform: showLensOptions ? 'rotate(180deg)' : 'rotate(0deg)',
-                                transition: 'transform 0.2s'
+                                transform: showTreatments ? 'rotate(180deg)' : 'rotate(0deg)',
+                                transition: 'transform 0.2s',
                             }}
                         >
                             <path d="m6 9 6 6 6-6" />
                         </svg>
                     </button>
 
-                    {/* Opciones desplegables */}
-                    {showLensOptions && (
+                    {/* Lista de tratamientos acumulables */}
+                    {showTreatments && (
                         <div style={{
                             marginTop: '8px',
                             background: '#fff',
-                            border: '1px solid #e0e0e0',
+                            border: '1px solid #e2e8f0',
                             borderRadius: '12px',
                             overflow: 'hidden',
-                            boxShadow: '0 4px 12px rgba(0,0,0,0.1)'
+                            boxShadow: '0 4px 12px rgba(0,0,0,0.08)',
                         }}>
-                            {LENS_OPTIONS.map((option) => (
-                                <button
-                                    key={option.id}
-                                    onClick={() => {
-                                        setSelectedLens(option.id);
-                                        setShowLensOptions(false);
-                                    }}
-                                    style={{
-                                        width: '100%',
-                                        padding: '12px 16px',
-                                        background: selectedLens === option.id ? '#f0f7ff' : '#fff',
-                                        border: 'none',
-                                        borderBottom: '1px solid #f0f0f0',
-                                        cursor: 'pointer',
-                                        display: 'flex',
-                                        alignItems: 'center',
-                                        justifyContent: 'space-between',
-                                        textAlign: 'left'
-                                    }}
-                                >
-                                    <span style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
-                                        <span style={{ fontSize: '18px' }}>{option.emoji}</span>
-                                        <span>
-                                            <strong style={{ display: 'block', fontSize: '14px' }}>{option.name}</strong>
-                                            <small style={{ color: '#666' }}>{option.description}</small>
+                            {LENS_OPTIONS.map((option) => {
+                                const isSelected = selectedTreatments.includes(option.id);
+                                return (
+                                    <button
+                                        key={option.id}
+                                        onClick={() => toggleTreatment(option.id)}
+                                        style={{
+                                            width: '100%',
+                                            padding: '12px 16px',
+                                            background: isSelected ? '#f0fdf4' : '#fff',
+                                            border: 'none',
+                                            borderBottom: '1px solid #f1f5f9',
+                                            cursor: 'pointer',
+                                            display: 'flex',
+                                            alignItems: 'center',
+                                            justifyContent: 'space-between',
+                                            textAlign: 'left',
+                                            transition: 'background 0.15s ease',
+                                        }}
+                                    >
+                                        <span style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+                                            {/* Checkbox visual */}
+                                            <span style={{
+                                                width: '20px',
+                                                height: '20px',
+                                                borderRadius: '6px',
+                                                border: isSelected ? 'none' : '2px solid #cbd5e1',
+                                                background: isSelected ? '#16a34a' : 'transparent',
+                                                display: 'flex',
+                                                alignItems: 'center',
+                                                justifyContent: 'center',
+                                                flexShrink: 0,
+                                                transition: 'all 0.15s ease',
+                                            }}>
+                                                {isSelected && (
+                                                    <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round">
+                                                        <polyline points="20 6 9 17 4 12" />
+                                                    </svg>
+                                                )}
+                                            </span>
+                                            <span>
+                                                <strong style={{ display: 'block', fontSize: '13px', color: '#0f172a' }}>{option.name}</strong>
+                                                <small style={{ color: '#64748b', fontSize: '11px' }}>{option.description}</small>
+                                            </span>
                                         </span>
-                                    </span>
-                                    <span style={{
-                                        color: option.price > 0 ? '#006847' : '#666',
-                                        fontWeight: '600',
-                                        fontSize: '14px'
-                                    }}>
-                                        {option.price > 0 ? `+${formatPrice(option.price)}` : 'Incluido'}
-                                    </span>
-                                </button>
-                            ))}
+                                        <span style={{
+                                            color: isSelected ? '#16a34a' : '#475569',
+                                            fontWeight: 600,
+                                            fontSize: '13px',
+                                            whiteSpace: 'nowrap',
+                                        }}>
+                                            +{formatPrice(option.price)}
+                                        </span>
+                                    </button>
+                                );
+                            })}
+
+                            {/* Subtotal de tratamientos */}
+                            {selectedTreatments.length > 0 && (
+                                <div style={{
+                                    padding: '10px 16px',
+                                    background: '#f8fafc',
+                                    display: 'flex',
+                                    justifyContent: 'space-between',
+                                    alignItems: 'center',
+                                    fontSize: '13px',
+                                    fontWeight: 600,
+                                }}>
+                                    <span style={{ color: '#64748b' }}>Tratamientos ({selectedTreatments.length})</span>
+                                    <span style={{ color: '#152132' }}>+{formatPrice(treatmentsTotal)}</span>
+                                </div>
+                            )}
                         </div>
                     )}
                 </div>
 
-                {/* Botón principal - Agregar a la bolsa */}
+                {/* Boton principal - Agregar a la bolsa */}
                 <Link
-                    href={`/carrito?add=${slug}&variant=${variantId}&lens=${selectedLens}`}
+                    href={`/carrito?add=${slug}&variant=${variantId}${treatmentsParam}`}
                     className="btn btn-primary btn-config"
                 >
-                    <span className="config-icon">👜</span>
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
+                        <path d="M6 2L3 6v14a2 2 0 002 2h14a2 2 0 002-2V6l-3-4z" />
+                        <line x1="3" y1="6" x2="21" y2="6" />
+                        <path d="M16 10a4 4 0 01-8 0" />
+                    </svg>
                     <span className="config-text">
-                        <strong>Órale pues necio, me lo llevo</strong>
+                        <strong>Agregar a la bolsa</strong>
                         <small>{formatPrice(totalPrice)}</small>
                     </span>
                     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
@@ -150,35 +213,37 @@ export default function ProductActions({ slug, variantId, basePrice }: ProductAc
                     </svg>
                 </Link>
 
-                {/* Botón de compra rápida */}
-                <Link
-                    href={`/checkout?buy=${slug}&variant=${variantId}&lens=${selectedLens}`}
+                {/* Boton de cotizacion con graduacion */}
+                <a
+                    href={`https://wa.me/5215512345678?text=${encodeURIComponent(
+                        `Hola, quiero solicitar cotización con graduación para ${slug}${selectedTreatments.length > 0 ? `. Tratamientos: ${selectedTreatments.join(', ')}` : ''}. Precio base: ${formatPrice(totalPrice)}`
+                    )}`}
+                    target="_blank"
+                    rel="noopener noreferrer"
                     className="btn btn-config"
                     style={{
                         background: 'linear-gradient(135deg, #006847 0%, #2e7d32 100%)',
                         color: 'white',
-                        border: 'none'
+                        border: 'none',
+                        textDecoration: 'none',
+                        display: 'flex',
+                        alignItems: 'center',
                     }}
                 >
-                    <span className="config-icon">⚡</span>
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
+                        <path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z" />
+                        <polyline points="14 2 14 8 20 8" />
+                        <line x1="16" y1="13" x2="8" y2="13" />
+                        <line x1="16" y1="17" x2="8" y2="17" />
+                    </svg>
                     <span className="config-text">
-                        <strong>¡Lo quiero ya!</strong>
-                        <small>Ir directo al pago</small>
+                        <strong>Solicitar cotizacion con graduacion</strong>
+                        <small>Te asesoramos por WhatsApp</small>
                     </span>
                     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
                         <path d="M5 12h14m-7-7 7 7-7 7" />
                     </svg>
-                </Link>
-
-                {/* Info sobre lentes graduados */}
-                <p style={{
-                    fontSize: '0.875rem',
-                    color: '#666',
-                    textAlign: 'center',
-                    marginTop: '1rem'
-                }}>
-                    💡 ¿Necesitas lentes graduados? Contáctanos por WhatsApp para cotizar.
-                </p>
+                </a>
             </div>
         </div>
     );

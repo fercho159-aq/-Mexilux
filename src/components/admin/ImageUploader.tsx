@@ -1,6 +1,7 @@
 'use client';
 
 import { useState, useRef } from 'react';
+import { Clock, Camera } from 'lucide-react';
 
 interface ImageUploaderProps {
     productSlug?: string;
@@ -169,12 +170,12 @@ export function ImageUploader({ productSlug = 'product', currentImages = [], onI
 
                 {uploading ? (
                     <div>
-                        <div style={{ fontSize: '2rem', marginBottom: '0.5rem' }}>⏳</div>
+                        <div style={{ fontSize: '2rem', marginBottom: '0.5rem' }}><Clock size={16} /></div>
                         <p style={{ margin: 0, color: '#666' }}>Subiendo imágenes...</p>
                     </div>
                 ) : (
                     <div>
-                        <div style={{ fontSize: '2rem', marginBottom: '0.5rem' }}>📷</div>
+                        <div style={{ fontSize: '2rem', marginBottom: '0.5rem' }}><Camera size={24} /></div>
                         <p style={{ margin: 0, color: '#666', fontWeight: 500 }}>
                             Arrastra imágenes aquí o haz clic para seleccionar
                         </p>

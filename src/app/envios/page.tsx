@@ -1,9 +1,10 @@
 /**
- * PÁGINA DE ENVÍOS - Con humor mexicano 🇲🇽
+ * PÁGINA DE ENVÍOS - Con humor mexicano
  */
 
 import Link from 'next/link';
 import type { Metadata } from 'next';
+import { Truck, Wind, Glasses, Sparkles, Gift, Zap, MapPin, Eye, HelpCircle, MessageCircle, Package, Banknote } from 'lucide-react';
 
 export const metadata: Metadata = {
     title: 'Información de Envíos | Mexilux',
@@ -15,7 +16,7 @@ export default function EnviosPage() {
         <main className="legal-page">
             <div className="section-container">
                 <header className="legal-header">
-                    <h1>🚚 ¿Para cuándo me llegan?</h1>
+                    <h1><Truck className="inline-block" size={28} /> ¿Para cuándo me llegan?</h1>
                     <p style={{ fontSize: '1.5rem', marginTop: '0.5rem' }}>
                         En <strong>5 a 7 días</strong> los tienes en tu puerta
                     </p>
@@ -30,7 +31,7 @@ export default function EnviosPage() {
                         textAlign: 'center',
                         marginBottom: '2rem'
                     }}>
-                        <p style={{ fontSize: '3rem', margin: '0' }}>🏃‍♂️💨</p>
+                        <div style={{ margin: '0', display: 'flex', justifyContent: 'center' }}><Wind size={48} /></div>
                         <h2 style={{ margin: '1rem 0 0.5rem' }}>
                             &quot;Ya voy, es que hay mucho tráfico&quot;
                         </h2>
@@ -41,10 +42,10 @@ export default function EnviosPage() {
                     </section>
 
                     <section className="legal-section">
-                        <h2>📦 Tiempos de entrega</h2>
+                        <h2><Package className="inline-block" size={22} /> Tiempos de entrega</h2>
                         <div className="guarantee-cards">
                             <div className="guarantee-card">
-                                <p style={{ fontSize: '2.5rem', margin: '0' }}>👓</p>
+                                <div style={{ margin: '0', display: 'flex', justifyContent: 'center' }}><Glasses size={40} /></div>
                                 <h3>Solo armazón</h3>
                                 <p className="guarantee-duration" style={{ color: 'var(--color-success)' }}>
                                     5-7 días hábiles
@@ -54,7 +55,7 @@ export default function EnviosPage() {
                                 </p>
                             </div>
                             <div className="guarantee-card">
-                                <p style={{ fontSize: '2.5rem', margin: '0' }}>✨</p>
+                                <div style={{ margin: '0', display: 'flex', justifyContent: 'center' }}><Sparkles size={40} /></div>
                                 <h3>Con lentes graduados</h3>
                                 <p className="guarantee-duration" style={{ color: 'var(--color-primary)' }}>
                                     7-10 días hábiles
@@ -67,7 +68,7 @@ export default function EnviosPage() {
                     </section>
 
                     <section className="legal-section">
-                        <h2>💸 Costo de envío</h2>
+                        <h2><Banknote className="inline-block" size={22} /> Costo de envío</h2>
 
                         {/* Envío gratis destacado */}
                         <div style={{
@@ -79,7 +80,7 @@ export default function EnviosPage() {
                             marginBottom: '2rem',
                             boxShadow: '0 10px 40px rgba(0, 104, 71, 0.3)'
                         }}>
-                            <p style={{ fontSize: '4rem', margin: '0' }}>🎁</p>
+                            <div style={{ margin: '0', display: 'flex', justifyContent: 'center' }}><Gift size={56} color="white" /></div>
                             <p style={{ fontSize: '2rem', margin: '0.5rem 0', fontWeight: '800' }}>
                                 ¡ENVÍO GRATIS!
                             </p>
@@ -87,7 +88,7 @@ export default function EnviosPage() {
                                 En compras mayores a <strong>$1,300 MXN</strong>
                             </p>
                             <p style={{ fontSize: '0.9rem', margin: '0.5rem 0 0', opacity: 0.8 }}>
-                                Porque queremos que tu dinero se quede en tus bolsillos 💚
+                                Porque queremos que tu dinero se quede en tus bolsillos
                             </p>
                         </div>
 
@@ -97,7 +98,7 @@ export default function EnviosPage() {
                                 border: '2px solid var(--color-border)',
                                 background: 'var(--color-bg)'
                             }}>
-                                <p style={{ fontSize: '2.5rem', margin: '0' }}>🚚</p>
+                                <div style={{ margin: '0', display: 'flex', justifyContent: 'center' }}><Truck size={40} /></div>
                                 <h3>Envío Estándar</h3>
                                 <p style={{
                                     fontSize: '1.5rem',
@@ -118,7 +119,7 @@ export default function EnviosPage() {
                                 border: '2px solid var(--color-primary)',
                                 background: 'linear-gradient(145deg, var(--color-bg) 0%, var(--color-primary-bg) 100%)'
                             }}>
-                                <p style={{ fontSize: '2.5rem', margin: '0' }}>⚡</p>
+                                <div style={{ margin: '0', display: 'flex', justifyContent: 'center' }}><Zap size={40} /></div>
                                 <h3>Envío Express</h3>
                                 <p style={{
                                     fontSize: '1.5rem',
@@ -132,21 +133,21 @@ export default function EnviosPage() {
                                     3-5 días hábiles
                                 </p>
                                 <p style={{ fontSize: '0.85rem', color: 'var(--color-text-muted)' }}>
-                                    Pa&apos; los que no aguantan las ganas 😏
+                                    Pa&apos; los que no aguantan las ganas
                                 </p>
                             </div>
                         </div>
                     </section>
 
                     <section className="legal-section">
-                        <h2>📍 Cobertura</h2>
+                        <h2><MapPin className="inline-block" size={22} /> Cobertura</h2>
                         <div style={{
                             textAlign: 'center',
                             padding: '2rem',
                             background: 'var(--color-bg-secondary)',
                             borderRadius: '16px'
                         }}>
-                            <p style={{ fontSize: '6rem', margin: '0', lineHeight: 1 }}>🇲🇽</p>
+                            <p style={{ fontSize: '6rem', margin: '0', lineHeight: 1 }}><MapPin size={80} /></p>
                             <h3 style={{ margin: '1rem 0 0.5rem', fontSize: '1.5rem' }}>
                                 Toda la República Mexicana
                             </h3>
@@ -162,7 +163,7 @@ export default function EnviosPage() {
                         borderRadius: '16px',
                         textAlign: 'center'
                     }}>
-                        <p style={{ fontSize: '4rem', margin: '0', lineHeight: 1 }}>👀</p>
+                        <div style={{ margin: '0', display: 'flex', justifyContent: 'center' }}><Eye size={56} /></div>
                         <h2 style={{ margin: '1rem 0 0.5rem', fontSize: '1.75rem' }}>
                             Tóxico
                         </h2>
@@ -182,7 +183,7 @@ export default function EnviosPage() {
                         borderRadius: '16px',
                         textAlign: 'center'
                     }}>
-                        <h2>¿Dudas sobre tu envío? 🤔</h2>
+                        <h2>¿Dudas sobre tu envío? <HelpCircle className="inline-block" size={22} /></h2>
                         <p style={{
                             marginBottom: '0.5rem',
                             fontStyle: 'italic',
@@ -199,7 +200,7 @@ export default function EnviosPage() {
                         </p>
                         <div className="contact-options">
                             <Link href="/contacto" className="btn btn-primary">
-                                💬 Escríbenos
+                                <MessageCircle className="inline-block" size={16} /> Escríbenos
                             </Link>
                         </div>
                     </section>

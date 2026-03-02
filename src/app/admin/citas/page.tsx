@@ -1,6 +1,7 @@
 import { redirect } from 'next/navigation';
 import { getAdminSession } from '@/lib/auth/admin';
 import { AdminSidebar } from '../dashboard/AdminSidebar';
+import { Calendar } from 'lucide-react';
 import '../admin.css';
 
 export default async function AdminCitasPage() {
@@ -20,7 +21,7 @@ export default async function AdminCitasPage() {
                     </header>
 
                     <div className="admin-card" style={{ padding: '3rem', textAlign: 'center' }}>
-                        <div style={{ fontSize: '3rem', marginBottom: '1rem' }}>📅</div>
+                        <div style={{ fontSize: '3rem', marginBottom: '1rem' }}><Calendar size={16} /></div>
                         <h3 style={{ margin: '0 0 0.5rem 0', color: '#3f4254' }}>Gestión de Citas</h3>
                         <p style={{ color: '#b5b5c3', margin: 0 }}>
                             Aquí podrás ver y administrar las citas de tus clientes para exámenes de la vista y consultas.

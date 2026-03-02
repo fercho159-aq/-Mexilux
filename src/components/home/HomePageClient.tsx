@@ -8,6 +8,7 @@ import TestimonialsCarousel from '@/components/home/TestimonialsCarousel';
 import { ScrollAnimate } from '@/components/ui/ScrollAnimate';
 import { NewsletterForm } from '@/components/ui/NewsletterForm';
 import HeroGSAP from './HeroGSAP';
+import { Heart, Glasses, Moon, Sparkles, Palette } from 'lucide-react';
 
 // ═══════════════════════════════════════════════════════════════════════════
 // 1.2 CATEGORÍAS DESTACADAS (Mexicano, Mexicana)
@@ -37,9 +38,9 @@ const CATEGORIES = [
 // SELLOS DE CONFIANZA MÉDICA
 // ═══════════════════════════════════════════════════════════════════════════
 const TRUST_BADGES = [
-    { icon: '🇲🇽', label: 'Página Mexicana', detail: 'Lo que está hecho en México está bien hecho' },
-    { icon: '✅', label: "Pa' que no te preocupes", detail: 'Todos los armazones tienen garantía' },
-    { icon: '🚚', label: 'Ya vamos, hay mucho tráfico', detail: '5-7 días de entrega' },
+    { icon: <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/><path d="M9 12l2 2 4-4"/></svg>, label: 'Página Mexicana', detail: 'Lo que está hecho en México está bien hecho' },
+    { icon: <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/><polyline points="9 12 11 14 15 10"/></svg>, label: "Pa' que no te preocupes", detail: 'Todos los armazones tienen garantía' },
+    { icon: <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"><rect x="1" y="3" width="15" height="13" rx="2"/><polygon points="16 8 20 8 23 11 23 16 16 16 16 8"/><circle cx="5.5" cy="18.5" r="2.5"/><circle cx="18.5" cy="18.5" r="2.5"/></svg>, label: 'Ya vamos, hay mucho tráfico', detail: '5-7 días de entrega' },
 ];
 
 // Tipo para productos que vienen de props
@@ -250,35 +251,35 @@ export default function HomePageClient({ featuredProducts = [] }: HomePageClient
                                     id: 'blueray',
                                     name: 'Blue Ray',
                                     description: 'Protección contra luz azul de pantallas',
-                                    emoji: '💙',
+                                    emoji: <Heart size={28} />,
                                     color: '#1a73e8'
                                 },
                                 {
                                     id: 'polarizado',
                                     name: 'Polarizado',
                                     description: 'Reduce reflejos, ideal para manejar',
-                                    emoji: '🕶️',
+                                    emoji: <Glasses size={28} />,
                                     color: '#2d2d2d'
                                 },
                                 {
                                     id: 'fotocromatico',
                                     name: 'Fotocromático',
                                     description: 'Se oscurece con el sol automáticamente',
-                                    emoji: '🌓',
+                                    emoji: <Moon size={28} />,
                                     color: '#6b4c9a'
                                 },
                                 {
                                     id: 'antirreflejante',
                                     name: 'Antirreflejante',
                                     description: 'Elimina reflejos y mejora claridad',
-                                    emoji: '✨',
+                                    emoji: <Sparkles size={28} />,
                                     color: '#00a67d'
                                 },
                                 {
                                     id: 'tinte',
                                     name: 'Tintes de Color',
                                     description: 'Personaliza tus lentes con estilo',
-                                    emoji: '🎨',
+                                    emoji: <Palette size={28} />,
                                     color: '#e91e63'
                                 },
                             ].map((treatment) => (
@@ -397,6 +398,83 @@ export default function HomePageClient({ featuredProducts = [] }: HomePageClient
           1.4 TESTIMONIOS - CARRUSEL
           ════════════════════════════════════════════════════════════════════ */}
             <TestimonialsCarousel />
+
+            {/* ════════════════════════════════════════════════════════════════════
+          BLOG - Sección con enlaces
+          ════════════════════════════════════════════════════════════════════ */}
+            <section style={{ padding: '4rem 0', background: '#fafbfc' }} aria-labelledby="blog-section-title">
+                <div className="section-container">
+                    <ScrollAnimate animation="fade-up">
+                        <div className="section-header">
+                            <h2 id="blog-section-title" className="section-title">Cosas Mexas</h2>
+                            <p className="section-description">Historias, lugares y personas que hacen grande a Mexico</p>
+                        </div>
+                    </ScrollAnimate>
+
+                    <ScrollAnimate animation="fade-up">
+                        <div style={{
+                            display: 'grid',
+                            gridTemplateColumns: 'repeat(auto-fill, minmax(240px, 1fr))',
+                            gap: '1rem',
+                            marginBottom: '2rem',
+                        }}>
+                            {[
+                                { name: 'Mexico Magico', desc: 'Lugares mexicanos para visitar', slug: 'mexico-magico', gradient: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)' },
+                                { name: 'Mexicanos de Lujo', desc: 'Mexicanos que vale la pena voltear a ver', slug: 'mexicanos-de-lujo', gradient: 'linear-gradient(135deg, #f093fb 0%, #f5576c 100%)' },
+                                { name: "Pa' la Muela", desc: 'Lugares que vale la pena comer', slug: 'pa-la-muela', gradient: 'linear-gradient(135deg, #f5af19 0%, #f12711 100%)' },
+                                { name: 'Vista a las Raices', desc: 'Cultura, raices y artesanias', slug: 'vista-a-las-raices', gradient: 'linear-gradient(135deg, #11998e 0%, #38ef7d 100%)' },
+                            ].map((section) => (
+                                <Link
+                                    key={section.slug}
+                                    href={`/blog/categoria/${section.slug}`}
+                                    style={{
+                                        display: 'flex',
+                                        flexDirection: 'column',
+                                        justifyContent: 'flex-end',
+                                        padding: '1.5rem',
+                                        borderRadius: '16px',
+                                        background: section.gradient,
+                                        color: 'white',
+                                        textDecoration: 'none',
+                                        minHeight: '140px',
+                                        transition: 'transform 0.3s ease, box-shadow 0.3s ease',
+                                    }}
+                                >
+                                    <h3 style={{ fontSize: '1.125rem', fontWeight: 700, margin: '0 0 0.25rem' }}>
+                                        {section.name}
+                                    </h3>
+                                    <p style={{ fontSize: '0.8125rem', opacity: 0.8, margin: 0 }}>
+                                        {section.desc}
+                                    </p>
+                                </Link>
+                            ))}
+                        </div>
+
+                        <div style={{ textAlign: 'center' }}>
+                            <Link
+                                href="/blog"
+                                style={{
+                                    display: 'inline-flex',
+                                    alignItems: 'center',
+                                    gap: '0.5rem',
+                                    padding: '0.75rem 1.5rem',
+                                    background: '#152132',
+                                    color: 'white',
+                                    borderRadius: '100px',
+                                    textDecoration: 'none',
+                                    fontWeight: 600,
+                                    fontSize: '0.875rem',
+                                }}
+                            >
+                                Ver todo el blog
+                                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                                    <path d="M5 12h14M12 5l7 7-7 7" />
+                                </svg>
+                            </Link>
+                        </div>
+                    </ScrollAnimate>
+                </div>
+            </section>
 
             {/* ════════════════════════════════════════════════════════════════════
           NEWSLETTER

@@ -2,6 +2,7 @@
 
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
+import { Glasses, AlertTriangle } from 'lucide-react';
 import './login.css';
 
 export default function AdminLoginPage() {
@@ -44,7 +45,7 @@ export default function AdminLoginPage() {
             <div className="admin-login-card">
                 <div className="admin-login-header">
                     <div className="admin-login-logo">
-                        <span className="logo-icon">👓</span>
+                        <span className="logo-icon"><Glasses size={28} /></span>
                         <span className="logo-text">Mexilux</span>
                     </div>
                     <h1>Panel de Administración</h1>
@@ -54,7 +55,7 @@ export default function AdminLoginPage() {
                 <form onSubmit={handleSubmit} className="admin-login-form">
                     {error && (
                         <div className="admin-login-error">
-                            <span className="error-icon">⚠️</span>
+                            <span className="error-icon"><AlertTriangle size={16} /></span>
                             {error}
                         </div>
                     )}

@@ -4,6 +4,7 @@ import Link from 'next/link';
 import { deleteProduct } from './actions';
 import { useRouter } from 'next/navigation';
 import { useState } from 'react';
+import { Pencil, Eye, Clock, Trash2 } from 'lucide-react';
 
 interface ProductActionsProps {
     productId: string;
@@ -41,7 +42,7 @@ export function ProductActions({ productId, productSlug }: ProductActionsProps) 
                 className="btn-icon"
                 title="Editar"
             >
-                ✏️
+                <Pencil size={14} />
             </Link>
 
             <Link
@@ -50,7 +51,7 @@ export function ProductActions({ productId, productSlug }: ProductActionsProps) 
                 className="btn-icon"
                 title="Ver en tienda"
             >
-                👁️
+                <Eye size={14} />
             </Link>
 
             <button
@@ -60,7 +61,7 @@ export function ProductActions({ productId, productSlug }: ProductActionsProps) 
                 disabled={isDeleting}
                 style={{ opacity: isDeleting ? 0.5 : 1 }}
             >
-                {isDeleting ? '⏳' : '🗑️'}
+                {isDeleting ? <Clock size={14} /> : <Trash2 size={14} />}
             </button>
         </div>
     );

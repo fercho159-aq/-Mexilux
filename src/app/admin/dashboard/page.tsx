@@ -3,6 +3,7 @@ import { getAdminSession } from '@/lib/auth/admin';
 import prisma from '@/lib/db/prisma';
 import Link from 'next/link';
 import { AdminSidebar } from './AdminSidebar';
+import { Package, ShoppingCart, Users, DollarSign, Clock, CheckCircle, ClipboardList } from 'lucide-react';
 import '../admin.css';
 
 export default async function AdminDashboardPage() {
@@ -74,7 +75,7 @@ export default async function AdminDashboardPage() {
                         <div className="admin-card" style={{ padding: '1.5rem' }}>
                             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '1rem' }}>
                                 <div style={{ width: 45, height: 45, borderRadius: '8px', background: '#e8f4ff', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '1.3rem' }}>
-                                    📦
+                                    <Package size={22} />
                                 </div>
                                 <span style={{ color: '#1bc5bd', fontSize: '0.85rem', fontWeight: 600 }}>↑ 12%</span>
                             </div>
@@ -85,7 +86,7 @@ export default async function AdminDashboardPage() {
                         <div className="admin-card" style={{ padding: '1.5rem' }}>
                             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '1rem' }}>
                                 <div style={{ width: 45, height: 45, borderRadius: '8px', background: '#e8fff3', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '1.3rem' }}>
-                                    🛒
+                                    <ShoppingCart size={22} />
                                 </div>
                                 <span style={{ color: '#1bc5bd', fontSize: '0.85rem', fontWeight: 600 }}>↑ 8%</span>
                             </div>
@@ -96,7 +97,7 @@ export default async function AdminDashboardPage() {
                         <div className="admin-card" style={{ padding: '1.5rem' }}>
                             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '1rem' }}>
                                 <div style={{ width: 45, height: 45, borderRadius: '8px', background: '#f3e8ff', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '1.3rem' }}>
-                                    👥
+                                    <Users size={22} />
                                 </div>
                                 <span style={{ color: '#1bc5bd', fontSize: '0.85rem', fontWeight: 600 }}>↑ 15%</span>
                             </div>
@@ -107,7 +108,7 @@ export default async function AdminDashboardPage() {
                         <div className="admin-card" style={{ padding: '1.5rem' }}>
                             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '1rem' }}>
                                 <div style={{ width: 45, height: 45, borderRadius: '8px', background: '#fff8e8', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '1.3rem' }}>
-                                    💰
+                                    <DollarSign size={22} />
                                 </div>
                                 <span style={{ color: '#1bc5bd', fontSize: '0.85rem', fontWeight: 600 }}>↑ 23%</span>
                             </div>
@@ -126,7 +127,7 @@ export default async function AdminDashboardPage() {
                         <Link href="/admin/pedidos" className="admin-card" style={{ padding: '1.5rem', textDecoration: 'none' }}>
                             <div style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
                                 <div style={{ width: 50, height: 50, borderRadius: '10px', background: '#fff5e6', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '1.5rem' }}>
-                                    ⏳
+                                    <Clock size={24} />
                                 </div>
                                 <div>
                                     <p style={{ fontSize: '1.5rem', fontWeight: 700, margin: 0, color: '#3f4254' }}>{pendingOrders}</p>
@@ -138,7 +139,7 @@ export default async function AdminDashboardPage() {
                         <Link href="/admin/productos" className="admin-card" style={{ padding: '1.5rem', textDecoration: 'none' }}>
                             <div style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
                                 <div style={{ width: 50, height: 50, borderRadius: '10px', background: '#e8fff3', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '1.5rem' }}>
-                                    ✅
+                                    <CheckCircle size={24} />
                                 </div>
                                 <div>
                                     <p style={{ fontSize: '1.5rem', fontWeight: 700, margin: 0, color: '#3f4254' }}>{activeProducts}</p>
@@ -186,7 +187,7 @@ export default async function AdminDashboardPage() {
                             </table>
                         ) : (
                             <div style={{ padding: '3rem', textAlign: 'center', color: '#b5b5c3' }}>
-                                <p style={{ fontSize: '2rem', marginBottom: '0.5rem' }}>📋</p>
+                                <div style={{ marginBottom: '0.5rem', display: 'flex', justifyContent: 'center' }}><ClipboardList size={32} /></div>
                                 <p style={{ margin: 0 }}>No hay pedidos aún</p>
                             </div>
                         )}

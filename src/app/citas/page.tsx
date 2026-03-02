@@ -7,6 +7,7 @@
 
 import Link from 'next/link';
 import type { Metadata } from 'next';
+import { Eye, CircleDot, Baby, ClipboardList, Check, Timer, Calendar } from 'lucide-react';
 
 export const metadata: Metadata = {
     title: 'Agendar Cita | Mexilux',
@@ -20,7 +21,7 @@ const SERVICES_OPTIONS = [
         description: 'Evaluación completa de tu salud visual con equipo de última generación',
         duration: '45 min',
         price: '$350',
-        icon: '👁️',
+        icon: <Eye size={20} />,
         popular: true,
     },
     {
@@ -29,7 +30,7 @@ const SERVICES_OPTIONS = [
         description: 'Asesoría personalizada para encontrar el lente de contacto ideal para ti',
         duration: '30 min',
         price: '$500',
-        icon: '🔘',
+        icon: <CircleDot size={20} />,
         popular: false,
     },
     {
@@ -38,7 +39,7 @@ const SERVICES_OPTIONS = [
         description: 'Evaluación visual especializada para niños en un ambiente amigable',
         duration: '45 min',
         price: '$400',
-        icon: '👶',
+        icon: <Baby size={20} />,
         popular: false,
     },
     {
@@ -47,7 +48,7 @@ const SERVICES_OPTIONS = [
         description: 'Revisión de tu progreso y ajustes a tu tratamiento visual',
         duration: '20 min',
         price: '$200',
-        icon: '📋',
+        icon: <ClipboardList size={20} />,
         popular: false,
     },
 ];
@@ -58,10 +59,10 @@ const AVAILABLE_TIMES = [
 ];
 
 const FEATURES = [
-    { icon: '✓', text: 'Optometristas certificados' },
-    { icon: '✓', text: 'Equipo de última generación' },
-    { icon: '✓', text: 'Resultados en el momento' },
-    { icon: '✓', text: 'Sin costo con compra de lentes' },
+    { icon: <Check size={14} />, text: 'Optometristas certificados' },
+    { icon: <Check size={14} />, text: 'Equipo de última generación' },
+    { icon: <Check size={14} />, text: 'Resultados en el momento' },
+    { icon: <Check size={14} />, text: 'Sin costo con compra de lentes' },
 ];
 
 export default function CitasPage() {
@@ -178,7 +179,7 @@ export default function CitasPage() {
                                             color: '#374151',
                                             fontWeight: '500',
                                         }}>
-                                            <span>⏱️ {service.duration}</span>
+                                            <span><Timer size={14} /> {service.duration}</span>
                                             <span style={{ color: '#059669' }}>{service.price}</span>
                                         </span>
                                     </div>
@@ -199,7 +200,7 @@ export default function CitasPage() {
                             padding: '2rem',
                             textAlign: 'center',
                         }}>
-                            <p style={{ fontSize: '3rem', marginBottom: '1rem' }}>📅</p>
+                            <p style={{ fontSize: '3rem', marginBottom: '1rem' }}><Calendar size={16} /></p>
                             <p style={{ fontWeight: '600', marginBottom: '0.5rem' }}>Calendario de selección</p>
                             <p className="text-muted" style={{ color: '#6b7280' }}>
                                 Próximas fechas disponibles esta semana
@@ -435,7 +436,7 @@ export default function CitasPage() {
                                 transition: 'transform 0.2s ease, box-shadow 0.2s ease',
                             }}
                         >
-                            ✓ Confirmar cita
+                            <Check size={14} /> Confirmar cita
                         </button>
                         <p className="booking-note" style={{
                             textAlign: 'center',

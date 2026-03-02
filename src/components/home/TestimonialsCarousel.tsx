@@ -2,6 +2,7 @@
 
 import { useState, useEffect, useCallback, useRef } from 'react';
 import { ScrollAnimate } from '@/components/ui/ScrollAnimate';
+import { User, UserRound } from 'lucide-react';
 
 interface Testimonial {
     id: number;
@@ -9,7 +10,7 @@ interface Testimonial {
     role: string;
     content: string;
     rating: number;
-    image: string;
+    image: React.ReactNode;
 }
 
 const TESTIMONIALS: Testimonial[] = [
@@ -19,7 +20,7 @@ const TESTIMONIALS: Testimonial[] = [
         role: 'Cliente desde 2022',
         content: 'Excelente atención y calidad. Mi examen de vista fue muy completo y los lentes quedaron perfectos. Totalmente recomendados.',
         rating: 5,
-        image: '👩‍💼',
+        image: <UserRound size={32} />,
     },
     {
         id: 2,
@@ -27,7 +28,7 @@ const TESTIMONIALS: Testimonial[] = [
         role: 'Cliente desde 2021',
         content: 'Los lentes progresivos que me hicieron son los mejores que he tenido. El configurador online es súper fácil de usar.',
         rating: 5,
-        image: '👨‍💻',
+        image: <User size={32} />,
     },
     {
         id: 3,
@@ -35,7 +36,7 @@ const TESTIMONIALS: Testimonial[] = [
         role: 'Cliente desde 2023',
         content: 'Compré lentes para toda mi familia. La atención personalizada y los precios justos hacen la diferencia.',
         rating: 5,
-        image: '👩‍👧‍👦',
+        image: <UserRound size={32} />,
     },
     {
         id: 4,
@@ -43,7 +44,7 @@ const TESTIMONIALS: Testimonial[] = [
         role: 'Cliente desde 2022',
         content: 'Increíble servicio. Me ayudaron a elegir los armazones perfectos para mi tipo de rostro. ¡Super recomendado!',
         rating: 5,
-        image: '👨‍🦱',
+        image: <User size={32} />,
     },
     {
         id: 5,
@@ -51,7 +52,7 @@ const TESTIMONIALS: Testimonial[] = [
         role: 'Cliente desde 2023',
         content: 'Los precios son muy accesibles y la calidad es excelente. Ya recomendé Mexilux a todos mis amigos.',
         rating: 5,
-        image: '👩‍🦰',
+        image: <UserRound size={32} />,
     },
 ];
 

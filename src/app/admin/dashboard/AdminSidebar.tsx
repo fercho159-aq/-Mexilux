@@ -2,6 +2,7 @@
 
 import Link from 'next/link';
 import { usePathname, useRouter } from 'next/navigation';
+import { LayoutDashboard, ShoppingCart, Glasses, FolderOpen, Tag, Users, Calendar, Ticket, Video, Settings, Globe, LogOut } from 'lucide-react';
 
 interface AdminSidebarProps {
     session: {
@@ -23,20 +24,21 @@ export function AdminSidebar({ session }: AdminSidebarProps) {
     const menuItems = [
         {
             section: 'MENÚ PRINCIPAL', items: [
-                { icon: '📊', label: 'Dashboard', href: '/admin/dashboard' },
-                { icon: '🛒', label: 'Pedidos', href: '/admin/pedidos' },
-                { icon: '👓', label: 'Productos', href: '/admin/productos' },
-                { icon: '📁', label: 'Categorías', href: '/admin/categorias' },
-                { icon: '🏷️', label: 'Marcas', href: '/admin/marcas' },
-                { icon: '👥', label: 'Usuarios', href: '/admin/usuarios' },
-                { icon: '📅', label: 'Citas', href: '/admin/citas' },
-                { icon: '🎟️', label: 'Cupones', href: '/admin/cupones' },
+                { icon: <LayoutDashboard size={18} />, label: 'Dashboard', href: '/admin/dashboard' },
+                { icon: <ShoppingCart size={18} />, label: 'Pedidos', href: '/admin/pedidos' },
+                { icon: <Glasses size={18} />, label: 'Productos', href: '/admin/productos' },
+                { icon: <FolderOpen size={18} />, label: 'Categorías', href: '/admin/categorias' },
+                { icon: <Tag size={18} />, label: 'Marcas', href: '/admin/marcas' },
+                { icon: <Users size={18} />, label: 'Usuarios', href: '/admin/usuarios' },
+                { icon: <Calendar size={18} />, label: 'Citas', href: '/admin/citas' },
+                { icon: <Ticket size={18} />, label: 'Cupones', href: '/admin/cupones' },
+                { icon: <Video size={18} />, label: 'Videos', href: '/admin/videos' },
             ]
         },
         {
             section: 'SISTEMA', items: [
-                { icon: '⚙️', label: 'Configuración', href: '/admin/configuracion' },
-                { icon: '🌐', label: 'Ver Tienda', href: '/', external: true },
+                { icon: <Settings size={18} />, label: 'Configuración', href: '/admin/configuracion' },
+                { icon: <Globe size={18} />, label: 'Ver Tienda', href: '/', external: true },
             ]
         }
     ];
@@ -79,7 +81,7 @@ export function AdminSidebar({ session }: AdminSidebarProps) {
                     </div>
                 </div>
                 <button onClick={handleLogout} className="admin-logout-btn">
-                    🚪 Cerrar Sesión
+                    <LogOut size={16} /> Cerrar Sesión
                 </button>
             </div>
         </aside>

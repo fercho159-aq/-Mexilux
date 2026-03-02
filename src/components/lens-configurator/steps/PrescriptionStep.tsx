@@ -13,6 +13,7 @@
 'use client';
 
 import React, { useState, useCallback } from 'react';
+import { ClipboardList, PenLine, Camera, Calendar, CheckCircle, HelpCircle, Lightbulb } from 'lucide-react';
 import { useConfiguratorActions, useLensConfiguratorStore } from '@/store/lens-configurator';
 import {
     prescriptionSchema,
@@ -49,35 +50,35 @@ const SOURCE_OPTIONS: Array<{
     id: PrescriptionSource;
     name: string;
     description: string;
-    icon: string;
+    icon: React.ReactNode;
     requiresAuth: boolean;
 }> = [
         {
             id: 'saved',
             name: 'Receta Guardada',
             description: 'Usa una receta de tu perfil',
-            icon: '📋',
+            icon: <ClipboardList size={18} />,
             requiresAuth: true,
         },
         {
             id: 'manual',
             name: 'Ingresar Manualmente',
             description: 'Tengo mi receta en papel',
-            icon: '✍️',
+            icon: <PenLine size={18} />,
             requiresAuth: false,
         },
         {
             id: 'upload',
             name: 'Subir Foto',
             description: 'Tomaré foto de mi receta',
-            icon: '📷',
+            icon: <Camera size={18} />,
             requiresAuth: false,
         },
         {
             id: 'appointment',
             name: 'Agendar Cita',
             description: 'No tengo receta actualizada',
-            icon: '📅',
+            icon: <Calendar size={18} />,
             requiresAuth: false,
         },
     ];
@@ -119,7 +120,7 @@ export function PrescriptionStep({
         return (
             <div className="prescription-skip">
                 <p className="skip-message">
-                    <span aria-hidden="true">✅</span>
+                    <span aria-hidden="true"><CheckCircle size={16} /></span>
                     No necesitas receta para lentes sin graduación.
                     Continúa al siguiente paso.
                 </p>
@@ -389,7 +390,7 @@ function ManualPrescriptionForm({
             <div className="prescription-help" role="note">
                 <details>
                     <summary>
-                        <span aria-hidden="true">❓</span>
+                        <span aria-hidden="true"><HelpCircle size={16} /></span>
                         ¿Cómo leer mi receta?
                     </summary>
                     <div className="help-content">
@@ -603,7 +604,7 @@ function ManualPrescriptionForm({
                 {isHighPrescription(form.rightEye.sphere, form.rightEye.cylinder) ||
                     isHighPrescription(form.leftEye.sphere, form.leftEye.cylinder) ? (
                     <div className="high-rx-notice" role="alert">
-                        <span aria-hidden="true">💡</span>
+                        <span aria-hidden="true"><Lightbulb size={16} /></span>
                         <p>
                             Tu graduación es alta. Te recomendamos un material de índice{' '}
                             <strong>
@@ -685,7 +686,7 @@ function PrescriptionUploader({ currentUrl, onUpload }: PrescriptionUploaderProp
                         </>
                     ) : (
                         <>
-                            <span className="upload-icon" aria-hidden="true">📷</span>
+                            <span className="upload-icon" aria-hidden="true"><Camera size={18} /></span>
                             <span>Haz clic o arrastra tu receta aquí</span>
                             <span className="upload-hint">JPG, PNG o PDF. Máximo 10MB.</span>
                         </>
@@ -712,7 +713,7 @@ function AppointmentScheduler({ linkedAppointmentId, onLink }: AppointmentSchedu
 
             {linkedAppointmentId ? (
                 <div className="appointment-linked">
-                    <span className="linked-icon" aria-hidden="true">✅</span>
+                    <span className="linked-icon" aria-hidden="true"><CheckCircle size={16} /></span>
                     <p>Tienes una cita agendada. Después de tu examen, agregaremos tu receta automáticamente.</p>
                 </div>
             ) : (
@@ -723,7 +724,7 @@ function AppointmentScheduler({ linkedAppointmentId, onLink }: AppointmentSchedu
                     </p>
 
                     <a href="/citas" className="schedule-button">
-                        <span aria-hidden="true">📅</span>
+                        <span aria-hidden="true"><Calendar size={18} /></span>
                         Agendar Cita
                     </a>
 

@@ -1,6 +1,7 @@
 'use client';
 
 import { useEffect, useState } from 'react';
+import { Sun, Moon } from 'lucide-react';
 
 type Theme = 'light' | 'dark';
 
@@ -66,7 +67,7 @@ export default function ThemeToggle() {
             className="theme-toggle"
             onClick={toggleTheme}
             aria-label={theme === 'dark' ? 'Cambiar a modo claro' : 'Cambiar a modo oscuro'}
-            title={theme === 'dark' ? 'Activar modo claro ☀️' : 'Activar modo oscuro 🌙'}
+            title={theme === 'dark' ? 'Activar modo claro' : 'Activar modo oscuro'}
         >
             {theme === 'dark' ? (
                 // Icono de sol (mostrar cuando está oscuro, para cambiar a claro)

@@ -6,6 +6,7 @@
 
 import Link from 'next/link';
 import type { Metadata } from 'next';
+import { Glasses, Check } from 'lucide-react';
 
 export const metadata: Metadata = {
     title: 'Mis Pedidos | Mexilux',
@@ -127,7 +128,7 @@ export default function PedidosPage() {
                                     fontSize: '13px',
                                     fontWeight: '600',
                                 }}>
-                                    ✓ {order.status}
+                                    <Check size={14} /> {order.status}
                                 </span>
                             </div>
 
@@ -149,7 +150,7 @@ export default function PedidosPage() {
                                     fontSize: '28px',
                                     flexShrink: 0,
                                 }}>
-                                    👓
+                                    <Glasses size={28} />
                                 </div>
                                 <div style={{ flex: 1 }}>
                                     <div style={{

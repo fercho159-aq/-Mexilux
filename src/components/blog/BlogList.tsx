@@ -2,17 +2,16 @@
 
 import Link from 'next/link';
 
-// Artículos del blog (copia de los datos para el componente)
 const BLOG_POSTS = [
     {
         id: 1,
         slug: 'lugares-magicos-mexico',
-        title: 'México Mágico: 10 Lugares que Tienes que Visitar',
-        excerpt: 'Desde las pirámides de Teotihuacán hasta las playas de Oaxaca, descubre los rincones más increíbles de nuestro país.',
-        category: 'México Mágico',
+        title: 'Mexico Magico: 10 Lugares que Tienes que Visitar',
+        excerpt: 'Desde las piramides de Teotihuacan hasta las playas de Oaxaca, descubre los rincones mas increibles de nuestro pais.',
+        category: 'Mexico Magico',
         categorySlug: 'mexico-magico',
         image: '/blog/mexico-magico.jpg',
-        emoji: '🏛️',
+        gradient: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
         author: 'Equipo Mexilux',
         date: '2026-01-10',
         readTime: '5 min',
@@ -21,12 +20,12 @@ const BLOG_POSTS = [
     {
         id: 2,
         slug: 'mexicanos-inspiradores',
-        title: 'Mexicanos que Valen la Pena Ver',
-        excerpt: 'Conoce a los emprendedores, artistas y creadores mexicanos que están cambiando el juego.',
-        category: 'Mexicanos Chingones',
-        categorySlug: 'mexicanos-chingones',
+        title: 'Mexicanos que Vale la Pena Voltear a Ver',
+        excerpt: 'Conoce a los emprendedores, artistas y creadores mexicanos que estan cambiando el juego.',
+        category: 'Mexicanos de Lujo',
+        categorySlug: 'mexicanos-de-lujo',
         image: '/blog/mexicanos.jpg',
-        emoji: '🇲🇽',
+        gradient: 'linear-gradient(135deg, #f093fb 0%, #f5576c 100%)',
         author: 'Equipo Mexilux',
         date: '2026-01-08',
         readTime: '4 min',
@@ -35,12 +34,12 @@ const BLOG_POSTS = [
     {
         id: 3,
         slug: 'comida-callejera-mexico',
-        title: 'La Mejor Comida Callejera de México',
-        excerpt: 'Un tour gastronómico por los tacos, tortas, y antojitos que hacen único a nuestro país.',
-        category: 'Cosas Mexas',
-        categorySlug: 'cosas-mexas',
+        title: 'La Mejor Comida Callejera de Mexico',
+        excerpt: 'Un tour gastronomico por los tacos, tortas, y antojitos que hacen unico a nuestro pais.',
+        category: "Pa' la Muela",
+        categorySlug: 'pa-la-muela',
         image: '/blog/comida.jpg',
-        emoji: '🌮',
+        gradient: 'linear-gradient(135deg, #f5af19 0%, #f12711 100%)',
         author: 'Equipo Mexilux',
         date: '2026-01-05',
         readTime: '6 min',
@@ -49,12 +48,12 @@ const BLOG_POSTS = [
     {
         id: 4,
         slug: 'artesanias-mexicanas',
-        title: 'Artesanías Mexicanas: Tesoros Hechos a Mano',
-        excerpt: 'El arte popular mexicano es reconocido mundialmente. Conoce las técnicas ancestrales que siguen vivas.',
-        category: 'Cosas Mexas',
-        categorySlug: 'cosas-mexas',
+        title: 'Artesanias Mexicanas: Tesoros Hechos a Mano',
+        excerpt: 'El arte popular mexicano es reconocido mundialmente. Conoce las tecnicas ancestrales que siguen vivas.',
+        category: 'Vista a las Raices',
+        categorySlug: 'vista-a-las-raices',
         image: '/blog/artesanias.jpg',
-        emoji: '🎨',
+        gradient: 'linear-gradient(135deg, #11998e 0%, #38ef7d 100%)',
         author: 'Equipo Mexilux',
         date: '2026-01-03',
         readTime: '5 min',
@@ -62,39 +61,132 @@ const BLOG_POSTS = [
     },
     {
         id: 5,
-        slug: 'frases-mexicanas',
-        title: 'Frases Mexicanas que Solo Nosotros Entendemos',
-        excerpt: '¿Qué significa "no manches"? ¿Y "aguas"? Un diccionario del español más chido.',
-        category: 'Cosas Mexas',
-        categorySlug: 'cosas-mexas',
-        image: '/blog/frases.jpg',
-        emoji: '💬',
+        slug: 'dia-de-muertos-tradicion',
+        title: 'Dia de Muertos: Una Tradicion que nos Define',
+        excerpt: 'Mas alla del Halloween, el Dia de Muertos celebra la vida y la memoria. Conoce su historia y significado.',
+        category: 'Vista a las Raices',
+        categorySlug: 'vista-a-las-raices',
+        image: '/blog/dia-muertos.jpg',
+        gradient: 'linear-gradient(135deg, #6b4c9a 0%, #e91e63 100%)',
         author: 'Equipo Mexilux',
         date: '2026-01-01',
-        readTime: '3 min',
+        readTime: '4 min',
         featured: false,
     },
     {
         id: 6,
-        slug: 'playas-escondidas',
-        title: 'Playas Escondidas de México',
-        excerpt: 'Olvídate de Cancún. Estas playas secretas son el verdadero paraíso mexicano.',
-        category: 'México Mágico',
-        categorySlug: 'mexico-magico',
-        image: '/blog/playas.jpg',
-        emoji: '🏖️',
+        slug: 'frases-mexicanas',
+        title: 'Frases Mexicanas que Solo Nosotros Entendemos',
+        excerpt: 'Que significa "no manches"? Y "aguas"? Un diccionario del español mas chido.',
+        category: "Pa' la Muela",
+        categorySlug: 'pa-la-muela',
+        image: '/blog/frases.jpg',
+        gradient: 'linear-gradient(135deg, #ff9a9e 0%, #fad0c4 100%)',
+        author: 'Equipo Mexilux',
+        date: '2025-12-30',
+        readTime: '3 min',
+        featured: false,
+    },
+    {
+        id: 7,
+        slug: 'restaurantes-cdmx',
+        title: 'Restaurantes en CDMX que Tienes que Probar',
+        excerpt: 'De la comida callejera a los restaurantes de autor. Los mejores sabores de la Ciudad de Mexico.',
+        category: "Pa' la Muela",
+        categorySlug: 'pa-la-muela',
+        image: '/blog/restaurantes.jpg',
+        gradient: 'linear-gradient(135deg, #ee9ca7 0%, #ffdde1 100%)',
         author: 'Equipo Mexilux',
         date: '2025-12-28',
         readTime: '4 min',
         featured: false,
     },
+    {
+        id: 8,
+        slug: 'playas-escondidas',
+        title: 'Playas Escondidas de Mexico',
+        excerpt: 'Olvidate de Cancun. Estas playas secretas son el verdadero paraiso mexicano.',
+        category: 'Mexico Magico',
+        categorySlug: 'mexico-magico',
+        image: '/blog/playas.jpg',
+        gradient: 'linear-gradient(135deg, #4facfe 0%, #00f2fe 100%)',
+        author: 'Equipo Mexilux',
+        date: '2025-12-25',
+        readTime: '4 min',
+        featured: false,
+    },
+    {
+        id: 9,
+        slug: 'yalitza-aparicio-historia',
+        title: 'Yalitza Aparicio: De Oaxaca al Mundo',
+        excerpt: 'La historia de la actriz que rompio barreras y puso a Mexico en los ojos del mundo.',
+        category: 'Mexicanos de Lujo',
+        categorySlug: 'mexicanos-de-lujo',
+        image: '/blog/yalitza.jpg',
+        gradient: 'linear-gradient(135deg, #a18cd1 0%, #fbc2eb 100%)',
+        author: 'Equipo Mexilux',
+        date: '2025-12-22',
+        readTime: '5 min',
+        featured: false,
+    },
 ];
 
 const CATEGORIES = [
-    { name: 'Todos', slug: 'todos', emoji: '📚' },
-    { name: 'Cosas Mexas', slug: 'cosas-mexas', emoji: '🌶️' },
-    { name: 'México Mágico', slug: 'mexico-magico', emoji: '✨' },
-    { name: 'Mexicanos Chingones', slug: 'mexicanos-chingones', emoji: '💪' },
+    {
+        name: 'Todos',
+        slug: 'todos',
+        icon: (
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round">
+                <rect x="3" y="3" width="7" height="7" rx="1" />
+                <rect x="14" y="3" width="7" height="7" rx="1" />
+                <rect x="3" y="14" width="7" height="7" rx="1" />
+                <rect x="14" y="14" width="7" height="7" rx="1" />
+            </svg>
+        ),
+    },
+    {
+        name: 'Mexico Magico',
+        slug: 'mexico-magico',
+        icon: (
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round">
+                <path d="M3 21l1.5-4.5M21 21l-1.5-4.5M12 3l2 7h7l-5.5 4 2 7L12 17l-5.5 4 2-7L3 10h7l2-7z" />
+            </svg>
+        ),
+    },
+    {
+        name: 'Mexicanos de Lujo',
+        slug: 'mexicanos-de-lujo',
+        icon: (
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round">
+                <path d="M16 21v-2a4 4 0 00-4-4H6a4 4 0 00-4 4v2" />
+                <circle cx="9" cy="7" r="4" />
+                <path d="M22 21v-2a4 4 0 00-3-3.87" />
+                <path d="M16 3.13a4 4 0 010 7.75" />
+            </svg>
+        ),
+    },
+    {
+        name: "Pa' la Muela",
+        slug: 'pa-la-muela',
+        icon: (
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round">
+                <path d="M18 8h1a4 4 0 010 8h-1" />
+                <path d="M2 8h16v9a4 4 0 01-4 4H6a4 4 0 01-4-4V8z" />
+                <line x1="6" y1="1" x2="6" y2="4" />
+                <line x1="10" y1="1" x2="10" y2="4" />
+                <line x1="14" y1="1" x2="14" y2="4" />
+            </svg>
+        ),
+    },
+    {
+        name: 'Vista a las Raices',
+        slug: 'vista-a-las-raices',
+        icon: (
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round">
+                <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z" />
+            </svg>
+        ),
+    },
 ];
 
 export default function BlogList() {
@@ -114,12 +206,12 @@ export default function BlogList() {
             {/* Hero */}
             <section className="blog-hero">
                 <div className="blog-hero-content">
-                    <span className="blog-hero-badge">🇲🇽 Blog</span>
+                    <span className="blog-hero-badge">Blog</span>
                     <h1 className="blog-hero-title">
                         Cosas Mexas
                     </h1>
                     <p className="blog-hero-subtitle">
-                        Historias, lugares y personas que hacen grande a México
+                        Historias, lugares y personas que hacen grande a Mexico
                     </p>
                 </div>
             </section>
@@ -134,7 +226,7 @@ export default function BlogList() {
                                 href={cat.slug === 'todos' ? '/blog' : `/blog/categoria/${cat.slug}`}
                                 className="category-chip"
                             >
-                                <span className="category-emoji">{cat.emoji}</span>
+                                <span className="category-icon">{cat.icon}</span>
                                 {cat.name}
                             </Link>
                         ))}
@@ -146,13 +238,15 @@ export default function BlogList() {
             {featuredPosts.length > 0 && (
                 <section className="blog-featured">
                     <div className="blog-container">
-                        <h2 className="section-label">✨ Destacados</h2>
+                        <h2 className="section-label">Destacados</h2>
                         <div className="featured-grid">
                             {featuredPosts.map((post) => (
                                 <article key={post.id} className="featured-card">
                                     <Link href={`/blog/${post.slug}`} className="featured-image-link">
-                                        <div className="featured-image">
-                                            <span className="featured-emoji">{post.emoji}</span>
+                                        <div className="featured-image" style={{ background: post.gradient }}>
+                                            <span style={{ fontSize: '1rem', color: 'white', fontWeight: 700, opacity: 0.6 }}>
+                                                {post.category}
+                                            </span>
                                         </div>
                                         <div className="featured-overlay">
                                             <span className="featured-category">{post.category}</span>
@@ -165,7 +259,7 @@ export default function BlogList() {
                                         <p className="featured-excerpt">{post.excerpt}</p>
                                         <div className="featured-meta">
                                             <span className="post-date">{formatDate(post.date)}</span>
-                                            <span className="post-read-time">· {post.readTime} lectura</span>
+                                            <span className="post-read-time"> &middot; {post.readTime} lectura</span>
                                         </div>
                                     </div>
                                 </article>
@@ -178,13 +272,15 @@ export default function BlogList() {
             {/* All Posts Grid */}
             <section className="blog-posts">
                 <div className="blog-container">
-                    <h2 className="section-label">📖 Últimos Artículos</h2>
+                    <h2 className="section-label">Ultimos Articulos</h2>
                     <div className="posts-grid">
                         {regularPosts.map((post) => (
                             <article key={post.id} className="post-card">
                                 <Link href={`/blog/${post.slug}`} className="post-image-link">
-                                    <div className="post-image">
-                                        <span className="post-emoji">{post.emoji}</span>
+                                    <div className="post-image" style={{ background: post.gradient }}>
+                                        <span style={{ fontSize: '0.75rem', color: 'white', fontWeight: 600, opacity: 0.6 }}>
+                                            {post.category}
+                                        </span>
                                     </div>
                                 </Link>
                                 <div className="post-content">
@@ -195,7 +291,7 @@ export default function BlogList() {
                                     <p className="post-excerpt">{post.excerpt}</p>
                                     <div className="post-meta">
                                         <span className="post-date">{formatDate(post.date)}</span>
-                                        <span className="post-read-time">· {post.readTime}</span>
+                                        <span className="post-read-time"> &middot; {post.readTime}</span>
                                     </div>
                                 </div>
                             </article>
@@ -209,11 +305,14 @@ export default function BlogList() {
                 <div className="blog-container">
                     <div className="newsletter-card">
                         <div className="newsletter-content">
-                            <span className="newsletter-emoji">📬</span>
-                            <h3>¿Te late lo mexa?</h3>
-                            <p>Suscríbete y recibe las mejores historias de México directo a tu inbox.</p>
+                            <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" style={{ opacity: 0.6, marginBottom: '12px' }}>
+                                <path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z" />
+                                <polyline points="22,6 12,13 2,6" />
+                            </svg>
+                            <h3>Te late lo mexa?</h3>
+                            <p>Suscribete y recibe las mejores historias de Mexico directo a tu inbox.</p>
                         </div>
-                        <form className="newsletter-form">
+                        <form className="newsletter-form" onSubmit={(e) => e.preventDefault()}>
                             <input
                                 type="email"
                                 placeholder="tu@email.com"
@@ -240,9 +339,8 @@ export default function BlogList() {
                     padding: 0 20px;
                 }
 
-                /* Hero */
                 .blog-hero {
-                    background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
+                    background: linear-gradient(135deg, #152132 0%, #1e293b 100%);
                     padding: 80px 20px;
                     text-align: center;
                     color: white;
@@ -254,6 +352,7 @@ export default function BlogList() {
                     background: rgba(255,255,255,0.1);
                     border-radius: 20px;
                     font-size: 14px;
+                    font-weight: 600;
                     margin-bottom: 16px;
                 }
 
@@ -261,21 +360,17 @@ export default function BlogList() {
                     font-size: clamp(2.5rem, 6vw, 4rem);
                     font-weight: 800;
                     margin: 0 0 16px;
-                    background: linear-gradient(135deg, #fff 0%, #e0e0e0 100%);
-                    -webkit-background-clip: text;
-                    -webkit-text-fill-color: transparent;
-                    background-clip: text;
+                    letter-spacing: -0.03em;
                 }
 
                 .blog-hero-subtitle {
                     font-size: 1.25rem;
-                    opacity: 0.8;
+                    opacity: 0.7;
                     margin: 0;
                 }
 
-                /* Categories */
                 .blog-categories {
-                    padding: 24px 0;
+                    padding: 20px 0;
                     background: white;
                     border-bottom: 1px solid #eee;
                     position: sticky;
@@ -285,9 +380,9 @@ export default function BlogList() {
 
                 .categories-scroll {
                     display: flex;
-                    gap: 12px;
+                    gap: 10px;
                     overflow-x: auto;
-                    padding-bottom: 8px;
+                    padding-bottom: 4px;
                     scrollbar-width: none;
                 }
 
@@ -298,11 +393,11 @@ export default function BlogList() {
                 .category-chip {
                     display: flex;
                     align-items: center;
-                    gap: 8px;
-                    padding: 10px 20px;
-                    background: #f5f5f5;
+                    gap: 6px;
+                    padding: 8px 16px;
+                    background: #f5f5f7;
                     border-radius: 25px;
-                    font-size: 14px;
+                    font-size: 13px;
                     font-weight: 500;
                     color: #333;
                     white-space: nowrap;
@@ -311,32 +406,31 @@ export default function BlogList() {
                 }
 
                 .category-chip:hover {
-                    background: #1a1a2e;
+                    background: #152132;
                     color: white;
                 }
 
-                .category-emoji {
-                    font-size: 16px;
+                .category-icon {
+                    display: flex;
+                    align-items: center;
                 }
 
-                /* Section Label */
                 .section-label {
-                    font-size: 14px;
-                    font-weight: 600;
-                    color: #666;
+                    font-size: 13px;
+                    font-weight: 700;
+                    color: #94a3b8;
                     text-transform: uppercase;
                     letter-spacing: 0.05em;
-                    margin: 0 0 24px;
+                    margin: 0 0 20px;
                 }
 
-                /* Featured */
                 .blog-featured {
                     padding: 48px 0;
                 }
 
                 .featured-grid {
                     display: grid;
-                    grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+                    grid-template-columns: repeat(auto-fit, minmax(340px, 1fr));
                     gap: 24px;
                 }
 
@@ -344,13 +438,13 @@ export default function BlogList() {
                     background: white;
                     border-radius: 20px;
                     overflow: hidden;
-                    box-shadow: 0 4px 20px rgba(0,0,0,0.08);
+                    box-shadow: 0 2px 12px rgba(0,0,0,0.06);
                     transition: transform 0.3s ease, box-shadow 0.3s ease;
                 }
 
                 .featured-card:hover {
                     transform: translateY(-4px);
-                    box-shadow: 0 8px 30px rgba(0,0,0,0.12);
+                    box-shadow: 0 8px 30px rgba(0,0,0,0.1);
                 }
 
                 .featured-image-link {
@@ -360,14 +454,9 @@ export default function BlogList() {
 
                 .featured-image {
                     height: 200px;
-                    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
                     display: flex;
                     align-items: center;
                     justify-content: center;
-                }
-
-                .featured-emoji {
-                    font-size: 64px;
                 }
 
                 .featured-overlay {
@@ -378,11 +467,12 @@ export default function BlogList() {
 
                 .featured-category {
                     padding: 6px 12px;
-                    background: rgba(0,0,0,0.7);
+                    background: rgba(0,0,0,0.5);
+                    backdrop-filter: blur(8px);
                     color: white;
                     border-radius: 15px;
-                    font-size: 12px;
-                    font-weight: 500;
+                    font-size: 11px;
+                    font-weight: 600;
                 }
 
                 .featured-content {
@@ -392,53 +482,53 @@ export default function BlogList() {
                 .featured-title {
                     font-size: 1.25rem;
                     font-weight: 700;
-                    margin: 0 0 12px;
+                    margin: 0 0 10px;
                     line-height: 1.3;
                 }
 
                 .featured-title a {
-                    color: #1a1a2e;
+                    color: #0f172a;
                     text-decoration: none;
                 }
 
                 .featured-title a:hover {
-                    color: #667eea;
+                    color: #152132;
+                    text-decoration: underline;
                 }
 
                 .featured-excerpt {
-                    color: #666;
-                    font-size: 0.95rem;
+                    color: #64748b;
+                    font-size: 0.9375rem;
                     line-height: 1.6;
-                    margin: 0 0 16px;
+                    margin: 0 0 14px;
                 }
 
                 .featured-meta, .post-meta {
-                    font-size: 0.85rem;
-                    color: #999;
+                    font-size: 0.8125rem;
+                    color: #94a3b8;
                 }
 
-                /* Posts Grid */
                 .blog-posts {
                     padding: 48px 0;
                 }
 
                 .posts-grid {
                     display: grid;
-                    grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
-                    gap: 24px;
+                    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+                    gap: 20px;
                 }
 
                 .post-card {
                     background: white;
                     border-radius: 16px;
                     overflow: hidden;
-                    box-shadow: 0 2px 12px rgba(0,0,0,0.06);
+                    box-shadow: 0 1px 8px rgba(0,0,0,0.04);
                     transition: all 0.3s ease;
                 }
 
                 .post-card:hover {
                     transform: translateY(-2px);
-                    box-shadow: 0 6px 20px rgba(0,0,0,0.1);
+                    box-shadow: 0 6px 20px rgba(0,0,0,0.08);
                 }
 
                 .post-image-link {
@@ -446,15 +536,10 @@ export default function BlogList() {
                 }
 
                 .post-image {
-                    height: 160px;
-                    background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+                    height: 150px;
                     display: flex;
                     align-items: center;
                     justify-content: center;
-                }
-
-                .post-emoji {
-                    font-size: 48px;
                 }
 
                 .post-content {
@@ -462,47 +547,46 @@ export default function BlogList() {
                 }
 
                 .post-category {
-                    font-size: 12px;
-                    font-weight: 600;
-                    color: #667eea;
+                    font-size: 11px;
+                    font-weight: 700;
+                    color: #8A6623;
                     text-transform: uppercase;
                     letter-spacing: 0.05em;
                 }
 
                 .post-title {
-                    font-size: 1.1rem;
+                    font-size: 1.0625rem;
                     font-weight: 600;
-                    margin: 8px 0 12px;
+                    margin: 6px 0 10px;
                     line-height: 1.4;
                 }
 
                 .post-title a {
-                    color: #1a1a2e;
+                    color: #0f172a;
                     text-decoration: none;
                 }
 
                 .post-title a:hover {
-                    color: #667eea;
+                    text-decoration: underline;
                 }
 
                 .post-excerpt {
-                    color: #666;
-                    font-size: 0.9rem;
+                    color: #64748b;
+                    font-size: 0.875rem;
                     line-height: 1.5;
-                    margin: 0 0 12px;
+                    margin: 0 0 10px;
                     display: -webkit-box;
                     -webkit-line-clamp: 2;
                     -webkit-box-orient: vertical;
                     overflow: hidden;
                 }
 
-                /* Newsletter */
                 .blog-newsletter {
                     padding: 48px 0 80px;
                 }
 
                 .newsletter-card {
-                    background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
+                    background: linear-gradient(135deg, #152132 0%, #1e293b 100%);
                     border-radius: 24px;
                     padding: 48px;
                     display: flex;
@@ -518,19 +602,13 @@ export default function BlogList() {
                     min-width: 280px;
                 }
 
-                .newsletter-emoji {
-                    font-size: 48px;
-                    display: block;
-                    margin-bottom: 16px;
-                }
-
                 .newsletter-content h3 {
                     font-size: 1.5rem;
                     margin: 0 0 8px;
                 }
 
                 .newsletter-content p {
-                    opacity: 0.8;
+                    opacity: 0.7;
                     margin: 0;
                 }
 

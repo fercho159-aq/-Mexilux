@@ -6,6 +6,7 @@
 
 import Link from 'next/link';
 import type { Metadata } from 'next';
+import { AlertTriangle, Calendar } from 'lucide-react';
 
 export const metadata: Metadata = {
     title: 'Mi Salud Visual | Mexilux',
@@ -137,7 +138,7 @@ export default function SaludVisualPage() {
                             </header>
                             <footer className="rx-footer">
                                 <p className="expired-notice">
-                                    ⚠️ Esta receta ha expirado. Te recomendamos agendar un nuevo examen de la vista.
+                                    <AlertTriangle size={16} /> Esta receta ha expirado. Te recomendamos agendar un nuevo examen de la vista.
                                 </p>
                                 <Link href="/servicios/citas" className="btn btn-outline btn-sm">
                                     Agendar examen
@@ -150,7 +151,7 @@ export default function SaludVisualPage() {
                 {/* CTA */}
                 <section className="health-cta">
                     <div className="cta-card">
-                        <span className="cta-icon">📅</span>
+                        <span className="cta-icon"><Calendar size={16} /></span>
                         <div className="cta-text">
                             <h3>¿Tu receta tiene más de 1 año?</h3>
                             <p>Los expertos recomiendan un examen visual anual para mantener tu salud ocular</p>

@@ -7,6 +7,7 @@
 'use client';
 
 import React, { useMemo } from 'react';
+import { Shield, CheckCircle, Calendar, AlertTriangle, Timer } from 'lucide-react';
 import { useLensConfiguratorStore } from '@/store/lens-configurator';
 import type { Frame } from '@/types';
 
@@ -212,15 +213,15 @@ export function ReviewStep({ frame, errors, onComplete }: ReviewStepProps) {
                             </div>
                         ) : configuration.uploadedPrescriptionUrl ? (
                             <span className="config-value">
-                                ✅ Imagen de receta subida
+                                <CheckCircle size={16} /> Imagen de receta subida
                             </span>
                         ) : configuration.appointmentId ? (
                             <span className="config-value">
-                                📅 Pendiente de cita médica
+                                <Calendar size={16} /> Pendiente de cita médica
                             </span>
                         ) : (
                             <span className="config-value config-warning">
-                                ⚠️ No se ha proporcionado receta
+                                <AlertTriangle size={16} /> No se ha proporcionado receta
                             </span>
                         )}
                     </div>
@@ -323,7 +324,7 @@ export function ReviewStep({ frame, errors, onComplete }: ReviewStepProps) {
 
             {/* Tiempo de producción */}
             <div className="production-notice" role="note">
-                <span className="notice-icon" aria-hidden="true">⏱️</span>
+                <span className="notice-icon" aria-hidden="true"><Timer size={16} /></span>
                 <div className="notice-content">
                     <strong>Tiempo estimado de producción:</strong>
                     <p>
@@ -338,7 +339,7 @@ export function ReviewStep({ frame, errors, onComplete }: ReviewStepProps) {
 
             {/* Garantía */}
             <div className="warranty-notice" role="note">
-                <span className="notice-icon" aria-hidden="true">🛡️</span>
+                <span className="notice-icon" aria-hidden="true"><Shield size={18} /></span>
                 <div className="notice-content">
                     <strong>Garantía incluida:</strong>
                     <ul>

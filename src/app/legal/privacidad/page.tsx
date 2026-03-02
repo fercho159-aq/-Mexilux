@@ -6,6 +6,7 @@
 
 import Link from 'next/link';
 import type { Metadata } from 'next';
+import { Mail, MessageCircle } from 'lucide-react';
 
 export const metadata: Metadata = {
     title: 'Política de Privacidad | Mexilux',
@@ -129,10 +130,10 @@ export default function PrivacidadPage() {
                         <p>Para preguntas sobre privacidad:</p>
                         <div className="contact-options">
                             <Link href="mailto:privacidad@mexilux.com" className="contact-option">
-                                ✉️ privacidad@mexilux.com
+                                <Mail className="inline-block" size={16} /> privacidad@mexilux.com
                             </Link>
                             <Link href="/contacto" className="contact-option">
-                                💬 Formulario de contacto
+                                <MessageCircle className="inline-block" size={16} /> Formulario de contacto
                             </Link>
                         </div>
                     </section>

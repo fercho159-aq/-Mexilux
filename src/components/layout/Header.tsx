@@ -20,7 +20,7 @@ export default function Header() {
             <header className="site-header">
                 <div className="header-container">
                     <Link href="/" className="logo" aria-label="Mexilux - Ir al inicio">
-                        <span className="logo-text">Mexilux</span>
+                        <img src="/logo-mexilux.png" alt="Mexilux" style={{ height: '70px', width: 'auto', objectFit: 'contain' }} />
                     </Link>
 
                     <div className="header-actions">

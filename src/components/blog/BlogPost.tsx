@@ -1,6 +1,8 @@
 'use client';
 
 import Link from 'next/link';
+import { ReactNode } from 'react';
+import { Smartphone } from 'lucide-react';
 
 interface BlogPostProps {
     post: {
@@ -11,7 +13,7 @@ interface BlogPostProps {
         categorySlug: string;
         author: string;
         readTime: string;
-        emoji: string;
+        emoji: ReactNode;
         slug: string;
     };
     relatedPosts: any[];
@@ -116,7 +118,7 @@ export default function BlogPost({ post, relatedPosts }: BlogPostProps) {
                             rel="noopener noreferrer"
                             className="share-btn share-whatsapp"
                         >
-                            📱 WhatsApp
+                            <Smartphone className="inline-block" size={14} /> WhatsApp
                         </a>
                     </div>
                 </div>
@@ -225,6 +227,10 @@ export default function BlogPost({ post, relatedPosts }: BlogPostProps) {
 
                 .featured-emoji {
                     font-size: 100px;
+                    display: flex;
+                    align-items: center;
+                    justify-content: center;
+                    color: white;
                 }
 
                 /* Content */
@@ -375,6 +381,11 @@ export default function BlogPost({ post, relatedPosts }: BlogPostProps) {
 
                     .featured-emoji {
                         font-size: 64px;
+                    }
+
+                    .featured-emoji :global(svg) {
+                        width: 48px;
+                        height: 48px;
                     }
                 }
             `}</style>

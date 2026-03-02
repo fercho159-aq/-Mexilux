@@ -10,6 +10,7 @@ import Link from 'next/link';
 import Image from 'next/image';
 import type { Metadata } from 'next';
 import { getFrames, getBrandsWithCount } from '@/lib/db';
+import CatalogFilters from '@/components/catalog/CatalogFilters';
 
 // Disable caching to always show fresh data
 export const dynamic = 'force-dynamic';
@@ -43,6 +44,8 @@ interface PageProps {
 export default async function CatalogoPage({ searchParams }: PageProps) {
     const params = await searchParams;
     const activeGenero = params.genero as string | undefined;
+    const activeShape = params.forma as string | undefined;
+    const activeMaterial = params.material as string | undefined;
     const page = parseInt(params.page as string) || 1;
 
     const [{ frames, pagination }, brands] = await Promise.all([
@@ -52,6 +55,8 @@ export default async function CatalogoPage({ searchParams }: PageProps) {
                 gender: activeGenero === 'hombre' ? 'male' :
                     activeGenero === 'mujer' ? 'female' :
                         activeGenero === 'ninos' ? 'kids' : undefined,
+                shape: (activeShape || undefined) as any,
+                material: (activeMaterial || undefined) as any,
             },
             { page, limit: 12, orderBy: 'popular' }
         ),
@@ -80,38 +85,65 @@ export default async function CatalogoPage({ searchParams }: PageProps) {
             {/* Filter Bar */}
             <section className="catalog-filter-bar">
                 <div className="filter-bar-container">
-                    {/* Quick filters as links */}
+                    {/* Gender filter links with character illustrations */}
                     <div className="filter-links">
                         <Link
                             href="/catalogo"
-                            className={`filter-link ${!activeGenero ? 'active' : ''}`}
+                            className={`filter-link filter-link-character ${!activeGenero ? 'active' : ''}`}
                         >
-                            Todos
+                            <svg width="28" height="28" viewBox="0 0 40 40" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                <circle cx="20" cy="20" r="18" fill={!activeGenero ? '#fff' : '#e8ecf1'} opacity="0.5"/>
+                                <circle cx="20" cy="16" r="6" stroke="currentColor" strokeWidth="2" fill="none"/>
+                                <path d="M10 34c0-5.5 4.5-10 10-10s10 4.5 10 10" stroke="currentColor" strokeWidth="2" fill="none" strokeLinecap="round"/>
+                            </svg>
+                            <span>Todos</span>
                         </Link>
                         <Link
                             href="/catalogo?genero=hombre"
-                            className={`filter-link ${activeGenero === 'hombre' ? 'active' : ''}`}
+                            className={`filter-link filter-link-character ${activeGenero === 'hombre' ? 'active' : ''}`}
                         >
-                            Mexicano
+                            <svg width="28" height="28" viewBox="0 0 40 40" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                {/* Sombrero */}
+                                <ellipse cx="20" cy="11" rx="14" ry="3" fill="currentColor" opacity="0.15"/>
+                                <path d="M12 11c0-4 3.5-7 8-7s8 3 8 7" stroke="currentColor" strokeWidth="2" fill="currentColor" opacity="0.25" strokeLinecap="round"/>
+                                <line x1="6" y1="11" x2="34" y2="11" stroke="currentColor" strokeWidth="2" strokeLinecap="round"/>
+                                {/* Face */}
+                                <circle cx="20" cy="21" r="6" stroke="currentColor" strokeWidth="1.8" fill="none"/>
+                                {/* Bigote */}
+                                <path d="M15 23.5c1-1.2 2.5-1.5 5-0.5M25 23.5c-1-1.2-2.5-1.5-5-0.5" stroke="currentColor" strokeWidth="1.3" strokeLinecap="round"/>
+                                {/* Body */}
+                                <path d="M12 36c0-4.5 3.5-8 8-8s8 3.5 8 8" stroke="currentColor" strokeWidth="1.8" fill="none" strokeLinecap="round"/>
+                            </svg>
+                            <span>Mexicano</span>
                         </Link>
                         <Link
                             href="/catalogo?genero=mujer"
-                            className={`filter-link ${activeGenero === 'mujer' ? 'active' : ''}`}
+                            className={`filter-link filter-link-character ${activeGenero === 'mujer' ? 'active' : ''}`}
                         >
-                            Mexicana
+                            <svg width="28" height="28" viewBox="0 0 40 40" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                {/* Hair */}
+                                <path d="M13 18c-1-6 2-12 7-13s8 3 8 8" stroke="currentColor" strokeWidth="1.8" fill="currentColor" opacity="0.15" strokeLinecap="round"/>
+                                {/* Flower in hair */}
+                                <circle cx="28" cy="12" r="2.5" fill="currentColor" opacity="0.4"/>
+                                <circle cx="28" cy="12" r="1" fill="currentColor" opacity="0.7"/>
+                                {/* Face */}
+                                <circle cx="20" cy="19" r="6" stroke="currentColor" strokeWidth="1.8" fill="none"/>
+                                {/* Braids */}
+                                <path d="M14 19c-1 3-1.5 7-1 11" stroke="currentColor" strokeWidth="2" strokeLinecap="round" opacity="0.5"/>
+                                <path d="M26 19c1 3 1.5 7 1 11" stroke="currentColor" strokeWidth="2" strokeLinecap="round" opacity="0.5"/>
+                                {/* Body */}
+                                <path d="M12 36c0-4.5 3.5-8 8-8s8 3.5 8 8" stroke="currentColor" strokeWidth="1.8" fill="none" strokeLinecap="round"/>
+                            </svg>
+                            <span>Mexicana</span>
                         </Link>
                     </div>
 
-                    {/* Sort and search */}
-                    <div className="filter-actions">
-                        <Link href="/buscar" className="filter-search-btn">
-                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                                <circle cx="11" cy="11" r="8" />
-                                <path d="m21 21-4.35-4.35" />
-                            </svg>
-                            Buscar
-                        </Link>
-                    </div>
+                    {/* Filter toggle */}
+                    <CatalogFilters
+                        activeShape={activeShape}
+                        activeMaterial={activeMaterial}
+                        activeGenero={activeGenero}
+                    />
                 </div>
             </section>
 
@@ -160,9 +192,10 @@ export default async function CatalogoPage({ searchParams }: PageProps) {
                                                         sizes="(max-width: 768px) 50vw, 25vw"
                                                     />
                                                 ) : (
-                                                    <span className="product-emoji-clean" aria-hidden="true">
-                                                        {frame.sunglasses_only ? '🕶️' : '👓'}
-                                                    </span>
+                                                    <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="#cbd5e1" strokeWidth="1.5" aria-hidden="true">
+                                                        <path d="M2 12s3-7 10-7 10 7 10 7-3 7-10 7S2 12 2 12z" />
+                                                        <circle cx="12" cy="12" r="3" />
+                                                    </svg>
                                                 )}
                                             </div>
                                         </Link>
@@ -224,7 +257,12 @@ export default async function CatalogoPage({ searchParams }: PageProps) {
                     ) : (
                         /* Empty state */
                         <div className="catalog-empty-clean">
-                            <div className="empty-icon-clean">🔍</div>
+                            <div className="empty-icon-clean">
+                                <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="#94a3b8" strokeWidth="1.5">
+                                    <circle cx="11" cy="11" r="8" />
+                                    <path d="m21 21-4.35-4.35" strokeLinecap="round" />
+                                </svg>
+                            </div>
                             <h3>No encontramos productos</h3>
                             <p>Intenta con otra categoría</p>
                             <Link href="/catalogo" className="btn btn-primary">

@@ -6,6 +6,7 @@
 
 import Link from 'next/link';
 import type { Metadata } from 'next';
+import { MessageCircle, Mail } from 'lucide-react';
 
 export const metadata: Metadata = {
     title: 'Preguntas Frecuentes | Mexilux',
@@ -15,7 +16,7 @@ export const metadata: Metadata = {
 const FAQ_CATEGORIES = [
     {
         id: 'pedidos',
-        title: '📦 Pedidos y Envíos',
+        title: 'Pedidos y Envíos',
         questions: [
             {
                 q: '¿Cuánto tiempo tarda en llegar mi pedido?',
@@ -33,7 +34,7 @@ const FAQ_CATEGORIES = [
     },
     {
         id: 'recetas',
-        title: '👁️ Recetas y Graduación',
+        title: 'Recetas y Graduación',
         questions: [
             {
                 q: '¿Cómo ingreso mi receta oftalmológica?',
@@ -55,7 +56,7 @@ const FAQ_CATEGORIES = [
     },
     {
         id: 'lentes',
-        title: '👓 Lentes y Tratamientos',
+        title: 'Lentes y Tratamientos',
         questions: [
             {
                 q: '¿Qué índice de lente debo elegir?',
@@ -73,7 +74,7 @@ const FAQ_CATEGORIES = [
     },
     {
         id: 'citas',
-        title: '📅 Citas y Exámenes',
+        title: 'Citas y Exámenes',
         questions: [
             {
                 q: '¿Cómo agendo una cita?',
@@ -91,7 +92,7 @@ const FAQ_CATEGORIES = [
     },
     {
         id: 'pagos',
-        title: '💳 Pagos y Facturación',
+        title: 'Pagos y Facturación',
         questions: [
             {
                 q: '¿Qué métodos de pago aceptan?',
@@ -163,10 +164,10 @@ export default function FAQPage() {
                     <p>Nuestro equipo está listo para ayudarte</p>
                     <div className="contact-buttons">
                         <Link href="/contacto" className="btn btn-primary">
-                            💬 Contactar por WhatsApp
+                            <MessageCircle className="inline-block" size={16} /> Contactar por WhatsApp
                         </Link>
                         <Link href="mailto:info@mexilux.com" className="btn btn-outline">
-                            ✉️ Enviar correo
+                            <Mail className="inline-block" size={16} /> Enviar correo
                         </Link>
                     </div>
                 </section>

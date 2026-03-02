@@ -3,6 +3,7 @@
 import Link from 'next/link';
 import { useState, useEffect } from 'react';
 import { useSearchParams } from 'next/navigation';
+import { Sun, Glasses, Search, MapPin } from 'lucide-react';
 
 // Mock products for search
 const ALL_PRODUCTS = [
@@ -12,7 +13,7 @@ const ALL_PRODUCTS = [
         brand: 'Ray-Ban',
         category: 'Lentes de Sol',
         price: 3499,
-        image: '🕶️',
+        image: <Sun size={32} />,
         slug: 'ray-ban-aviator-classic',
     },
     {
@@ -21,7 +22,7 @@ const ALL_PRODUCTS = [
         brand: 'Oakley',
         category: 'Lentes de Sol',
         price: 2899,
-        image: '🕶️',
+        image: <Sun size={32} />,
         slug: 'oakley-holbrook',
     },
     {
@@ -30,7 +31,7 @@ const ALL_PRODUCTS = [
         brand: 'Gucci',
         category: 'Oftálmicos',
         price: 6999,
-        image: '👓',
+        image: <Glasses size={32} />,
         slug: 'gucci-gg0061s',
     },
     {
@@ -39,7 +40,7 @@ const ALL_PRODUCTS = [
         brand: 'Tom Ford',
         category: 'Oftálmicos',
         price: 5499,
-        image: '👓',
+        image: <Glasses size={32} />,
         slug: 'tom-ford-ft5401',
     },
     {
@@ -48,7 +49,7 @@ const ALL_PRODUCTS = [
         brand: 'Ray-Ban',
         category: 'Lentes de Sol',
         price: 3299,
-        image: '🕶️',
+        image: <Sun size={32} />,
         slug: 'ray-ban-wayfarer',
     },
     {
@@ -57,7 +58,7 @@ const ALL_PRODUCTS = [
         brand: 'Ray-Ban',
         category: 'Oftálmicos',
         price: 3599,
-        image: '👓',
+        image: <Glasses size={32} />,
         slug: 'ray-ban-clubmaster',
     },
 ];
@@ -131,7 +132,7 @@ export default function SearchPageClient() {
                             className="search-input"
                             autoFocus
                         />
-                        <span className="search-icon">🔍</span>
+                        <span className="search-icon"><Search size={18} /></span>
                     </div>
                 </header>
 
@@ -195,7 +196,7 @@ export default function SearchPageClient() {
 
                         {results.length === 0 && (
                             <div className="no-results">
-                                <span className="no-results-icon">🔍</span>
+                                <span className="no-results-icon"><Search size={40} /></span>
                                 <h3>No encontramos lo que buscas</h3>
                                 <p>Intenta con otros términos o explora nuestro catálogo</p>
                                 <Link href="/catalogo" className="btn btn-primary">
@@ -211,16 +212,16 @@ export default function SearchPageClient() {
                     <h2>Explorar por categoría</h2>
                     <div className="categories-links">
                         <Link href="/catalogo?tipo=sol" className="category-link">
-                            🕶️ Lentes de Sol
+                            <Sun className="inline-block" size={16} /> Lentes de Sol
                         </Link>
                         <Link href="/catalogo?tipo=oftalmicos" className="category-link">
-                            👓 Oftálmicos
+                            <Glasses className="inline-block" size={16} /> Oftálmicos
                         </Link>
                         <Link href="/catalogo?genero=hombre" className="category-link">
-                            🇲🇽 Mexicano
+                            <MapPin className="inline-block" size={16} /> Mexicano
                         </Link>
                         <Link href="/catalogo?genero=mujer" className="category-link">
-                            🇲🇽 Mexicana
+                            <MapPin className="inline-block" size={16} /> Mexicana
                         </Link>
                     </div>
                 </section>

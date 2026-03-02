@@ -100,6 +100,8 @@ export default async function ProductPage({ params }: PageProps) {
     const defaultVariant = product.frame_color_variants[0];
     const allImages = product.frame_color_variants.flatMap(v => v.frame_images);
     const rating = parseFloat(product.average_rating?.toString() || '0');
+    const stockQuantity = defaultVariant?.stock_quantity ?? null;
+    const isLastUnit = stockQuantity === 1;
 
     return (
         <main className="product-page">
@@ -152,6 +154,35 @@ export default async function ProductPage({ params }: PageProps) {
                         )}
                     </div>
 
+                    {/* Stock indicator - solo muestra cuando queda 1 unidad */}
+                    {isLastUnit && (
+                        <div style={{
+                            display: 'inline-flex',
+                            alignItems: 'center',
+                            gap: '0.375rem',
+                            padding: '0.5rem 0.875rem',
+                            background: '#fef2f2',
+                            border: '1px solid #fecaca',
+                            borderRadius: '10px',
+                            marginBottom: '0.5rem',
+                        }}>
+                            <span style={{
+                                width: '6px',
+                                height: '6px',
+                                borderRadius: '50%',
+                                background: '#ef4444',
+                                animation: 'pulse 2s infinite',
+                            }} />
+                            <span style={{
+                                fontSize: '0.8125rem',
+                                fontWeight: 600,
+                                color: '#dc2626',
+                            }}>
+                                Ultima unidad disponible
+                            </span>
+                        </div>
+                    )}
+
                     {/* Color selector */}
                     {product.frame_color_variants.length > 0 && (
                         <div className="option-section">
@@ -184,21 +215,21 @@ export default async function ProductPage({ params }: PageProps) {
                     {/* Delivery info con humor mexicano */}
                     <div className="delivery-info">
                         <div className="delivery-item">
-                            <span className="delivery-icon">🚚</span>
+                            <span className="delivery-icon"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"><rect x="1" y="3" width="15" height="13" rx="2"/><polygon points="16 8 20 8 23 11 23 16 16 16 16 8"/><circle cx="5.5" cy="18.5" r="2.5"/><circle cx="18.5" cy="18.5" r="2.5"/></svg></span>
                             <div className="delivery-text">
-                                <strong>Envío gratis 🎉</strong>
+                                <strong>Envío gratis</strong>
                                 <span>Sí llegamos, no somos tu prima (+$1,500)</span>
                             </div>
                         </div>
                         <div className="delivery-item">
-                            <span className="delivery-icon">⏱️</span>
+                            <span className="delivery-icon"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg></span>
                             <div className="delivery-text">
                                 <strong>5-7 días</strong>
-                                <span>Ya vamos, es que hay mucho tráfico 🏃</span>
+                                <span>Ya vamos, es que hay mucho tráfico</span>
                             </div>
                         </div>
                         <div className="delivery-item">
-                            <span className="delivery-icon">🛡️</span>
+                            <span className="delivery-icon"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg></span>
                             <div className="delivery-text">
                                 <strong>Garantía 1 año</strong>
                                 <span>Pa&apos; que estés tranquilo, compa</span>

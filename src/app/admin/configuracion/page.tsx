@@ -1,6 +1,7 @@
 import { redirect } from 'next/navigation';
 import { getAdminSession } from '@/lib/auth/admin';
 import { AdminSidebar } from '../dashboard/AdminSidebar';
+import { Store, CreditCard, Truck, Mail } from 'lucide-react';
 import '../admin.css';
 
 export default async function AdminConfiguracionPage() {
@@ -20,7 +21,7 @@ export default async function AdminConfiguracionPage() {
                         <div className="admin-card" style={{ padding: '1.5rem' }}>
                             <div style={{ display: 'flex', alignItems: 'center', gap: '1rem', marginBottom: '1rem' }}>
                                 <div style={{ width: 45, height: 45, borderRadius: '10px', background: '#e8f4ff', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '1.25rem' }}>
-                                    🏪
+                                    <Store size={20} />
                                 </div>
                                 <h3 style={{ margin: 0, fontSize: '1rem', fontWeight: 600, color: '#3f4254' }}>Información de la Tienda</h3>
                             </div>
@@ -35,7 +36,7 @@ export default async function AdminConfiguracionPage() {
                         <div className="admin-card" style={{ padding: '1.5rem' }}>
                             <div style={{ display: 'flex', alignItems: 'center', gap: '1rem', marginBottom: '1rem' }}>
                                 <div style={{ width: 45, height: 45, borderRadius: '10px', background: '#e8fff3', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '1.25rem' }}>
-                                    💳
+                                    <CreditCard size={20} />
                                 </div>
                                 <h3 style={{ margin: 0, fontSize: '1rem', fontWeight: 600, color: '#3f4254' }}>Métodos de Pago</h3>
                             </div>
@@ -50,7 +51,7 @@ export default async function AdminConfiguracionPage() {
                         <div className="admin-card" style={{ padding: '1.5rem' }}>
                             <div style={{ display: 'flex', alignItems: 'center', gap: '1rem', marginBottom: '1rem' }}>
                                 <div style={{ width: 45, height: 45, borderRadius: '10px', background: '#fff8e8', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '1.25rem' }}>
-                                    🚚
+                                    <Truck size={20} />
                                 </div>
                                 <h3 style={{ margin: 0, fontSize: '1rem', fontWeight: 600, color: '#3f4254' }}>Envíos</h3>
                             </div>
@@ -65,7 +66,7 @@ export default async function AdminConfiguracionPage() {
                         <div className="admin-card" style={{ padding: '1.5rem' }}>
                             <div style={{ display: 'flex', alignItems: 'center', gap: '1rem', marginBottom: '1rem' }}>
                                 <div style={{ width: 45, height: 45, borderRadius: '10px', background: '#f3e8ff', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '1.25rem' }}>
-                                    📧
+                                    <Mail size={20} />
                                 </div>
                                 <h3 style={{ margin: 0, fontSize: '1rem', fontWeight: 600, color: '#3f4254' }}>Notificaciones</h3>
                             </div>

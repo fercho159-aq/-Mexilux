@@ -179,7 +179,7 @@ export default function NosotrosPage() {
             {/* Mission Section */}
             <section className="content-section">
                 <div ref={missionRef} className="section-card mission-card">
-                    <div className="section-icon">🔥</div>
+                    <div className="section-icon"><svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"><path d="M12 22c-2 0-7-2-7-9 0-3 1-5 3-7 .5-.5 1.5-1 1.5.5 0 1 .5 2 1.5 2 2 0 2-2 2-3 0-2.5 2-4.5 3-5.5.5-.5 1.5 0 1.5.5 0 2 1 4 3 5 1.5.8 2.5 2.5 2.5 5 0 7-4.5 11.5-11 11.5z"/></svg></div>
                     <h2>Nuestra Misión</h2>
                     <p className="section-text">
                         Mexilux busca <strong>concientizar a las y los mexicanos</strong> de que los lentes
@@ -208,7 +208,7 @@ export default function NosotrosPage() {
             {/* Vision Section */}
             <section className="content-section reverse">
                 <div ref={visionRef} className="section-card vision-card">
-                    <div className="section-icon">👁️</div>
+                    <div className="section-icon"><svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8S1 12 1 12z"/><circle cx="12" cy="12" r="3"/></svg></div>
                     <h2>Nuestra Visión</h2>
                     <p className="section-text">
                         Convertirnos en la <strong>marca referente que redefine el diseño nacional</strong>,
@@ -301,27 +301,42 @@ export default function NosotrosPage() {
                 </div>
             </section>
 
-            {/* Values Section */}
+            {/* Values Section - Con collage borroso de fondo */}
             <section className="values-section">
+                {/* Collage de lugares mexicanos como fondo borroso */}
+                <div className="collage-bg" aria-hidden="true">
+                    <div className="collage-grid">
+                        <div className="collage-item" style={{ background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)' }} />
+                        <div className="collage-item" style={{ background: 'linear-gradient(135deg, #f093fb 0%, #f5576c 100%)' }} />
+                        <div className="collage-item" style={{ background: 'linear-gradient(135deg, #4facfe 0%, #00f2fe 100%)' }} />
+                        <div className="collage-item" style={{ background: 'linear-gradient(135deg, #43e97b 0%, #38f9d7 100%)' }} />
+                        <div className="collage-item" style={{ background: 'linear-gradient(135deg, #fa709a 0%, #fee140 100%)' }} />
+                        <div className="collage-item" style={{ background: 'linear-gradient(135deg, #a18cd1 0%, #fbc2eb 100%)' }} />
+                        <div className="collage-item" style={{ background: 'linear-gradient(135deg, #ffecd2 0%, #fcb69f 100%)' }} />
+                        <div className="collage-item" style={{ background: 'linear-gradient(135deg, #89f7fe 0%, #66a6ff 100%)' }} />
+                        <div className="collage-item" style={{ background: 'linear-gradient(135deg, #f5af19 0%, #f12711 100%)' }} />
+                    </div>
+                </div>
+                <div className="values-overlay" />
                 <h2>Nuestros Valores</h2>
                 <div className="values-grid">
                     <div className="value-card">
-                        <span className="value-icon">🇲🇽</span>
+                        <span className="value-icon"><svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg></span>
                         <h3>Orgullo Mexicano</h3>
                         <p>Cada armazón lleva el espíritu de México: ingenio, calidez y pasión.</p>
                     </div>
                     <div className="value-card">
-                        <span className="value-icon">✨</span>
+                        <span className="value-icon"><svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"><path d="M12 3l1.5 4.5H18l-3.5 2.5L16 14.5 12 11.5 8 14.5l1.5-4.5L6 7.5h4.5z"/><path d="M5 19l2-6"/><path d="M19 19l-2-6"/><line x1="3" y1="22" x2="21" y2="22"/></svg></span>
                         <h3>Calidad Mundial</h3>
                         <p>Demostramos que lo hecho en México puede competir con cualquier marca global.</p>
                     </div>
                     <div className="value-card">
-                        <span className="value-icon">🤝</span>
+                        <span className="value-icon"><svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg></span>
                         <h3>Guía Personalizada</h3>
                         <p>Te ayudamos a encontrar el armazón perfecto para tu rostro y personalidad.</p>
                     </div>
                     <div className="value-card">
-                        <span className="value-icon">❤️</span>
+                        <span className="value-icon"><svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg></span>
                         <h3>Conexión con Raíces</h3>
                         <p>Inspiramos a nuevas generaciones a valorar nuestra cultura y tradiciones.</p>
                     </div>
@@ -547,6 +562,42 @@ export default function NosotrosPage() {
                     padding: 8rem 2rem;
                     background: #f5f5f7;
                     text-align: center;
+                    position: relative;
+                    overflow: hidden;
+                }
+
+                .collage-bg {
+                    position: absolute;
+                    inset: -20px;
+                    filter: blur(40px);
+                    opacity: 0.25;
+                    z-index: 0;
+                }
+
+                .collage-grid {
+                    display: grid;
+                    grid-template-columns: repeat(3, 1fr);
+                    grid-template-rows: repeat(3, 1fr);
+                    gap: 8px;
+                    height: 100%;
+                }
+
+                .collage-item {
+                    border-radius: 12px;
+                    min-height: 120px;
+                }
+
+                .values-overlay {
+                    position: absolute;
+                    inset: 0;
+                    background: rgba(245, 245, 247, 0.7);
+                    z-index: 1;
+                }
+
+                .values-section h2,
+                .values-grid {
+                    position: relative;
+                    z-index: 2;
                 }
 
                 .values-section h2 {

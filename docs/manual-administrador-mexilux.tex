@@ -1,0 +1,1291 @@
+% ═══════════════════════════════════════════════════════════════════════════
+% MANUAL DEL ADMINISTRADOR - MEXILUX
+% Sistema de E-Commerce para Lentes
+% ═══════════════════════════════════════════════════════════════════════════
+
+\documentclass[12pt, a4paper]{article}
+
+% ─── Paquetes ─────────────────────────────────────────────────────────────
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+\usepackage[spanish]{babel}
+\usepackage{geometry}
+\usepackage{graphicx}
+\usepackage{tikz}
+\usepackage{xcolor}
+\usepackage{hyperref}
+\usepackage{fancyhdr}
+\usepackage{enumitem}
+\usepackage{booktabs}
+\usepackage{longtable}
+\usepackage{tabularx}
+\usepackage{listings}
+\usepackage{tcolorbox}
+\usepackage{fontawesome5}
+\usepackage{multicol}
+\usepackage{float}
+\usepackage{caption}
+\usepackage{titlesec}
+\usepackage{tocloft}
+
+% ─── TikZ Libraries ──────────────────────────────────────────────────────
+\usetikzlibrary{
+    shapes.geometric,
+    arrows.meta,
+    positioning,
+    fit,
+    calc,
+    backgrounds,
+    shadows.blur,
+    decorations.pathreplacing,
+    matrix,
+    chains
+}
+
+% ─── Geometría ────────────────────────────────────────────────────────────
+\geometry{
+    top=2.5cm,
+    bottom=2.5cm,
+    left=2.5cm,
+    right=2.5cm
+}
+
+% ─── Colores de Mexilux ──────────────────────────────────────────────────
+\definecolor{mxdark}{HTML}{152132}
+\definecolor{mxgold}{HTML}{8A6623}
+\definecolor{mxblue}{HTML}{3699FF}
+\definecolor{mxgreen}{HTML}{1BC5BD}
+\definecolor{mxred}{HTML}{F64E60}
+\definecolor{mxorange}{HTML}{FFA800}
+\definecolor{mxbg}{HTML}{F5F8FA}
+\definecolor{mxgray}{HTML}{5E6278}
+\definecolor{mxlightgray}{HTML}{E8ECF1}
+\definecolor{codebg}{HTML}{1E1E2D}
+
+% ─── Estilos de secciones ────────────────────────────────────────────────
+\titleformat{\section}
+    {\Large\bfseries\color{mxdark}}
+    {\thesection}{1em}{}[\color{mxgold}\titlerule]
+
+\titleformat{\subsection}
+    {\large\bfseries\color{mxdark}}
+    {\thesubsection}{1em}{}
+
+\titleformat{\subsubsection}
+    {\normalsize\bfseries\color{mxgray}}
+    {\thesubsubsection}{1em}{}
+
+% ─── Header y Footer ─────────────────────────────────────────────────────
+\pagestyle{fancy}
+\fancyhf{}
+\fancyhead[L]{\small\color{mxgray}Manual del Administrador}
+\fancyhead[R]{\small\color{mxgold}\textbf{Mexilux}}
+\fancyfoot[C]{\small\color{mxgray}\thepage}
+\renewcommand{\headrulewidth}{0.5pt}
+\renewcommand{\headrule}{\hbox to\headwidth{\color{mxlightgray}\leaders\hrule height \headrulewidth\hfill}}
+
+% ─── Hyperref ─────────────────────────────────────────────────────────────
+\hypersetup{
+    colorlinks=true,
+    linkcolor=mxdark,
+    urlcolor=mxblue,
+    citecolor=mxgold,
+    pdftitle={Manual del Administrador - Mexilux},
+    pdfauthor={Mexilux},
+}
+
+% ─── Code listings ────────────────────────────────────────────────────────
+\lstdefinestyle{mexcode}{
+    backgroundcolor=\color{codebg},
+    basicstyle=\ttfamily\small\color{white},
+    keywordstyle=\color{mxblue}\bfseries,
+    stringstyle=\color{mxgreen},
+    commentstyle=\color{mxgray}\itshape,
+    breaklines=true,
+    frame=none,
+    xleftmargin=10pt,
+    xrightmargin=10pt,
+    aboveskip=8pt,
+    belowskip=8pt,
+}
+
+% ─── Cajas de información ────────────────────────────────────────────────
+\newtcolorbox{infobox}[1][]{
+    colback=mxblue!5,
+    colframe=mxblue,
+    fonttitle=\bfseries,
+    title=#1,
+    arc=4pt,
+    left=8pt,
+    right=8pt,
+}
+
+\newtcolorbox{warnbox}[1][]{
+    colback=mxorange!5,
+    colframe=mxorange,
+    fonttitle=\bfseries,
+    title=#1,
+    arc=4pt,
+    left=8pt,
+    right=8pt,
+}
+
+\newtcolorbox{tipbox}[1][]{
+    colback=mxgreen!5,
+    colframe=mxgreen,
+    fonttitle=\bfseries,
+    title=#1,
+    arc=4pt,
+    left=8pt,
+    right=8pt,
+}
+
+\newtcolorbox{credbox}[1][]{
+    colback=mxdark!5,
+    colframe=mxdark,
+    fonttitle=\bfseries\color{white},
+    colbacktitle=mxdark,
+    title=#1,
+    arc=4pt,
+    left=8pt,
+    right=8pt,
+}
+
+% ─── Estilos TikZ reutilizables ──────────────────────────────────────────
+\tikzset{
+    sysblock/.style={
+        rectangle, rounded corners=6pt, minimum width=2.8cm, minimum height=0.9cm,
+        draw=mxdark, fill=mxdark, text=white, font=\small\bfseries,
+        blur shadow={shadow blur steps=5, shadow xshift=1pt, shadow yshift=-1pt}
+    },
+    compblock/.style={
+        rectangle, rounded corners=4pt, minimum width=2.5cm, minimum height=0.8cm,
+        draw=mxblue, fill=mxblue!10, text=mxdark, font=\small,
+    },
+    dbblock/.style={
+        cylinder, shape border rotate=90, aspect=0.3,
+        minimum width=2cm, minimum height=1.1cm,
+        draw=mxgold, fill=mxgold!10, text=mxdark, font=\small\bfseries,
+    },
+    extblock/.style={
+        rectangle, rounded corners=4pt, minimum width=2.3cm, minimum height=0.8cm,
+        draw=mxgreen, fill=mxgreen!10, text=mxdark, font=\small,
+        dashed,
+    },
+    arrw/.style={-{Stealth[length=5pt]}, thick, color=mxgray},
+    arrwblue/.style={-{Stealth[length=5pt]}, thick, color=mxblue},
+    arrwgold/.style={-{Stealth[length=5pt]}, thick, color=mxgold},
+    arrwdash/.style={-{Stealth[length=5pt]}, thick, color=mxgray, dashed},
+    lbl/.style={font=\scriptsize\color{mxgray}, midway, fill=white, inner sep=1.5pt},
+    entity/.style={
+        rectangle, rounded corners=3pt, minimum width=2.4cm, minimum height=0.65cm,
+        draw=mxdark, fill=mxdark!8, text=mxdark, font=\footnotesize\bfseries,
+    },
+    field/.style={font=\scriptsize, text=mxgray, anchor=west},
+}
+
+% ═════════════════════════════════════════════════════════════════════════
+\begin{document}
+
+% ─── PORTADA ──────────────────────────────────────────────────────────────
+\begin{titlepage}
+\begin{tikzpicture}[remember picture, overlay]
+    \fill[mxdark] (current page.north west) rectangle ([yshift=-12cm]current page.north east);
+    \fill[mxgold] ([yshift=-12cm]current page.north west) rectangle ([yshift=-12.3cm]current page.north east);
+    \node[opacity=0.08] at ([yshift=-6cm]current page.north) {
+        \fontsize{200}{200}\selectfont\faGlasses
+    };
+\end{tikzpicture}
+
+\vspace*{2.5cm}
+
+\begin{center}
+    {\fontsize{42}{50}\selectfont\bfseries\color{white} MEXILUX}\\[0.4cm]
+    {\fontsize{14}{18}\selectfont\color{mxgold} MANUAL DEL ADMINISTRADOR}\\[0.3cm]
+    {\fontsize{11}{14}\selectfont\color{white!70} Sistema de E-Commerce para Lentes}\\[0.2cm]
+    {\small\color{white!50} Documentaci\'{o}n T\'{e}cnica del Panel de Administraci\'{o}n}
+\end{center}
+
+\vspace{6.5cm}
+
+\begin{center}
+    {\large\color{mxdark}\bfseries Arquitectura del Sistema}\\[0.3cm]
+    {\small\color{mxgray} Next.js 16 $\cdot$ TypeScript $\cdot$ Prisma ORM $\cdot$ PostgreSQL}\\[0.1cm]
+    {\small\color{mxgray} MercadoPago $\cdot$ Cloudinary $\cdot$ Zustand}\\[1.5cm]
+    {\footnotesize\color{mxgray} Versi\'{o}n 1.0 --- Febrero 2026}
+\end{center}
+\end{titlepage}
+
+% ─── TABLA DE CONTENIDOS ─────────────────────────────────────────────────
+\newpage
+\tableofcontents
+\newpage
+
+% ═════════════════════════════════════════════════════════════════════════
+\section{Visi\'{o}n General del Sistema}
+% ═════════════════════════════════════════════════════════════════════════
+
+Mexilux es una plataforma de e-commerce especializada en lentes oft\'{a}lmicos y de sol con identidad mexicana. El sistema permite a los clientes navegar el cat\'{a}logo, configurar lentes con graduaci\'{o}n, y completar compras v\'{i}a MercadoPago. El panel de administraci\'{o}n permite gestionar todos los aspectos del negocio.
+
+\subsection{Arquitectura General}
+
+\begin{figure}[H]
+\centering
+\begin{tikzpicture}[node distance=1.3cm and 1.5cm]
+
+    % ─── Clientes ───
+    \node[sysblock, fill=mxgold] (client) {\faUser\ Cliente};
+    \node[sysblock, fill=mxgold, right=2.5cm of client] (admin) {\faUserShield\ Admin};
+
+    % ─── Next.js ───
+    \node[sysblock, below=1.8cm of $(client)!0.5!(admin)$, minimum width=4cm] (nextjs) {\faServer\ Next.js 16};
+
+    % ─── Componentes internos ───
+    \node[compblock, below left=1.5cm and 1cm of nextjs, font=\footnotesize] (ssr) {Server Components};
+    \node[compblock, below=1.5cm of nextjs, font=\footnotesize] (api) {API Routes};
+    \node[compblock, below right=1.5cm and 1cm of nextjs, font=\footnotesize] (csr) {Client Components};
+
+    % ─── Capa de datos ───
+    \node[compblock, below=1.3cm of api, font=\footnotesize] (prisma) {\faDatabase\ Prisma ORM};
+
+    % ─── Servicios ───
+    \node[dbblock, below left=1.5cm and 0.5cm of prisma, font=\footnotesize] (db) {PostgreSQL\\(Neon)};
+    \node[extblock, below=1.5cm of prisma, font=\footnotesize] (mp) {\faCreditCard\ MercadoPago};
+    \node[extblock, below right=1.5cm and 0.5cm of prisma, font=\footnotesize] (cloud) {\faCloud\ Cloudinary};
+
+    % ─── Estado (debajo de client components) ───
+    \node[compblock, below=1cm of csr, fill=mxorange!10, draw=mxorange, font=\footnotesize, minimum width=2.3cm] (zustand) {Zustand\\(Cart + Config)};
+
+    % ─── Flechas ───
+    \draw[arrw] (client) -- node[lbl]{HTTPS} (nextjs);
+    \draw[arrw] (admin) -- node[lbl]{JWT} (nextjs);
+    \draw[arrwblue] (nextjs) -- (ssr);
+    \draw[arrwblue] (nextjs) -- (api);
+    \draw[arrwblue] (nextjs) -- (csr);
+    \draw[arrw] (ssr) -- (prisma);
+    \draw[arrw] (api) -- (prisma);
+    \draw[arrwdash] (csr) -- node[lbl, right, pos=0.3]{fetch} (api);
+    \draw[arrwgold] (prisma) -- (db);
+    \draw[arrwdash] (api) -- (mp);
+    \draw[arrwdash] (api) -- (cloud);
+    \draw[arrwdash] (csr) -- (zustand);
+
+\end{tikzpicture}
+\caption{Arquitectura general del sistema Mexilux}
+\end{figure}
+
+\subsection{Stack Tecnol\'{o}gico}
+
+\begin{table}[H]
+\centering
+\begin{tabularx}{\textwidth}{lX}
+\toprule
+\textbf{Componente} & \textbf{Tecnolog\'{i}a} \\
+\midrule
+Framework & Next.js 16 con App Router (React Server Components) \\
+Lenguaje & TypeScript 5 \\
+Base de Datos & PostgreSQL (Neon Serverless) \\
+ORM & Prisma con migraciones \\
+Estado Cliente & Zustand 5 con persistencia en localStorage \\
+Estilos & Tailwind CSS 4 + CSS Modules + Inline Styles \\
+Pagos & MercadoPago SDK \\
+Im\'{a}genes & Cloudinary CDN (optimizaci\'{o}n autom\'{a}tica) \\
+Animaciones & GSAP + ScrollTrigger \\
+Autenticaci\'{o}n Admin & JWT (7 d\'{i}as) + bcrypt + sesiones en BD \\
+\bottomrule
+\end{tabularx}
+\caption{Stack tecnol\'{o}gico del proyecto}
+\end{table}
+
+% ═════════════════════════════════════════════════════════════════════════
+\section{Panel de Administraci\'{o}n}
+% ═════════════════════════════════════════════════════════════════════════
+
+\subsection{Credenciales de Acceso}
+
+\begin{credbox}[Datos de Acceso al Panel de Administraci\'{o}n]
+\begin{table}[H]
+\centering
+\begin{tabularx}{\textwidth}{lX}
+\faGlobe\ \ \textbf{URL del Panel} & \texttt{https://tu-dominio.com/admin/login} \\
+& \texttt{http://localhost:3000/admin/login} {\footnotesize\color{mxgray}(desarrollo)} \\[6pt]
+\faEnvelope\ \ \textbf{Email} & \texttt{admin@mexilux.com} \\[6pt]
+\faKey\ \ \textbf{Contrase\~{n}a} & \texttt{admin123} \\[6pt]
+\faUserShield\ \ \textbf{Rol} & Super Admin \\[6pt]
+\faUser\ \ \textbf{Nombre} & Administrador \\
+\end{tabularx}
+\end{table}
+\end{credbox}
+
+\begin{warnbox}[Importante: Cambiar en Producci\'{o}n]
+Estas son credenciales de \textbf{desarrollo}. Antes de desplegar a producci\'{o}n:
+\begin{enumerate}[nosep]
+    \item Cambiar la contrase\~{n}a del admin por una segura
+    \item Cambiar el \texttt{JWT\_SECRET} en las variables de entorno
+    \item Verificar que las cookies tengan \texttt{Secure=true}
+    \item Crear cuentas individuales para cada administrador
+\end{enumerate}
+\end{warnbox}
+
+\subsubsection{Crear un nuevo administrador}
+
+Para crear un admin adicional, ejecutar desde la ra\'{i}z del proyecto:
+
+\begin{lstlisting}[style=mexcode]
+npx ts-node scripts/create-admin.ts
+\end{lstlisting}
+
+O directamente con Prisma Studio:
+
+\begin{lstlisting}[style=mexcode]
+npx prisma studio
+# Navegar a la tabla admin_users
+# Agregar registro con password_hash (bcrypt)
+\end{lstlisting}
+
+\textbf{Roles disponibles:}
+\begin{itemize}[nosep]
+    \item \texttt{super\_admin} --- Acceso total al sistema
+    \item \texttt{admin} --- Gesti\'{o}n de productos, pedidos, marcas, videos
+    \item \texttt{staff} --- Solo lectura: dashboard y pedidos
+\end{itemize}
+
+\subsection{Flujo de Autenticaci\'{o}n}
+
+\begin{figure}[H]
+\centering
+\begin{tikzpicture}[node distance=1.1cm]
+
+    \node[sysblock, fill=mxgold, minimum width=4cm] (login) {\faSignInAlt\ \ /admin/login};
+
+    \node[compblock, below=1.3cm of login, minimum width=4.5cm] (verify) {Verificar credenciales\\(bcrypt + BD)};
+
+    \node[compblock, below left=1.3cm and 0.3cm of verify, fill=mxred!10, draw=mxred, minimum width=2.8cm] (fail) {\faTimes\ Error 401};
+    \node[compblock, below right=1.3cm and 0.3cm of verify, fill=mxgreen!10, draw=mxgreen, minimum width=3cm] (success) {\faCheck\ Generar JWT};
+
+    \node[compblock, below=1.1cm of success, minimum width=4cm] (session) {Crear sesi\'{o}n en BD\\+ Cookie HttpOnly};
+
+    \node[sysblock, below=1.1cm of session, minimum width=4cm] (dashboard) {\faTachometerAlt\ \ /admin/dashboard};
+
+    \draw[arrw] (login) -- node[lbl]{POST email + password} (verify);
+    \draw[arrw] (verify) -- node[lbl, left]{Inv\'{a}lido} (fail);
+    \draw[arrw] (verify) -- node[lbl, right]{V\'{a}lido} (success);
+    \draw[arrw] (success) -- node[lbl]{token 7 d\'{i}as} (session);
+    \draw[arrw] (session) -- node[lbl]{redirect} (dashboard);
+
+\end{tikzpicture}
+\caption{Flujo de autenticaci\'{o}n del administrador}
+\end{figure}
+
+\begin{infobox}[Seguridad de Sesi\'{o}n]
+\begin{itemize}[nosep]
+    \item Tokens JWT con expiraci\'{o}n de \textbf{7 d\'{i}as}
+    \item Cookies \texttt{HttpOnly} (no accesibles desde JavaScript)
+    \item Cookies \texttt{Secure} en producci\'{o}n (solo HTTPS)
+    \item \texttt{SameSite=lax} para protecci\'{o}n CSRF
+    \item Sesi\'{o}n almacenada en BD (revocable en cualquier momento)
+    \item Contrase\~{n}as hasheadas con \textbf{bcrypt} (salt factor 10)
+\end{itemize}
+\end{infobox}
+
+\subsection{Mapa de Navegaci\'{o}n del Admin}
+
+\begin{figure}[H]
+\centering
+\begin{tikzpicture}[node distance=0.5cm]
+
+    % Nodo raíz
+    \node[sysblock, minimum width=3.5cm] (root) {\faHome\ Panel Admin};
+
+    % Fila 1: módulos principales (4)
+    \node[compblock, fill=mxblue!15, minimum width=2.8cm, font=\footnotesize, below left=1.5cm and 3.5cm of root] (dash) {\faChartBar\ Dashboard};
+    \node[compblock, fill=mxblue!15, minimum width=2.8cm, font=\footnotesize, right=0.4cm of dash] (orders) {\faShoppingCart\ Pedidos};
+    \node[compblock, fill=mxblue!15, minimum width=2.8cm, font=\footnotesize, right=0.4cm of orders] (prods) {\faGlasses\ Productos};
+    \node[compblock, fill=mxblue!15, minimum width=2.8cm, font=\footnotesize, right=0.4cm of prods] (brands) {\faTags\ Marcas};
+
+    % Fila 2: módulos secundarios (4)
+    \node[compblock, fill=mxgreen!12, minimum width=2.8cm, font=\footnotesize, below=0.8cm of dash] (cats) {\faFolder\ Categor\'{i}as};
+    \node[compblock, fill=mxgreen!12, minimum width=2.8cm, font=\footnotesize, right=0.4cm of cats] (users) {\faUsers\ Usuarios};
+    \node[compblock, fill=mxgreen!12, minimum width=2.8cm, font=\footnotesize, right=0.4cm of users] (videos) {\faVideo\ Videos};
+    \node[compblock, fill=mxgray!10, draw=mxgray, minimum width=2.8cm, font=\footnotesize, right=0.4cm of videos] (config) {\faCog\ Configuraci\'{o}n};
+
+    % Sub-items
+    \node[compblock, fill=white, minimum width=2.2cm, font=\scriptsize, below=0.6cm of dash] (stats) {Estad\'{i}sticas};
+    \node[compblock, fill=white, minimum width=2.2cm, font=\scriptsize, below=0.6cm of orders] (detail) {Detalle pedido};
+    \node[compblock, fill=white, minimum width=2.2cm, font=\scriptsize, below=0.6cm of prods] (nuevo) {Crear / Editar};
+
+    % Flechas desde raíz
+    \draw[arrw] (root.south) -- ++(0,-0.4) -| (dash.north);
+    \draw[arrw] (root.south) -- ++(0,-0.4) -| (orders.north);
+    \draw[arrw] (root.south) -- ++(0,-0.4) -| (prods.north);
+    \draw[arrw] (root.south) -- ++(0,-0.4) -| (brands.north);
+
+    % Flechas a sub-items
+    \draw[arrwblue, thin] (dash) -- (stats);
+    \draw[arrwblue, thin] (orders) -- (detail);
+    \draw[arrwblue, thin] (prods) -- (nuevo);
+
+\end{tikzpicture}
+\caption{Estructura de navegaci\'{o}n del panel de administraci\'{o}n}
+\end{figure}
+
+\subsection{M\'{o}dulos del Panel}
+
+\subsubsection{Dashboard (\texttt{/admin/dashboard})}
+
+El dashboard presenta un resumen ejecutivo del negocio con m\'{e}tricas en tiempo real.
+
+\begin{table}[H]
+\centering
+\begin{tabularx}{\textwidth}{lX}
+\toprule
+\textbf{M\'{e}trica} & \textbf{Descripci\'{o}n} \\
+\midrule
+Total Productos & Cantidad total de armazones en el sistema \\
+Productos Activos & Productos con estado \texttt{active} \\
+Total Pedidos & Todos los pedidos registrados \\
+Usuarios Registrados & Clientes con cuenta creada \\
+Ingresos Mensuales & Suma de pedidos pagados del mes \\
+Pedidos Pendientes & Pedidos en estado \texttt{pending\_payment} \\
+\bottomrule
+\end{tabularx}
+\end{table}
+
+\subsubsection{Gesti\'{o}n de Productos (\texttt{/admin/productos})}
+
+\begin{figure}[H]
+\centering
+\begin{tikzpicture}[node distance=0.8cm]
+
+    \node[entity, minimum width=9cm, minimum height=0.9cm] (header) {\faGlasses\ \ Gesti\'{o}n de Productos};
+
+    \node[compblock, below left=1.2cm and 0cm of header, minimum width=4cm, anchor=north east] (list) {
+        \begin{tabular}{l}
+        \textbf{Vista de Lista} \\
+        \hline
+        {\scriptsize Nombre + Slug} \\
+        {\scriptsize Marca} \\
+        {\scriptsize Precio base / comparaci\'{o}n} \\
+        {\scriptsize Stock (color por nivel)} \\
+        {\scriptsize Estado (badge)} \\
+        \end{tabular}
+    };
+
+    \node[compblock, below right=1.2cm and 0cm of header, minimum width=4cm, anchor=north west] (form) {
+        \begin{tabular}{l}
+        \textbf{Formulario Nuevo} \\
+        \hline
+        {\scriptsize Nombre $\rightarrow$ slug auto} \\
+        {\scriptsize Marca + Categor\'{i}a} \\
+        {\scriptsize Precio + comparaci\'{o}n} \\
+        {\scriptsize Material / Forma / G\'{e}nero} \\
+        {\scriptsize Im\'{a}genes (Cloudinary)} \\
+        {\scriptsize Estado + Destacado} \\
+        \end{tabular}
+    };
+
+    \node[compblock, below=2.5cm of header, fill=mxorange!10, draw=mxorange, minimum width=3.5cm] (filters) {
+        \begin{tabular}{l}
+        \textbf{Filtros} \\
+        \hline
+        {\scriptsize Por marca} \\
+        {\scriptsize Por estado} \\
+        \end{tabular}
+    };
+
+    \draw[arrwblue] (header.south west) ++(1,0) -- (list.north);
+    \draw[arrwblue] (header.south east) ++(-1,0) -- (form.north);
+    \draw[arrwgold] (header.south) -- (filters.north);
+
+\end{tikzpicture}
+\caption{M\'{o}dulo de gesti\'{o}n de productos}
+\end{figure}
+
+\begin{warnbox}[Estados de Producto]
+\begin{itemize}[nosep]
+    \item \textbf{\textcolor{mxgreen}{active}} --- Visible en la tienda y disponible para compra
+    \item \textbf{\textcolor{mxgray}{draft}} --- Borrador, no visible para clientes
+    \item \textbf{\textcolor{mxred}{out\_of\_stock}} --- Sin stock disponible
+    \item \textbf{\textcolor{mxorange}{discontinued}} --- Descontinuado
+\end{itemize}
+\end{warnbox}
+
+\subsubsection{Gesti\'{o}n de Pedidos (\texttt{/admin/pedidos})}
+
+\begin{figure}[H]
+\centering
+\begin{tikzpicture}[node distance=0.4cm and 0.2cm]
+
+    % Fila 1: estados 1-4
+    \node[compblock, fill=mxorange!15, draw=mxorange, minimum width=2.8cm, font=\scriptsize] (s1) {Pendiente\\de Pago};
+    \node[compblock, fill=mxblue!15, draw=mxblue, minimum width=2.8cm, font=\scriptsize, right=0.2cm of s1] (s2) {Pago\\Confirmado};
+    \node[compblock, fill=mxgold!15, draw=mxgold, minimum width=2.8cm, font=\scriptsize, right=0.2cm of s2] (s3) {En\\Producci\'{o}n};
+    \node[compblock, fill=mxblue!15, draw=mxblue, minimum width=2.8cm, font=\scriptsize, right=0.2cm of s3] (s4) {Control de\\Calidad};
+
+    % Fila 2: estados 5-8
+    \node[compblock, fill=mxgreen!15, draw=mxgreen, minimum width=2.8cm, font=\scriptsize, below=0.7cm of s1] (s5) {Listo para\\Env\'{i}o};
+    \node[compblock, fill=mxblue!15, draw=mxblue, minimum width=2.8cm, font=\scriptsize, right=0.2cm of s5] (s6) {Enviado};
+    \node[compblock, fill=mxgreen!30, draw=mxgreen, minimum width=2.8cm, font=\scriptsize\bfseries, right=0.2cm of s6] (s7) {Entregado};
+    \node[compblock, fill=mxred!15, draw=mxred, minimum width=2.8cm, font=\scriptsize, right=0.2cm of s7] (s8) {Cancelado /\\Devuelto};
+
+    % Flechas de progresi\'{o}n
+    \draw[arrwblue] (s1) -- (s2);
+    \draw[arrwblue] (s2) -- (s3);
+    \draw[arrwblue] (s3) -- (s4);
+    \draw[arrwblue] (s4.south) -- ++(0,-0.15) -| (s5.north);
+    \draw[arrwblue] (s5) -- (s6);
+    \draw[arrwblue] (s6) -- (s7);
+
+    % Cancelaci\'{o}n
+    \draw[arrwdash, color=mxred] (s1.south east) -- ++(0,-0.1) -| (s8.north);
+
+\end{tikzpicture}
+\caption{Pipeline de estados de un pedido}
+\end{figure}
+
+\begin{table}[H]
+\centering
+\begin{tabularx}{\textwidth}{llX}
+\toprule
+\textbf{Estado} & \textbf{C\'{o}digo} & \textbf{Descripci\'{o}n} \\
+\midrule
+Pendiente de Pago & \texttt{pending\_payment} & Pedido creado, esperando pago \\
+Pago Confirmado & \texttt{payment\_confirmed} & MercadoPago confirm\'{o} el pago \\
+En Producci\'{o}n & \texttt{in\_production} & Lentes en proceso de fabricaci\'{o}n \\
+Control de Calidad & \texttt{quality\_control} & Verificaci\'{o}n de graduaci\'{o}n \\
+Listo para Env\'{i}o & \texttt{ready\_for\_shipping} & Empaquetado y listo \\
+Enviado & \texttt{shipped} & En camino con n\'{u}mero de rastreo \\
+Entregado & \texttt{delivered} & Recibido por el cliente \\
+Cancelado & \texttt{cancelled} & Pedido cancelado \\
+Devuelto & \texttt{returned} & Producto devuelto / reembolso \\
+\bottomrule
+\end{tabularx}
+\caption{Estados del ciclo de vida de un pedido}
+\end{table}
+
+\subsubsection{Gesti\'{o}n de Videos UGC (\texttt{/admin/videos})}
+
+El m\'{o}dulo de videos permite administrar el carrusel de contenido de influencers que se muestra en la p\'{a}gina principal.
+
+\begin{table}[H]
+\centering
+\begin{tabularx}{\textwidth}{lX}
+\toprule
+\textbf{Campo} & \textbf{Descripci\'{o}n} \\
+\midrule
+Nombre & Nombre del creador / influencer \\
+URL del Video & Enlace directo al archivo de video \\
+URL Thumbnail & Imagen de vista previa (poster) \\
+Verificado & Badge azul de verificaci\'{o}n en el carrusel \\
+Orden & Posici\'{o}n en el carrusel (menor = primero) \\
+Estado & Activo / Inactivo (controla visibilidad p\'{u}blica) \\
+\bottomrule
+\end{tabularx}
+\caption{Campos del m\'{o}dulo de videos}
+\end{table}
+
+\begin{tipbox}[Funcionalidades del M\'{o}dulo de Videos]
+\begin{itemize}[nosep]
+    \item Crear, editar y eliminar videos desde un modal
+    \item Toggle r\'{a}pido de activo/inactivo directamente en la tabla
+    \item Preview del video en modal con reproducci\'{o}n
+    \item Estad\'{i}sticas: total, activos e inactivos
+    \item Los videos activos se muestran autom\'{a}ticamente en el carrusel del inicio
+\end{itemize}
+\end{tipbox}
+
+\subsubsection{Otros M\'{o}dulos}
+
+\begin{table}[H]
+\centering
+\begin{tabularx}{\textwidth}{llX}
+\toprule
+\textbf{M\'{o}dulo} & \textbf{Ruta} & \textbf{Funcionalidad} \\
+\midrule
+Marcas & \texttt{/admin/marcas} & CRUD de marcas con logo y tipo (lujo/regular) \\
+Categor\'{i}as & \texttt{/admin/categorias} & CRUD con jerarqu\'{i}a padre-hijo y orden \\
+Usuarios & \texttt{/admin/usuarios} & Lista de clientes registrados (\'{u}ltimos 50) \\
+Cupones & \texttt{/admin/cupones} & Pr\'{o}ximamente: c\'{o}digos de descuento \\
+Citas & \texttt{/admin/citas} & Pr\'{o}ximamente: agenda de citas \'{o}pticas \\
+Configuraci\'{o}n & \texttt{/admin/config} & Pr\'{o}ximamente: ajustes de tienda \\
+\bottomrule
+\end{tabularx}
+\caption{M\'{o}dulos adicionales del panel de administraci\'{o}n}
+\end{table}
+
+% ═════════════════════════════════════════════════════════════════════════
+\section{Modelo de Datos}
+% ═════════════════════════════════════════════════════════════════════════
+
+\subsection{Diagrama Entidad-Relaci\'{o}n --- Productos}
+
+\begin{figure}[H]
+\centering
+\begin{tikzpicture}[node distance=1.5cm and 1.8cm]
+
+    % Fila 1: Producto
+    \node[entity, fill=mxgold!15, minimum width=2.4cm] (brands) {\faTags\ brands};
+    \node[entity, fill=mxblue!15, minimum width=2.4cm, right=1.8cm of brands] (frames) {\faGlasses\ frames};
+    \node[entity, fill=mxgreen!15, minimum width=2.8cm, right=1.8cm of frames] (variants) {color\_variants};
+    \node[entity, fill=mxorange!15, minimum width=2.8cm, right=1.8cm of variants] (images) {frame\_images};
+
+    % Fila 2: Categor\'{i}as y carrito
+    \node[entity, fill=mxblue!10, minimum width=2.4cm, below=2cm of brands] (categories) {\faFolder\ categories};
+    \node[entity, fill=mxred!10, minimum width=2.8cm, below=2cm of frames] (frame_cat) {frame\_categories};
+    \node[entity, fill=mxgreen!10, minimum width=2.4cm, below=2cm of variants] (cart_items) {cart\_items};
+    \node[entity, fill=mxorange!10, minimum width=2.4cm, below=2cm of images] (carts) {\faShoppingCart\ carts};
+
+    % Relaciones
+    \draw[arrw] (brands) -- node[lbl, above]{1:N} (frames);
+    \draw[arrw] (frames) -- node[lbl, above]{1:N} (variants);
+    \draw[arrw] (variants) -- node[lbl, above]{1:N} (images);
+    \draw[arrw] (frames) -- node[lbl, left]{N:M} (frame_cat);
+    \draw[arrw] (categories) -- node[lbl, above]{1:N} (frame_cat);
+    \draw[arrw] (carts) -- node[lbl, above]{1:N} (cart_items);
+    \draw[arrwdash] (variants.south) -- (cart_items.north);
+
+\end{tikzpicture}
+\caption{Entidades de productos y cat\'{a}logo}
+\end{figure}
+
+\subsection{Diagrama Entidad-Relaci\'{o}n --- Usuarios y Pedidos}
+
+\begin{figure}[H]
+\centering
+\begin{tikzpicture}[node distance=1.5cm and 2cm]
+
+    % Centro: users
+    \node[entity, fill=mxblue!15, minimum width=2.4cm] (users) {\faUsers\ users};
+
+    % Alrededor
+    \node[entity, fill=mxgold!15, minimum width=2.4cm, right=2.5cm of users] (orders) {\faReceipt\ orders};
+    \node[entity, fill=mxgreen!15, minimum width=2.8cm, right=2.5cm of orders] (order_items) {order\_items};
+
+    \node[entity, fill=mxblue!10, minimum width=2.6cm, below=2cm of users] (prescriptions) {prescriptions};
+    \node[entity, fill=mxorange!10, minimum width=2.6cm, below=2cm of orders] (lens_config) {lens\_configs};
+    \node[entity, fill=mxgreen!10, minimum width=2.4cm, below=2cm of order_items] (reviews) {\faStar\ reviews};
+
+    \node[entity, fill=mxred!10, minimum width=2.4cm, below=2cm of prescriptions] (coupons) {\faTicketAlt\ coupons};
+    \node[entity, fill=mxorange!15, minimum width=2.4cm, below=2cm of lens_config] (wishlists) {\faHeart\ wishlists};
+    \node[entity, fill=mxblue!10, minimum width=2.6cm, below=2cm of reviews] (ugc) {\faVideo\ ugc\_videos};
+
+    % Relaciones
+    \draw[arrw] (users) -- node[lbl, above]{1:N} (orders);
+    \draw[arrw] (orders) -- node[lbl, above]{1:N} (order_items);
+    \draw[arrw] (users) -- node[lbl, left]{1:N} (prescriptions);
+    \draw[arrwdash] (users.south east) -- node[lbl, right, pos=0.3]{1:N} (lens_config.north west);
+    \draw[arrwdash] (users) -- ++(5,0) |- node[lbl, above right, pos=0.25]{1:N} (reviews.west);
+
+\end{tikzpicture}
+\caption{Entidades de usuarios, pedidos y relaciones}
+\end{figure}
+
+\subsection{Detalle de Modelos Clave}
+
+\subsubsection{Modelo \texttt{frames} (Productos)}
+
+\begin{table}[H]
+\centering
+\small
+\begin{tabularx}{\textwidth}{llX}
+\toprule
+\textbf{Campo} & \textbf{Tipo} & \textbf{Descripci\'{o}n} \\
+\midrule
+id & UUID & Identificador \'{u}nico \\
+name & VARCHAR(200) & Nombre del armaz\'{o}n \\
+slug & VARCHAR(200) & URL amigable (\'{u}nico) \\
+brand\_id & UUID (FK) & Referencia a marca \\
+shape & ENUM & rectangular, round, cat\_eye, aviator, square, oval \\
+material & ENUM & acetate, metal, titanium, tr90, wood, mixed \\
+gender & ENUM & male, female, unisex, kids \\
+base\_price & DECIMAL(10,2) & Precio base en MXN \\
+compare\_at\_price & DECIMAL(10,2) & Precio de comparaci\'{o}n (tachado) \\
+status & ENUM & active, draft, discontinued, out\_of\_stock \\
+is\_new & BOOLEAN & Badge ``Nuevo'' \\
+is\_bestseller & BOOLEAN & Badge ``Bestseller'' \\
+is\_featured & BOOLEAN & Mostrar en secciones destacadas \\
+average\_rating & DECIMAL(2,1) & Promedio de rese\~{n}as (0--5) \\
+review\_count & INT & Total de rese\~{n}as \\
+\bottomrule
+\end{tabularx}
+\caption{Campos principales del modelo \texttt{frames}}
+\end{table}
+
+\subsubsection{Modelo \texttt{orders} (Pedidos)}
+
+\begin{table}[H]
+\centering
+\small
+\begin{tabularx}{\textwidth}{llX}
+\toprule
+\textbf{Campo} & \textbf{Tipo} & \textbf{Descripci\'{o}n} \\
+\midrule
+order\_number & VARCHAR(50) & N\'{u}mero formato MXYYmm-XXXXXX \\
+user\_id & UUID (FK) & Cliente (nullable) \\
+status & ENUM & Estado del pedido (9 opciones) \\
+shipping\_address & JSON & Direcci\'{o}n de env\'{i}o (snapshot) \\
+subtotal & DECIMAL(10,2) & Suma de productos \\
+discount & DECIMAL(10,2) & Descuento aplicado \\
+shipping & DECIMAL(10,2) & Costo de env\'{i}o \\
+total & DECIMAL(10,2) & Total final \\
+payment\_method & VARCHAR(50) & M\'{e}todo (mercadopago, etc.) \\
+payment\_reference & VARCHAR(255) & ID de pago externo \\
+tracking\_number & VARCHAR(100) & N\'{u}mero de rastreo \\
+\bottomrule
+\end{tabularx}
+\caption{Campos principales del modelo \texttt{orders}}
+\end{table}
+
+\subsection{Modelos de Administraci\'{o}n}
+
+\begin{figure}[H]
+\centering
+\begin{tikzpicture}[node distance=1.5cm and 2.5cm]
+
+    \node[entity, fill=mxdark!15, minimum width=4cm, minimum height=1.5cm] (admin_users) {
+        \begin{tabular}{l}
+        \textbf{\faUserShield\ admin\_users} \\
+        \hline
+        {\scriptsize email (unique)} \\
+        {\scriptsize password\_hash (bcrypt)} \\
+        {\scriptsize name, role} \\
+        {\scriptsize is\_active, last\_login\_at} \\
+        \end{tabular}
+    };
+
+    \node[entity, fill=mxblue!10, minimum width=4cm, minimum height=1.5cm, right=2.5cm of admin_users] (admin_sessions) {
+        \begin{tabular}{l}
+        \textbf{\faKey\ admin\_sessions} \\
+        \hline
+        {\scriptsize admin\_user\_id (FK)} \\
+        {\scriptsize token (JWT, unique)} \\
+        {\scriptsize expires\_at} \\
+        {\scriptsize ip\_address, user\_agent} \\
+        \end{tabular}
+    };
+
+    \draw[arrw] (admin_users) -- node[lbl, above]{1:N} (admin_sessions);
+
+\end{tikzpicture}
+\caption{Modelo de datos del sistema de administraci\'{o}n}
+\end{figure}
+
+% ═════════════════════════════════════════════════════════════════════════
+\section{Flujos del Sistema}
+% ═════════════════════════════════════════════════════════════════════════
+
+\subsection{Flujo de Compra del Cliente}
+
+\begin{figure}[H]
+\centering
+\begin{tikzpicture}[node distance=0.8cm and 0.4cm]
+
+    % Fila 1
+    \node[sysblock, fill=mxgold, minimum width=2.6cm] (s1) {\faSearch\ Cat\'{a}logo};
+    \node[sysblock, minimum width=2.6cm, right=0.5cm of s1] (s2) {\faGlasses\ Producto};
+    \node[sysblock, fill=mxgreen!80!black, minimum width=2.6cm, right=0.5cm of s2] (s3) {\faCogs\ Tratamientos};
+
+    % Fila 2
+    \node[sysblock, fill=mxblue!80!black, minimum width=2.6cm, below=1.5cm of s1] (s4) {\faShoppingCart\ Carrito};
+    \node[sysblock, fill=mxorange!80!black, minimum width=2.6cm, right=0.5cm of s4] (s5) {\faFileInvoice\ Checkout};
+    \node[sysblock, fill=mxgreen, minimum width=2.6cm, right=0.5cm of s5] (s6) {\faCreditCard\ Pago};
+
+    % Descripciones
+    \node[field, below=0.1cm of s1] {\scriptsize Filtros: g\'{e}nero, forma};
+    \node[field, below=0.1cm of s2] {\scriptsize Galer\'{i}a, specs, rese\~{n}as};
+    \node[field, below=0.1cm of s3] {\scriptsize Acumulables + precio};
+    \node[field, below=0.1cm of s4] {\scriptsize Cup\'{o}n, cantidad};
+    \node[field, below=0.1cm of s5] {\scriptsize Env\'{i}o + resumen};
+    \node[field, below=0.1cm of s6] {\scriptsize MercadoPago};
+
+    % Flechas
+    \draw[arrw] (s1) -- (s2);
+    \draw[arrw] (s2) -- (s3);
+    \draw[arrw] (s3.south) -- ++(0,-0.3) -| (s4.north east);
+    \draw[arrw] (s4) -- (s5);
+    \draw[arrw] (s5) -- (s6);
+
+\end{tikzpicture}
+\caption{Flujo de compra del cliente}
+\end{figure}
+
+\subsection{Flujo de Pago con MercadoPago}
+
+\begin{figure}[H]
+\centering
+\begin{tikzpicture}[node distance=1cm]
+
+    % Columna principal (izquierda)
+    \node[compblock, minimum width=5cm] (create) {1. Cliente confirma pedido};
+    \node[compblock, minimum width=5cm, below=of create] (pref) {2. API crea Preference en MP};
+    \node[extblock, minimum width=5cm, below=of pref] (mp) {3. Redirect a MercadoPago};
+    \node[extblock, minimum width=5cm, below=of mp] (pay) {4. Cliente paga};
+    \node[compblock, minimum width=5cm, below=of pay, fill=mxgreen!10, draw=mxgreen] (webhook) {5. Webhook recibe notificaci\'{o}n};
+    \node[compblock, minimum width=5cm, below=of webhook, fill=mxgreen!10, draw=mxgreen] (update) {6. Orden $\rightarrow$ ``confirmado''};
+
+    % Estados alternativos (derecha, pegados)
+    \node[compblock, minimum width=3cm, right=1.5cm of mp, fill=mxorange!10, draw=mxorange, font=\footnotesize] (pending) {Pago pendiente};
+    \node[compblock, minimum width=3cm, right=1.5cm of pay, fill=mxred!10, draw=mxred, font=\footnotesize] (fail) {Pago rechazado};
+
+    \draw[arrw] (create) -- (pref);
+    \draw[arrw] (pref) -- (mp);
+    \draw[arrw] (mp) -- (pay);
+    \draw[arrwblue] (pay) -- node[lbl, left]{\texttt{approved}} (webhook);
+    \draw[arrwblue] (webhook) -- (update);
+    \draw[arrwdash, color=mxred] (pay) -- node[lbl, above]{\footnotesize\texttt{rejected}} (fail);
+    \draw[arrwdash, color=mxorange] (mp) -- node[lbl, above]{\footnotesize\texttt{pending}} (pending);
+
+\end{tikzpicture}
+\caption{Flujo de pago integrado con MercadoPago}
+\end{figure}
+
+\begin{infobox}[Configuraci\'{o}n del Webhook]
+\begin{itemize}[nosep]
+    \item \textbf{Endpoint:} \texttt{POST /api/mercadopago/webhook}
+    \item \textbf{Verificaci\'{o}n:} HMAC SHA-256 con \texttt{MP\_WEBHOOK\_SECRET}
+    \item \textbf{Mapeo:} \texttt{approved} $\rightarrow$ \texttt{payment\_confirmed}
+    \item \textbf{Referencia:} \texttt{external\_reference} vincula pago con orden
+    \item \textbf{Back URLs:} \texttt{/checkout/success}, \texttt{/failure}, \texttt{/pending}
+\end{itemize}
+\end{infobox}
+
+\subsection{Flujo del Carrito}
+
+\begin{figure}[H]
+\centering
+\begin{tikzpicture}[node distance=1cm and 1.2cm]
+
+    \node[compblock, fill=mxblue!15, draw=mxblue, minimum width=3cm] (zustand) {Zustand Store\\(localStorage)};
+    \node[compblock, minimum width=3cm, right=1.5cm of zustand] (api) {API /api/cart};
+    \node[dbblock, right=1.5cm of api] (db) {PostgreSQL\\carts};
+
+    \node[compblock, fill=mxorange!10, draw=mxorange, minimum width=2.8cm, below=1.3cm of zustand, font=\footnotesize] (actions) {
+        \begin{tabular}{l}
+        {\scriptsize addItem()} \\
+        {\scriptsize removeItem()} \\
+        {\scriptsize updateQuantity()} \\
+        {\scriptsize applyCoupon()} \\
+        {\scriptsize clearCart()} \\
+        \end{tabular}
+    };
+
+    \node[compblock, fill=mxgreen!10, draw=mxgreen, minimum width=2.8cm, below=1.3cm of api, font=\footnotesize] (calc) {
+        \begin{tabular}{l}
+        \textbf{C\'{a}lculo} \\
+        \hline
+        {\scriptsize sub = $\sum$ items} \\
+        {\scriptsize env\'{i}o gratis $\geq$ \$1,500} \\
+        {\scriptsize total = sub - desc + env} \\
+        \end{tabular}
+    };
+
+    \draw[arrw, <->] (zustand) -- node[lbl, above]{sync} (api);
+    \draw[arrw, <->] (api) -- node[lbl, above]{Prisma} (db);
+    \draw[arrwblue] (actions) -- (zustand);
+    \draw[arrwgold] (api) -- (calc);
+
+\end{tikzpicture}
+\caption{Arquitectura del sistema de carrito}
+\end{figure}
+
+% ═════════════════════════════════════════════════════════════════════════
+\section{API del Sistema}
+% ═════════════════════════════════════════════════════════════════════════
+
+\subsection{Endpoints P\'{u}blicos}
+
+\begin{longtable}{lll}
+\toprule
+\textbf{M\'{e}todo} & \textbf{Ruta} & \textbf{Descripci\'{o}n} \\
+\midrule
+\endhead
+GET & \texttt{/api/frames/[slug]} & Detalle de producto \\
+GET & \texttt{/api/ugc-videos} & Videos activos del carrusel \\
+GET & \texttt{/api/cart} & Obtener carrito actual \\
+POST & \texttt{/api/cart} & Agregar producto al carrito \\
+PUT & \texttt{/api/cart/[id]} & Actualizar cantidad \\
+DELETE & \texttt{/api/cart/[id]} & Eliminar \'{i}tem del carrito \\
+DELETE & \texttt{/api/cart} & Vaciar carrito \\
+POST & \texttt{/api/cart/coupon} & Aplicar cup\'{o}n \\
+DELETE & \texttt{/api/cart/coupon} & Remover cup\'{o}n \\
+POST & \texttt{/api/orders} & Crear pedido \\
+GET & \texttt{/api/orders} & Historial de pedidos \\
+GET & \texttt{/api/orders/[id]} & Detalle de pedido \\
+POST & \texttt{/api/auth/login} & Login de usuario \\
+POST & \texttt{/api/auth/register} & Registro de usuario \\
+POST & \texttt{/api/mercadopago/create\_preference} & Crear preferencia de pago \\
+POST & \texttt{/api/mercadopago/webhook} & Webhook de notificaciones \\
+\bottomrule
+\caption{Endpoints p\'{u}blicos del API}
+\end{longtable}
+
+\subsection{Endpoints de Administraci\'{o}n}
+
+Todos los endpoints de admin requieren el header de cookie \texttt{admin\_token} con un JWT v\'{a}lido.
+
+\begin{longtable}{lll}
+\toprule
+\textbf{M\'{e}todo} & \textbf{Ruta} & \textbf{Descripci\'{o}n} \\
+\midrule
+\endhead
+POST & \texttt{/api/admin/auth/login} & Login de admin \\
+POST & \texttt{/api/admin/auth/logout} & Cerrar sesi\'{o}n \\
+GET & \texttt{/api/admin/auth/session} & Verificar sesi\'{o}n \\
+GET & \texttt{/api/admin/products} & Listar productos \\
+POST & \texttt{/api/admin/products} & Crear producto \\
+PUT & \texttt{/api/admin/products/[id]} & Actualizar producto \\
+DELETE & \texttt{/api/admin/products/[id]} & Eliminar producto \\
+GET & \texttt{/api/admin/brands} & Listar marcas \\
+GET & \texttt{/api/admin/categories} & Listar categor\'{i}as \\
+GET & \texttt{/api/admin/ugc-videos} & Listar todos los videos \\
+POST & \texttt{/api/admin/ugc-videos} & Crear video \\
+PUT & \texttt{/api/admin/ugc-videos/[id]} & Actualizar video \\
+DELETE & \texttt{/api/admin/ugc-videos/[id]} & Eliminar video \\
+POST & \texttt{/api/admin/upload} & Subir imagen a Cloudinary \\
+DELETE & \texttt{/api/admin/upload} & Eliminar imagen \\
+\bottomrule
+\caption{Endpoints de administraci\'{o}n (requieren JWT)}
+\end{longtable}
+
+% ═════════════════════════════════════════════════════════════════════════
+\section{P\'{a}ginas P\'{u}blicas}
+% ═════════════════════════════════════════════════════════════════════════
+
+\subsection{Mapa del Sitio}
+
+\begin{figure}[H]
+\centering
+\begin{tikzpicture}[node distance=0.4cm]
+
+    % Raíz
+    \node[sysblock, minimum width=3cm] (root) {\faGlobe\ mexilux.com};
+
+    % Fila 1 (5 páginas)
+    \node[compblock, minimum width=2.2cm, font=\footnotesize, below left=1.5cm and 3.2cm of root] (home) {\faHome\ Inicio};
+    \node[compblock, minimum width=2.2cm, font=\footnotesize, right=0.3cm of home] (cat) {Cat\'{a}logo};
+    \node[compblock, minimum width=2.2cm, font=\footnotesize, right=0.3cm of cat] (quiz) {Quiz};
+    \node[compblock, minimum width=2.2cm, font=\footnotesize, right=0.3cm of quiz] (trat) {Tratamientos};
+    \node[compblock, minimum width=2.2cm, font=\footnotesize, right=0.3cm of trat] (blog) {Blog};
+
+    % Fila 2 (4 páginas)
+    \node[compblock, minimum width=2.2cm, font=\footnotesize, below=0.8cm of home] (about) {Nosotros};
+    \node[compblock, minimum width=2.2cm, font=\footnotesize, right=0.3cm of about] (contact) {Contacto};
+    \node[compblock, minimum width=2.2cm, font=\footnotesize, right=0.3cm of contact] (cart) {\faShoppingCart\ Carrito};
+    \node[compblock, minimum width=2.2cm, font=\footnotesize, right=0.3cm of cart] (account) {\faUser\ Cuenta};
+    \node[compblock, minimum width=2.2cm, font=\footnotesize, right=0.3cm of account] (legal) {Legal};
+
+    % Sub-páginas
+    \node[compblock, fill=white, minimum width=1.8cm, font=\scriptsize, below=0.6cm of cat] (slug) {/[slug]};
+    \node[compblock, fill=white, minimum width=1.8cm, font=\scriptsize, below=0.6cm of cart] (checkout) {Checkout};
+    \node[compblock, fill=mxgreen!15, minimum width=1.8cm, font=\scriptsize, below=0.5cm of checkout] (success) {\faCheck\ Success};
+
+    % Flechas raíz
+    \draw[arrw] (root.south) -- ++(0,-0.4) -| (home.north);
+    \draw[arrw] (root.south) -- ++(0,-0.4) -| (cat.north);
+    \draw[arrw] (root.south) -- ++(0,-0.4) -| (quiz.north);
+    \draw[arrw] (root.south) -- ++(0,-0.4) -| (trat.north);
+    \draw[arrw] (root.south) -- ++(0,-0.4) -| (blog.north);
+
+    % Sub-flechas
+    \draw[arrwblue, thin] (cat) -- (slug);
+    \draw[arrwblue, thin] (cart) -- (checkout);
+    \draw[arrwblue, thin] (checkout) -- (success);
+
+\end{tikzpicture}
+\caption{Mapa de navegaci\'{o}n del sitio p\'{u}blico}
+\end{figure}
+
+\begin{table}[H]
+\centering
+\small
+\begin{tabularx}{\textwidth}{lX}
+\toprule
+\textbf{P\'{a}gina} & \textbf{Funcionalidad} \\
+\midrule
+\texttt{/} & Hero con animaciones GSAP, productos destacados, quiz, carrusel videos, blog \\
+\texttt{/catalogo} & Grid de productos con filtros (g\'{e}nero, forma, material), paginaci\'{o}n \\
+\texttt{/catalogo/[slug]} & Galer\'{i}a, especificaciones, rese\~{n}as, tratamientos, indicador stock \\
+\texttt{/quiz} & Quiz de estilo para encontrar lentes ideales \\
+\texttt{/tratamientos} & Informaci\'{o}n de 7 tratamientos con precios \\
+\texttt{/blog} & 4 secciones: M\'{e}xico M\'{a}gico, Mexicanos de Lujo, Pa' la Muela, Vista a las Ra\'{i}ces \\
+\texttt{/nosotros} & Misi\'{o}n, visi\'{o}n, valores con collage de fondo \\
+\texttt{/contacto} & Formulario y datos de contacto \\
+\texttt{/carrito} & Resumen de compra, cup\'{o}n, totales \\
+\texttt{/checkout} & Datos de env\'{i}o + integraci\'{o}n MercadoPago \\
+\texttt{/legal/*} & Privacidad, t\'{e}rminos, garant\'{i}a, FAQ \\
+\bottomrule
+\end{tabularx}
+\caption{Resumen de p\'{a}ginas p\'{u}blicas}
+\end{table}
+
+% ═════════════════════════════════════════════════════════════════════════
+\section{Sistema de Im\'{a}genes}
+% ═════════════════════════════════════════════════════════════════════════
+
+\begin{figure}[H]
+\centering
+\begin{tikzpicture}[node distance=1cm]
+
+    \node[compblock, minimum width=4cm] (upload) {Admin sube imagen\\(drag \& drop)};
+    \node[compblock, minimum width=4cm, below=of upload] (validate) {Validar tipo\\(JPEG, PNG, WebP, GIF)};
+    \node[compblock, minimum width=4cm, below=of validate] (api) {POST /api/admin/upload\\(FormData)};
+    \node[extblock, minimum width=4cm, below=of api] (cloud) {\faCloud\ Cloudinary CDN};
+    \node[compblock, fill=mxgreen!10, draw=mxgreen, minimum width=4cm, below=of cloud] (result) {URL optimizada\\1200x1200, auto-format};
+
+    \node[compblock, minimum width=3.2cm, right=1.5cm of cloud, fill=mxblue!10, font=\footnotesize] (transform) {
+        \begin{tabular}{l}
+        \textbf{Transformaciones} \\
+        \hline
+        {\scriptsize Crop: 1200x1200} \\
+        {\scriptsize Quality: auto} \\
+        {\scriptsize Format: WebP} \\
+        {\scriptsize Folder: mexilux/} \\
+        \end{tabular}
+    };
+
+    \draw[arrw] (upload) -- (validate);
+    \draw[arrw] (validate) -- (api);
+    \draw[arrw] (api) -- (cloud);
+    \draw[arrwblue] (cloud) -- (result);
+    \draw[arrwdash] (cloud) -- (transform);
+
+\end{tikzpicture}
+\caption{Pipeline de carga de im\'{a}genes}
+\end{figure}
+
+% ═════════════════════════════════════════════════════════════════════════
+\section{Configuraci\'{o}n de Lentes}
+% ═════════════════════════════════════════════════════════════════════════
+
+El configurador de lentes es un wizard de 5 pasos que permite al cliente personalizar sus lentes. El estado se persiste en localStorage con TTL de 7 d\'{i}as.
+
+\begin{figure}[H]
+\centering
+\begin{tikzpicture}[node distance=0.3cm]
+
+    % Steps (reducidos para caber en la p\'{a}gina)
+    \node[compblock, fill=mxblue!20, draw=mxblue, minimum width=2.2cm, minimum height=1.1cm, font=\scriptsize] (step1) {
+        \begin{tabular}{c}
+        \textbf{1. Uso} \\
+        \hline
+        {\tiny Distancia} \\
+        {\tiny Cerca / Bifocal} \\
+        {\tiny Progresivo} \\
+        \end{tabular}
+    };
+
+    \node[compblock, fill=mxgreen!20, draw=mxgreen, minimum width=2.2cm, minimum height=1.1cm, font=\scriptsize, right=0.3cm of step1] (step2) {
+        \begin{tabular}{c}
+        \textbf{2. Receta} \\
+        \hline
+        {\tiny Guardada} \\
+        {\tiny Manual} \\
+        {\tiny Subir foto} \\
+        \end{tabular}
+    };
+
+    \node[compblock, fill=mxgold!20, draw=mxgold, minimum width=2.2cm, minimum height=1.1cm, font=\scriptsize, right=0.3cm of step2] (step3) {
+        \begin{tabular}{c}
+        \textbf{3. Material} \\
+        \hline
+        {\tiny \'{I}ndice 1.5} \\
+        {\tiny 1.67 / 1.74} \\
+        {\tiny Policarbonato} \\
+        \end{tabular}
+    };
+
+    \node[compblock, fill=mxorange!20, draw=mxorange, minimum width=2.2cm, minimum height=1.1cm, font=\scriptsize, right=0.3cm of step3] (step4) {
+        \begin{tabular}{c}
+        \textbf{4. Tratamientos} \\
+        \hline
+        {\tiny Antirreflejante} \\
+        {\tiny Blue Ray} \\
+        {\tiny Fotocrom\'{a}tico} \\
+        \end{tabular}
+    };
+
+    \node[compblock, fill=mxgreen!30, draw=mxgreen, minimum width=2.2cm, minimum height=1.1cm, font=\scriptsize, right=0.3cm of step4] (step5) {
+        \begin{tabular}{c}
+        \textbf{5. Revisar} \\
+        \hline
+        {\tiny Confirmar} \\
+        {\tiny Ver precio} \\
+        {\tiny Agregar} \\
+        \end{tabular}
+    };
+
+    % Flechas
+    \draw[arrwblue] (step1) -- (step2);
+    \draw[arrwblue] (step2) -- (step3);
+    \draw[arrwblue] (step3) -- (step4);
+    \draw[arrwblue] (step4) -- (step5);
+
+    % Barra de progreso
+    \node[below=0.8cm of step1.south west, anchor=north west, font=\scriptsize\color{mxgray}] {0\%};
+    \node[below=0.8cm of step5.south east, anchor=north east, font=\scriptsize\color{mxgray}] {100\%};
+    \draw[mxlightgray, very thick, rounded corners=2pt] ([yshift=-0.6cm]step1.south west) -- ([yshift=-0.6cm]step5.south east);
+    \draw[mxblue, very thick, rounded corners=2pt] ([yshift=-0.6cm]step1.south west) -- ([yshift=-0.6cm]step3.south);
+
+\end{tikzpicture}
+\caption{Wizard de configuraci\'{o}n de lentes (5 pasos)}
+\end{figure}
+
+% ═════════════════════════════════════════════════════════════════════════
+\section{Variables de Entorno}
+% ═════════════════════════════════════════════════════════════════════════
+
+\begin{warnbox}[Variables Requeridas en Producci\'{o}n]
+\begin{table}[H]
+\centering
+\small
+\begin{tabularx}{\textwidth}{lX}
+\toprule
+\textbf{Variable} & \textbf{Uso} \\
+\midrule
+\texttt{DATABASE\_URL} & Conexi\'{o}n a PostgreSQL (Neon pooled) \\
+\texttt{DIRECT\_URL} & Conexi\'{o}n directa a PostgreSQL \\
+\texttt{JWT\_SECRET} & Clave para firmar tokens JWT del admin \\
+\texttt{MP\_ACCESS\_TOKEN} & Token de acceso de MercadoPago \\
+\texttt{MP\_WEBHOOK\_SECRET} & Secreto para verificar webhooks de MP \\
+\texttt{CLOUDINARY\_CLOUD\_NAME} & Nombre de la cuenta Cloudinary \\
+\texttt{CLOUDINARY\_API\_KEY} & Clave p\'{u}blica de Cloudinary \\
+\texttt{CLOUDINARY\_API\_SECRET} & Clave secreta de Cloudinary \\
+\texttt{NEXT\_PUBLIC\_SITE\_URL} & URL base del sitio \\
+\texttt{NEXT\_PUBLIC\_MP\_PUBLIC\_KEY} & Clave p\'{u}blica de MP (cliente) \\
+\bottomrule
+\end{tabularx}
+\end{table}
+\end{warnbox}
+
+% ═════════════════════════════════════════════════════════════════════════
+\section{Reglas de Negocio}
+% ═════════════════════════════════════════════════════════════════════════
+
+\subsection{Env\'{i}o}
+
+\begin{itemize}[nosep]
+    \item \textbf{Env\'{i}o gratuito} en compras mayores o iguales a \textbf{\$1,500 MXN}
+    \item \textbf{Tarifa fija de \$200 MXN} para compras menores a \$1,500
+    \item Tiempo estimado de entrega: \textbf{5--7 d\'{i}as h\'{a}biles}
+    \item Garant\'{i}a de \textbf{1 a\~{n}o} en todos los productos
+\end{itemize}
+
+\subsection{Cupones}
+
+\begin{itemize}[nosep]
+    \item \textbf{Porcentaje:} Descuento porcentual sobre el subtotal
+    \item \textbf{Monto fijo:} Descuento en pesos, m\'{a}ximo el subtotal
+    \item Validaci\'{o}n de: fecha de vigencia, l\'{i}mite de usos, compra m\'{i}nima
+    \item Se incrementa \texttt{uses\_count} al aplicar
+\end{itemize}
+
+\subsection{Stock}
+
+\begin{itemize}[nosep]
+    \item El stock se controla por \textbf{variante de color} (no por producto general)
+    \item Al crear un pedido, el stock se \textbf{decrementa en transacci\'{o}n}
+    \item Cuando queda \textbf{1 unidad}, se muestra un indicador rojo pulsante
+    \item Los niveles de stock en admin: {\textcolor{mxgreen}{verde}} ($>$10), {\textcolor{mxorange}{amarillo}} (5--10), {\textcolor{mxred}{rojo}} ($<$5)
+\end{itemize}
+
+\subsection{N\'{u}mero de Pedido}
+
+El formato del n\'{u}mero de pedido es: \texttt{MXYYmm-XXXXXX}
+
+\begin{itemize}[nosep]
+    \item \texttt{MX} --- Prefijo de M\'{e}xico
+    \item \texttt{YY} --- A\~{n}o (2 d\'{i}gitos)
+    \item \texttt{mm} --- Mes (2 d\'{i}gitos)
+    \item \texttt{XXXXXX} --- 6 caracteres alfanum\'{e}ricos aleatorios
+\end{itemize}
+
+Ejemplo: \texttt{MX2602-A7K9F2} (febrero 2026)
+
+% ═════════════════════════════════════════════════════════════════════════
+\section{Resumen de Permisos por Rol}
+% ═════════════════════════════════════════════════════════════════════════
+
+\begin{table}[H]
+\centering
+\begin{tabularx}{\textwidth}{Xccc}
+\toprule
+\textbf{Acci\'{o}n} & \textbf{Staff} & \textbf{Admin} & \textbf{Super Admin} \\
+\midrule
+Ver dashboard & \checkmark & \checkmark & \checkmark \\
+Ver pedidos & \checkmark & \checkmark & \checkmark \\
+Gestionar productos & & \checkmark & \checkmark \\
+Gestionar marcas/categor\'{i}as & & \checkmark & \checkmark \\
+Gestionar videos & & \checkmark & \checkmark \\
+Subir im\'{a}genes & & \checkmark & \checkmark \\
+Ver usuarios & & \checkmark & \checkmark \\
+Configuraci\'{o}n del sistema & & & \checkmark \\
+Crear otros admins & & & \checkmark \\
+\bottomrule
+\end{tabularx}
+\caption{Permisos por rol de administrador}
+\end{table}
+
+% ═════════════════════════════════════════════════════════════════════════
+\section{Ap\'{e}ndice: Estructura de Archivos}
+% ═════════════════════════════════════════════════════════════════════════
+
+\begin{lstlisting}[style=mexcode]
+src/
+ app/
+   admin/              # Panel de administracion
+     dashboard/        # Dashboard + AdminSidebar
+     productos/        # CRUD de productos
+     pedidos/          # Gestion de pedidos
+     marcas/           # Gestion de marcas
+     categorias/       # Gestion de categorias
+     usuarios/         # Lista de usuarios
+     videos/           # Gestion de videos UGC
+     cupones/          # (Proximamente)
+     citas/            # (Proximamente)
+     admin.css         # Estilos compartidos admin
+   api/
+     admin/            # Endpoints protegidos
+       auth/           # Login, logout, session
+       products/       # CRUD productos
+       ugc-videos/     # CRUD videos
+       upload/         # Subida de imagenes
+     cart/             # Carrito + cupones
+     orders/           # Pedidos
+     mercadopago/      # Pagos
+     auth/             # Auth de usuarios
+     frames/           # Consulta de productos
+     ugc-videos/       # Videos publicos
+   catalogo/           # Paginas de catalogo
+   checkout/           # Flujo de pago
+   blog/               # Blog
+   nosotros/           # About
+   contacto/           # Contacto
+   tratamientos/       # Info de tratamientos
+   quiz/               # Quiz de estilo
+   legal/              # Paginas legales
+ components/
+   admin/              # Componentes admin
+   catalog/            # Filtros de catalogo
+   checkout/           # Checkout client
+   home/               # Homepage components
+   layout/             # Header, Footer
+   product/            # Galeria, acciones
+ lib/
+   auth/               # Funciones de autenticacion
+   db/                 # Queries Prisma
+ store/
+   cart.ts             # Zustand cart store
+   lens-configurator.ts # Zustand lens config
+ prisma/
+   schema.prisma       # Modelo de datos completo
+\end{lstlisting}
+
+\vfill
+
+\begin{center}
+\color{mxgray}\rule{0.5\textwidth}{0.5pt}\\[0.5cm]
+{\large\color{mxdark}\textbf{Mexilux}} {\color{mxgold}$\cdot$} {\small\color{mxgray} Lentes con alma mexicana}\\[0.2cm]
+{\footnotesize\color{mxgray} Documento generado --- Febrero 2026}
+\end{center}
+
+\end{document}

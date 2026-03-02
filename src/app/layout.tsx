@@ -237,7 +237,7 @@ export default function RootLayout({
               {/* Brand */}
               <div className="footer-section">
                 <a href="/" className="footer-logo">
-                  <span className="logo-text">Mexilux</span>
+                  <img src="/logo-mexilux.png" alt="Mexilux" style={{ height: '80px', width: 'auto', objectFit: 'contain' }} />
                 </a>
 
                 <div className="footer-social">

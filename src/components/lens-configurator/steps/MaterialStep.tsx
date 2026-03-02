@@ -7,6 +7,7 @@
 'use client';
 
 import React from 'react';
+import { Sun, Shield, Ruler, Info, Lightbulb, HelpCircle } from 'lucide-react';
 import { useConfiguratorActions, useLensConfiguratorStore } from '@/store/lens-configurator';
 import { recommendLensIndex } from '@/lib/validations/prescription';
 import type { Frame, LensMaterial, LensIndex } from '@/types';
@@ -161,7 +162,7 @@ export function MaterialStep({ frame, errors }: MaterialStepProps) {
             {/* Recomendación basada en graduación */}
             {prescription && (
                 <div className="recommendation-banner" role="note">
-                    <span className="rec-icon" aria-hidden="true">💡</span>
+                    <span className="rec-icon" aria-hidden="true"><Lightbulb size={16} /></span>
                     <p>
                         Basado en tu graduación de <strong>{maxSphere.toFixed(2)}</strong>,
                         te recomendamos un material de índice <strong>{recommendedIndex}</strong> o superior
@@ -220,19 +221,19 @@ export function MaterialStep({ frame, errors }: MaterialStepProps) {
                                 <ul className="material-features">
                                     {material.hasUVProtection && (
                                         <li className="feature">
-                                            <span aria-hidden="true">☀️</span>
+                                            <span aria-hidden="true"><Sun size={14} /></span>
                                             Protección UV
                                         </li>
                                     )}
                                     {material.isPolycarbonate && (
                                         <li className="feature">
-                                            <span aria-hidden="true">🛡️</span>
+                                            <span aria-hidden="true"><Shield size={14} /></span>
                                             Resistente a impactos
                                         </li>
                                     )}
                                     {material.highPrescriptionSuitable && (
                                         <li className="feature">
-                                            <span aria-hidden="true">📐</span>
+                                            <span aria-hidden="true"><Ruler size={14} /></span>
                                             Apto para graduaciones altas
                                         </li>
                                     )}
@@ -241,7 +242,7 @@ export function MaterialStep({ frame, errors }: MaterialStepProps) {
                                 {/* Advertencia si el material es excesivo */}
                                 {isOverkill && (
                                     <p className="overkill-notice">
-                                        <span aria-hidden="true">ℹ️</span>
+                                        <span aria-hidden="true"><Info size={14} /></span>
                                         Para tu graduación, un índice menor es suficiente.
                                     </p>
                                 )}
@@ -286,7 +287,7 @@ export function MaterialStep({ frame, errors }: MaterialStepProps) {
             {/* FAQ */}
             <details className="material-faq">
                 <summary>
-                    <span aria-hidden="true">❓</span>
+                    <span aria-hidden="true"><HelpCircle size={16} /></span>
                     ¿Qué índice de lente necesito?
                 </summary>
                 <div className="faq-content">

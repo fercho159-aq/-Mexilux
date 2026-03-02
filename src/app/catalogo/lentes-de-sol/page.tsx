@@ -7,6 +7,7 @@
 import Link from 'next/link';
 import Image from 'next/image';
 import type { Metadata } from 'next';
+import { Sun } from 'lucide-react';
 import { getFrames, getBrandsWithCount } from '@/lib/db';
 
 export const dynamic = 'force-dynamic';
@@ -52,7 +53,7 @@ export default async function LentesDeSolPage() {
             {/* Hero Header */}
             <section className="catalog-hero" style={{ background: 'linear-gradient(135deg, #1e3a5f 0%, #2d5a87 100%)' }}>
                 <div className="catalog-hero-content">
-                    <span style={{ fontSize: '3rem', marginBottom: '1rem', display: 'block' }}>☀️</span>
+                    <span style={{ fontSize: '3rem', marginBottom: '1rem', display: 'block' }}><Sun size={48} /></span>
                     <h1 className="catalog-hero-title" style={{ color: 'white' }}>
                         Lentes Polarizados
                     </h1>
@@ -161,7 +162,7 @@ export default async function LentesDeSolPage() {
                                                         sizes="(max-width: 768px) 50vw, 25vw"
                                                     />
                                                 ) : (
-                                                    <span className="product-emoji-clean">🕶️</span>
+                                                    <span className="product-emoji-clean"><Sun size={40} /></span>
                                                 )}
                                             </div>
                                         </Link>
@@ -190,7 +191,7 @@ export default async function LentesDeSolPage() {
                         </div>
                     ) : (
                         <div className="catalog-empty-clean">
-                            <div className="empty-icon-clean">🕶️</div>
+                            <div className="empty-icon-clean"><Sun size={48} /></div>
                             <h3>No hay polarizados disponibles</h3>
                             <p>Pronto tendremos nuevos modelos</p>
                             <Link href="/catalogo" className="btn btn-primary">Ver todo el catálogo</Link>

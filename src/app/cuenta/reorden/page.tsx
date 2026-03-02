@@ -6,6 +6,7 @@
 
 import Link from 'next/link';
 import type { Metadata } from 'next';
+import { Eye, Info, Package } from 'lucide-react';
 
 export const metadata: Metadata = {
     title: 'Reordenar Lentes de Contacto | Mexilux',
@@ -52,7 +53,7 @@ export default function ReordenPage() {
                                 {PREVIOUS_LC_ORDERS.map((order) => (
                                     <article key={order.id} className="lc-order-card">
                                         <div className="lc-info">
-                                            <span className="lc-icon">👁️</span>
+                                            <span className="lc-icon"><Eye size={16} /></span>
                                             <div className="lc-details">
                                                 <h3>{order.name}</h3>
                                                 <p>{order.type} • {order.quantity}</p>
@@ -106,7 +107,7 @@ export default function ReordenPage() {
 
                             <section className="reorder-note">
                                 <div className="note-card">
-                                    <span className="note-icon">ℹ️</span>
+                                    <span className="note-icon"><Info size={16} /></span>
                                     <div className="note-text">
                                         <strong>¿Cambió tu graduación?</strong>
                                         <p>Si tu receta ha cambiado, te recomendamos actualizar tu información antes de reordenar.</p>
@@ -117,7 +118,7 @@ export default function ReordenPage() {
                         </>
                     ) : (
                         <section className="no-orders">
-                            <span className="empty-icon">📦</span>
+                            <span className="empty-icon"><Package size={16} /></span>
                             <h2>No tienes compras previas de lentes de contacto</h2>
                             <p>Cuando compres lentes de contacto, podrás reordenarlos fácilmente desde aquí.</p>
                             <Link href="/catalogo?tipo=lentes-de-contacto" className="btn btn-primary">

@@ -12,9 +12,16 @@ export const metadata: Metadata = {
     description: 'Contáctanos por WhatsApp, teléfono o correo electrónico. Estamos aquí para ayudarte con tus lentes y servicios visuales.',
 };
 
+const SvgChat = () => (
+    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
+);
+const SvgMail = () => (
+    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg>
+);
+
 const CONTACT_METHODS = [
     {
-        icon: '💬',
+        icon: <SvgChat />,
         title: 'WhatsApp',
         description: 'Respuesta inmediata',
         value: '+52 55 1234 5678',
@@ -23,7 +30,7 @@ const CONTACT_METHODS = [
         highlighted: true,
     },
     {
-        icon: '✉️',
+        icon: <SvgMail />,
         title: 'Correo electrónico',
         description: 'Respuesta en 24 horas',
         value: 'hola@mexilux.com',

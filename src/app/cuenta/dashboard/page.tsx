@@ -9,6 +9,7 @@
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { useState, useEffect } from 'react';
+import { User, Package, LogOut } from 'lucide-react';
 
 export default function CuentaDashboardPage() {
     const router = useRouter();
@@ -68,7 +69,7 @@ export default function CuentaDashboardPage() {
                         fontSize: '40px',
                         margin: '0 auto 20px',
                     }}>
-                        👤
+                        <User size={40} color="white" />
                     </div>
                     <h1 style={{
                         fontSize: '28px',
@@ -110,7 +111,7 @@ export default function CuentaDashboardPage() {
                         fontSize: '24px',
                         flexShrink: 0,
                     }}>
-                        📦
+                        <Package size={24} color="white" />
                     </div>
                     <div style={{ flex: 1 }}>
                         <div style={{
@@ -156,7 +157,7 @@ export default function CuentaDashboardPage() {
                         boxShadow: '0 2px 20px rgba(0,0,0,0.06)',
                     }}
                 >
-                    🚪 Cerrar sesión
+                    <LogOut size={18} /> Cerrar sesión
                 </button>
             </div>
         </div>

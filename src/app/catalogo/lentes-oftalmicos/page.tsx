@@ -8,6 +8,7 @@ import Link from 'next/link';
 import Image from 'next/image';
 import type { Metadata } from 'next';
 import { getFrames, getBrandsWithCount } from '@/lib/db';
+import { Glasses } from 'lucide-react';
 
 export const dynamic = 'force-dynamic';
 
@@ -52,7 +53,7 @@ export default async function LentesOftalmicosPage() {
             {/* Hero Header */}
             <section className="catalog-hero" style={{ background: 'linear-gradient(135deg, #2d3436 0%, #636e72 100%)' }}>
                 <div className="catalog-hero-content">
-                    <span style={{ fontSize: '3rem', marginBottom: '1rem', display: 'block' }}>👓</span>
+                    <span style={{ marginBottom: '1rem', display: 'block' }}><Glasses size={48} /></span>
                     <h1 className="catalog-hero-title" style={{ color: 'white' }}>
                         Lentes Oftálmicos
                     </h1>
@@ -161,7 +162,7 @@ export default async function LentesOftalmicosPage() {
                                                         sizes="(max-width: 768px) 50vw, 25vw"
                                                     />
                                                 ) : (
-                                                    <span className="product-emoji-clean">👓</span>
+                                                    <span className="product-emoji-clean"><Glasses size={40} /></span>
                                                 )}
                                             </div>
                                         </Link>
@@ -190,7 +191,7 @@ export default async function LentesOftalmicosPage() {
                         </div>
                     ) : (
                         <div className="catalog-empty-clean">
-                            <div className="empty-icon-clean">👓</div>
+                            <div className="empty-icon-clean"><Glasses size={48} /></div>
                             <h3>No hay armazones disponibles</h3>
                             <p>Pronto tendremos nuevos modelos</p>
                             <Link href="/catalogo" className="btn btn-primary">Ver todo el catálogo</Link>

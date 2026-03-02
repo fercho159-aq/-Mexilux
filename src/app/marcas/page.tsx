@@ -6,6 +6,8 @@
 
 import Link from 'next/link';
 import type { Metadata } from 'next';
+import { Glasses, Zap, Sparkles, Gem, Eye, Flower2, Car, Star, Bird, Check } from 'lucide-react';
+import { ReactNode } from 'react';
 
 export const metadata: Metadata = {
     title: 'Marcas | Mexilux',
@@ -17,7 +19,7 @@ const BRANDS = [
         name: 'Ray-Ban',
         slug: 'ray-ban',
         description: 'El ícono del estilo desde 1937. Diseños clásicos que nunca pasan de moda.',
-        logo: '🕶️',
+        logo: <Glasses size={24} />,
         productCount: 45,
         featured: true,
         isLuxury: false,
@@ -26,7 +28,7 @@ const BRANDS = [
         name: 'Oakley',
         slug: 'oakley',
         description: 'Innovación y rendimiento. La mejor opción para deportistas y amantes del outdoor.',
-        logo: '⚡',
+        logo: <Zap size={24} />,
         productCount: 38,
         featured: true,
         isLuxury: false,
@@ -35,7 +37,7 @@ const BRANDS = [
         name: 'Gucci',
         slug: 'gucci',
         description: 'Alta moda italiana. Diseños extravagantes y sofisticados.',
-        logo: '✨',
+        logo: <Sparkles size={24} />,
         productCount: 22,
         featured: true,
         isLuxury: true,
@@ -44,7 +46,7 @@ const BRANDS = [
         name: 'Tom Ford',
         slug: 'tom-ford',
         description: 'Elegancia contemporánea. Monturas de lujo para el conocedor.',
-        logo: '💎',
+        logo: <Gem size={24} />,
         productCount: 15,
         featured: true,
         isLuxury: true,
@@ -53,7 +55,7 @@ const BRANDS = [
         name: 'Prada',
         slug: 'prada',
         description: 'Moda vanguardista italiana. Diseño moderno con tradición artesanal.',
-        logo: '👁️',
+        logo: <Eye size={24} />,
         productCount: 18,
         featured: false,
         isLuxury: true,
@@ -62,7 +64,7 @@ const BRANDS = [
         name: 'Carolina Herrera',
         slug: 'carolina-herrera',
         description: 'Elegancia latina. Diseños sofisticados para la mujer moderna.',
-        logo: '🌸',
+        logo: <Flower2 size={24} />,
         productCount: 25,
         featured: false,
         isLuxury: true,
@@ -71,7 +73,7 @@ const BRANDS = [
         name: 'Carrera',
         slug: 'carrera',
         description: 'Espíritu deportivo y aventurero. Estilo audaz para personalidades dinámicas.',
-        logo: '🏎️',
+        logo: <Car size={24} />,
         productCount: 20,
         featured: false,
         isLuxury: false,
@@ -80,7 +82,7 @@ const BRANDS = [
         name: 'Persol',
         slug: 'persol',
         description: 'Artesanía italiana desde 1917. Calidad y elegancia atemporal.',
-        logo: '🇮🇹',
+        logo: <Gem size={32} />,
         productCount: 16,
         featured: false,
         isLuxury: true,
@@ -89,7 +91,7 @@ const BRANDS = [
         name: 'Vogue Eyewear',
         slug: 'vogue-eyewear',
         description: 'Tendencias accesibles. Moda actual para todos los estilos.',
-        logo: '💫',
+        logo: <Star size={24} />,
         productCount: 30,
         featured: false,
         isLuxury: false,
@@ -98,7 +100,7 @@ const BRANDS = [
         name: 'Emporio Armani',
         slug: 'emporio-armani',
         description: 'Estilo italiano moderno. Diseños contemporáneos con tradición de calidad.',
-        logo: '🦅',
+        logo: <Bird size={24} />,
         productCount: 22,
         featured: false,
         isLuxury: true,
@@ -165,15 +167,15 @@ export default function MarcasPage() {
                 {/* Trust section */}
                 <section className="brands-trust">
                     <div className="trust-card">
-                        <h3>✓ 100% Originales</h3>
+                        <h3><Check className="inline-block" size={16} /> 100% Originales</h3>
                         <p>Todas nuestras monturas provienen directamente de los distribuidores oficiales. Garantía de autenticidad en cada producto.</p>
                     </div>
                     <div className="trust-card">
-                        <h3>✓ Garantía de 1 año</h3>
+                        <h3><Check className="inline-block" size={16} /> Garantía de 1 año</h3>
                         <p>Todas las monturas incluyen garantía de fabricación por defectos durante 12 meses.</p>
                     </div>
                     <div className="trust-card">
-                        <h3>✓ Certificado de autenticidad</h3>
+                        <h3><Check className="inline-block" size={16} /> Certificado de autenticidad</h3>
                         <p>Cada producto incluye su certificado de autenticidad y estuche original de la marca.</p>
                     </div>
                 </section>

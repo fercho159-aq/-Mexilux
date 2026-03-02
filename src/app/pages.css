@@ -2959,6 +2959,17 @@
     color: white;
 }
 
+.filter-link-character {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    padding: 6px 16px 6px 10px;
+}
+
+.filter-link-character svg {
+    flex-shrink: 0;
+}
+
 /* Filter Actions */
 .filter-actions {
     display: flex;

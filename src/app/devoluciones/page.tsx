@@ -4,6 +4,7 @@
 
 import Link from 'next/link';
 import type { Metadata } from 'next';
+import { MessageCircle, Mail, ClipboardList } from 'lucide-react';
 
 export const metadata: Metadata = {
     title: 'Devoluciones | Mexilux',
@@ -45,7 +46,7 @@ export default function DevolucionesPage() {
                     </section>
 
                     <section className="legal-section">
-                        <h2>📋 Proceso</h2>
+                        <h2><ClipboardList className="inline-block" size={20} /> Proceso</h2>
                         <ol className="process-steps">
                             <li><strong>Solicita:</strong> Escríbenos con tu número de pedido</li>
                             <li><strong>Recibe guía:</strong> Te enviamos etiqueta de envío gratis</li>
@@ -57,8 +58,8 @@ export default function DevolucionesPage() {
                     <section className="legal-section contact-section">
                         <h2>Iniciar devolución</h2>
                         <div className="contact-options">
-                            <Link href="/contacto" className="contact-option">💬 WhatsApp: (55) 1234-5678</Link>
-                            <Link href="mailto:soporte@mexilux.com" className="contact-option">✉️ soporte@mexilux.com</Link>
+                            <Link href="/contacto" className="contact-option"><MessageCircle className="inline-block" size={16} /> WhatsApp: (55) 1234-5678</Link>
+                            <Link href="mailto:soporte@mexilux.com" className="contact-option"><Mail className="inline-block" size={16} /> soporte@mexilux.com</Link>
                         </div>
                         <p style={{ marginTop: '1rem' }}>
                             <Link href="/legal/garantia">Ver política de garantía completa →</Link>

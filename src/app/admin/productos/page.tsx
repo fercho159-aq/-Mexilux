@@ -5,6 +5,7 @@ import Link from 'next/link';
 import { AdminSidebar } from '../dashboard/AdminSidebar';
 import { ProductFilters } from './ProductFilters';
 import { ProductActions } from './ProductActions';
+import { Sun, Glasses } from 'lucide-react';
 
 export const dynamic = 'force-dynamic';
 
@@ -118,7 +119,7 @@ export default async function AdminProductosPage({ searchParams }: PageProps) {
                                                 <td>
                                                     <div className="col-product">
                                                         <div className="product-icon">
-                                                            {product.sunglasses_only ? '🕶️' : '👓'}
+                                                            {product.sunglasses_only ? <Sun size={20} /> : <Glasses size={20} />}
                                                         </div>
                                                         <div className="product-info">
                                                             <span className="product-name">{product.name}</span>

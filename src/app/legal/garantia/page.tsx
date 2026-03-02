@@ -6,6 +6,7 @@
 
 import Link from 'next/link';
 import type { Metadata } from 'next';
+import { Shield, Undo2, ClipboardList, CreditCard, MessageCircle, Mail } from 'lucide-react';
 
 export const metadata: Metadata = {
     title: 'Garantía y Devoluciones | Mexilux',
@@ -23,7 +24,7 @@ export default function GarantiaPage() {
 
                 <div className="legal-content">
                     <section className="legal-section">
-                        <h2>🛡️ Nuestra Garantía</h2>
+                        <h2><Shield className="inline-block" size={20} /> Nuestra Garantía</h2>
                         <p>
                             En Mexilux respaldamos la calidad de todos nuestros productos. Ofrecemos una garantía
                             completa que cubre defectos de fabricación y asegura tu satisfacción.
@@ -64,7 +65,7 @@ export default function GarantiaPage() {
                     </section>
 
                     <section className="legal-section">
-                        <h2>↩️ Política de Devoluciones</h2>
+                        <h2><Undo2 className="inline-block" size={20} /> Política de Devoluciones</h2>
 
                         <div className="info-box highlight">
                             <h3>30 Días para Devolución</h3>
@@ -91,7 +92,7 @@ export default function GarantiaPage() {
                     </section>
 
                     <section className="legal-section">
-                        <h2>📋 Proceso de Devolución</h2>
+                        <h2><ClipboardList className="inline-block" size={20} /> Proceso de Devolución</h2>
 
                         <ol className="process-steps">
                             <li>
@@ -114,7 +115,7 @@ export default function GarantiaPage() {
                     </section>
 
                     <section className="legal-section">
-                        <h2>💳 Método de Reembolso</h2>
+                        <h2><CreditCard className="inline-block" size={20} /> Método de Reembolso</h2>
                         <p>
                             El reembolso se realizará al mismo método de pago original:
                         </p>
@@ -130,10 +131,10 @@ export default function GarantiaPage() {
                         <p>Nuestro equipo está listo para asistirte:</p>
                         <div className="contact-options">
                             <Link href="/contacto" className="contact-option">
-                                💬 WhatsApp: (55) 1234-5678
+                                <MessageCircle className="inline-block" size={16} /> WhatsApp: (55) 1234-5678
                             </Link>
                             <Link href="mailto:soporte@mexilux.com" className="contact-option">
-                                ✉️ soporte@mexilux.com
+                                <Mail className="inline-block" size={16} /> soporte@mexilux.com
                             </Link>
                         </div>
                     </section>

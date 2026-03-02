@@ -5,6 +5,7 @@
  */
 
 import { Suspense } from 'react';
+import { Search } from 'lucide-react';
 import SearchPageClient from './SearchPageClient';
 
 // Loading fallback
@@ -21,7 +22,7 @@ function SearchLoading() {
                             className="search-input"
                             disabled
                         />
-                        <span className="search-icon">🔍</span>
+                        <span className="search-icon"><Search size={18} /></span>
                     </div>
                 </header>
                 <div style={{ textAlign: 'center', padding: '3rem' }}>

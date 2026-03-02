@@ -12,9 +12,25 @@ export const metadata: Metadata = {
     description: 'Descubre nuestros servicios clínicos: exámenes de la vista, adaptación de lentes de contacto y más. Optometristas certificados.',
 };
 
+const SvgEye = () => (
+    <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8S1 12 1 12z"/><circle cx="12" cy="12" r="3"/></svg>
+);
+const SvgLens = () => (
+    <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="10"/><circle cx="12" cy="12" r="6"/><circle cx="12" cy="12" r="2"/></svg>
+);
+const SvgChild = () => (
+    <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="5" r="3"/><path d="M12 8v4"/><path d="M9 12l3 8 3-8"/><path d="M8 14h8"/></svg>
+);
+const SvgTarget = () => (
+    <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="10"/><circle cx="12" cy="12" r="6"/><circle cx="12" cy="12" r="2"/><line x1="22" y1="12" x2="18" y2="12"/><line x1="6" y1="12" x2="2" y2="12"/><line x1="12" y1="6" x2="12" y2="2"/><line x1="12" y1="22" x2="12" y2="18"/></svg>
+);
+const SvgCalendar = () => (
+    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+);
+
 const SERVICES = [
     {
-        icon: '👁️',
+        icon: <SvgEye />,
         title: 'Examen de la Vista Completo',
         description: 'Evaluación integral de tu salud visual con tecnología de última generación.',
         features: [
@@ -29,7 +45,7 @@ const SERVICES = [
         slug: 'examen-vista',
     },
     {
-        icon: '🔬',
+        icon: <SvgLens />,
         title: 'Lentes de Contacto',
         description: 'Adaptación profesional de lentes de contacto con seguimiento personalizado.',
         features: [
@@ -44,7 +60,7 @@ const SERVICES = [
         slug: 'lentes-contacto',
     },
     {
-        icon: '👶',
+        icon: <SvgChild />,
         title: 'Examen Pediátrico',
         description: 'Evaluación visual especializada para niños con métodos adaptados a su edad.',
         features: [
@@ -58,7 +74,7 @@ const SERVICES = [
         slug: 'examen-pediatrico',
     },
     {
-        icon: '🎯',
+        icon: <SvgTarget />,
         title: 'Control de Miopía',
         description: 'Programa especializado para frenar la progresión de la miopía en niños y jóvenes.',
         features: [
@@ -80,8 +96,8 @@ export default function ServiciosPage() {
             <section className="services-hero">
                 <h1>Servicios de Salud Visual</h1>
                 <p>Tu visión en manos de expertos certificados</p>
-                <Link href="/servicios/citas" className="btn btn-primary btn-lg">
-                    📅 Agendar mi cita
+                <Link href="/servicios/citas" className="btn btn-primary btn-lg" style={{ display: 'inline-flex', alignItems: 'center', gap: '0.5rem' }}>
+                    <SvgCalendar /> Agendar mi cita
                 </Link>
             </section>
 

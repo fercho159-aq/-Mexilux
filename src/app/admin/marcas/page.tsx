@@ -2,6 +2,7 @@ import { redirect } from 'next/navigation';
 import { getAdminSession } from '@/lib/auth/admin';
 import prisma from '@/lib/db/prisma';
 import { AdminSidebar } from '../dashboard/AdminSidebar';
+import { Tag, Pencil, Trash2 } from 'lucide-react';
 import '../admin.css';
 
 export default async function AdminMarcasPage() {
@@ -42,7 +43,7 @@ export default async function AdminMarcasPage() {
                                             {brand.logo_url ? (
                                                 <img src={brand.logo_url} alt={brand.name} style={{ width: 40, height: 40, objectFit: 'contain' }} />
                                             ) : (
-                                                <div style={{ width: 40, height: 40, background: '#f3f6f9', borderRadius: 8, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>🏷️</div>
+                                                <div style={{ width: 40, height: 40, background: '#f3f6f9', borderRadius: 8, display: 'flex', alignItems: 'center', justifyContent: 'center' }}><Tag size={16} /></div>
                                             )}
                                         </td>
                                         <td><strong>{brand.name}</strong></td>
@@ -50,8 +51,8 @@ export default async function AdminMarcasPage() {
                                         <td>{brand.is_luxury ? <span className="badge badge-active">Lujo</span> : '-'}</td>
                                         <td>
                                             <div className="action-buttons">
-                                                <button className="btn-icon" title="Editar">✏️</button>
-                                                <button className="btn-icon delete" title="Eliminar">🗑️</button>
+                                                <button className="btn-icon" title="Editar"><Pencil size={14} /></button>
+                                                <button className="btn-icon delete" title="Eliminar"><Trash2 size={14} /></button>
                                             </div>
                                         </td>
                                     </tr>

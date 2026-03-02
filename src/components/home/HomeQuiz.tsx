@@ -1,124 +1,268 @@
 'use client';
 
 import Link from 'next/link';
-import { useState, useRef } from 'react';
+import Image from 'next/image';
+import { useState, useRef, useMemo } from 'react';
 import html2canvas from 'html2canvas';
 import FaceAnalyzer, { AnalysisResult } from '@/components/quiz/FaceAnalyzer';
+import { Share2 } from 'lucide-react';
 
-// Tipos de rostro y sus características
-const FACE_TYPES: { [key: string]: { name: string; icon: string; description: string; recommendedShapes: string[]; analysis: { characteristics: string[]; bestFor: string; avoid: string }; colors: string[] } } = {
-    oval: {
-        name: 'Ovalado',
-        icon: '○',
-        description: 'Frente ligeramente más ancha que la mandíbula, pómulos definidos',
-        recommendedShapes: ['Cualquier forma te queda', 'Aviador', 'Cuadrado', 'Cat Eye'],
-        analysis: {
-            characteristics: ['Proporción balanceada', 'Pómulos definidos', 'Barbilla suave'],
-            bestFor: 'Tu rostro equilibrado te permite experimentar con prácticamente cualquier estilo de montura.',
-            avoid: 'Evita monturas demasiado grandes que oculten tus facciones naturales.'
-        },
-        colors: ['Negro clásico', 'Carey', 'Dorado'],
+// ═══════════════════════════════════════════════════════════════════════════
+// PERFILES DE PERSONALIDAD (8 perfiles)
+// ═══════════════════════════════════════════════════════════════════════════
+
+const PERSONALITY_PROFILES: Record<string, {
+    name: string;
+    emoji: string;
+    description: string;
+    lensStyle: string;
+}> = {
+    buchon: {
+        name: 'El Buchón',
+        emoji: '🤠',
+        description: 'Eres de presencia fuerte. Te gusta destacar. No pasas desapercibido y ni quieres hacerlo.',
+        lensStyle: 'Lentes que digan "Estos tú no los tienes".',
     },
-    round: {
-        name: 'Redondo',
-        icon: '●',
-        description: 'Mejillas prominentes, frente y mandíbula de anchura similar',
-        recommendedShapes: ['Rectangular', 'Cuadrado', 'Aviador', 'Cat Eye'],
-        analysis: {
-            characteristics: ['Mejillas prominentes', 'Rasgos suaves', 'Líneas curvas'],
-            bestFor: 'Las monturas angulares crean contraste y alargan visualmente tu rostro.',
-            avoid: 'Las monturas redondas pueden acentuar la circularidad de tu rostro.'
-        },
-        colors: ['Negro', 'Azul oscuro', 'Verde bosque'],
+    bellaco: {
+        name: 'El Bellaco',
+        emoji: '🔥',
+        description: 'Carismático, coqueto natural, intenso, actitud primero. Te gusta gustar.',
+        lensStyle: 'Lentes que aumenten el magnetismo.',
     },
-    square: {
-        name: 'Cuadrado',
-        icon: '■',
-        description: 'Mandíbula angular, frente ancha, rasgos definidos',
-        recommendedShapes: ['Redondo', 'Ovalado', 'Cat Eye', 'Aviador curvo'],
-        analysis: {
-            characteristics: ['Mandíbula marcada', 'Frente amplia', 'Líneas fuertes'],
-            bestFor: 'Las monturas redondeadas suavizan y equilibran tus rasgos angulares.',
-            avoid: 'Monturas muy cuadradas pueden hacer tu rostro más rígido.'
-        },
-        colors: ['Plateado', 'Transparente', 'Carey claro'],
+    whitexican: {
+        name: 'El Whitexican',
+        emoji: '🏖️',
+        description: 'Estético, minimalista, vibe internacional. Elegante sin exagerar.',
+        lensStyle: 'Lentes discretos pero se nota que hay cash.',
     },
-    heart: {
-        name: 'Corazón',
-        icon: '▽',
-        description: 'Frente ancha, pómulos altos, barbilla puntiaguda',
-        recommendedShapes: ['Aviador', 'Mariposa', 'Redondo', 'Sin montura inferior'],
-        analysis: {
-            characteristics: ['Frente prominente', 'Pómulos altos', 'Barbilla definida'],
-            bestFor: 'Monturas que equilibran la parte superior con la inferior de tu rostro.',
-            avoid: 'Monturas muy anchas arriba pueden acentuar tu frente.'
-        },
-        colors: ['Dorado rosa', 'Burgundy', 'Nude'],
+    alucin: {
+        name: 'El Alucín',
+        emoji: '✨',
+        description: 'Ambicioso, proyectas tu gran éxito (aunque todavía lo estés construyendo). Energía intensa.',
+        lensStyle: 'Lentes que muestren que mueves las pacas de billetes.',
     },
-    oblong: {
-        name: 'Alargado',
-        icon: '⬭',
-        description: 'Rostro más largo que ancho, frente alta',
-        recommendedShapes: ['Oversize', 'Cuadrado ancho', 'Aviador grande', 'Wayfarer'],
-        analysis: {
-            characteristics: ['Rostro elongado', 'Frente alta', 'Proporciones verticales'],
-            bestFor: 'Las monturas anchas y con puente bajo crean proporción y balance horizontal.',
-            avoid: 'Monturas pequeñas o estrechas acentúan la longitud de tu rostro.'
-        },
-        colors: ['Negro mate', 'Tortoise oscuro', 'Azul marino'],
+    godin: {
+        name: 'El Godín',
+        emoji: '💼',
+        description: 'Eres responsable, confiable, estable. Tú eres el que sí cumple.',
+        lensStyle: 'Tus lentes deben transmitir profesionalismo.',
+    },
+    influencer: {
+        name: 'El Influencer',
+        emoji: '📱',
+        description: 'Eres creativo, aprecias la imagen primero, siempre listo para cámara. Cuidas estética y tendencias.',
+        lensStyle: 'Lentes que se vean bien en tus stories.',
+    },
+    fresita: {
+        name: 'El Fresita',
+        emoji: '🍓',
+        description: 'Eres educado(a), limpio(a), amable y "bien portado(a)". Te gusta verte bien sin exagerar.',
+        lensStyle: 'Tus lentes deben ser coquetos y modernos.',
+    },
+    patron: {
+        name: 'El Patrón',
+        emoji: '👑',
+        description: 'Eres líder natural. Impones respeto. Tú sabes qpd.',
+        lensStyle: 'Tus lentes deben ser símbolo de tu autoridad.',
     },
 };
 
-const QUIZ_STEPS = [
-    {
-        id: 'face-shape',
-        title: '¿Qué armazón se te ve más perro?',
-        subtitle: '¿No sabes ni qué onda con tu tipo de cara? Responde el quiz y te tiramos paro para encontrar el armazón ideal para ti.',
-        options: Object.entries(FACE_TYPES).map(([key, face]) => ({
-            value: key,
-            label: face.name,
-            emoji: face.icon,
-            tip: face.description,
-        })),
+// ═══════════════════════════════════════════════════════════════════════════
+// TIPOS DE ROSTRO (8 tipos)
+// ═══════════════════════════════════════════════════════════════════════════
+
+const FACE_TYPES: Record<string, {
+    name: string;
+    icon: string;
+    description: string;
+    recommendedShapes: string[];
+}> = {
+    ovalado: {
+        name: 'Ovalado',
+        icon: '○',
+        description: 'Frente ligeramente más ancha que la mandíbula, mentón redondeado, proporciones equilibradas',
+        recommendedShapes: ['Cualquier forma te queda', 'Aviador', 'Cuadrado', 'Cat Eye'],
     },
+    rectangulo: {
+        name: 'Rectángulo',
+        icon: '▭',
+        description: 'Más largo que ancho, frente alta y barbilla alargada, mandíbula marcada',
+        recommendedShapes: ['Redondo', 'Ovalado', 'Aviador curvo', 'Oversize'],
+    },
+    redondo: {
+        name: 'Redondo',
+        icon: '●',
+        description: 'Mejillas llenas, sin ángulos definidos, largo y ancho casi iguales',
+        recommendedShapes: ['Rectangular', 'Cuadrado', 'Aviador', 'Cat Eye'],
+    },
+    cuadrado: {
+        name: 'Cuadrado',
+        icon: '■',
+        description: 'Mandíbula ancha y marcada, frente amplia y recta, longitud y anchura similares',
+        recommendedShapes: ['Redondo', 'Ovalado', 'Cat Eye', 'Aviador curvo'],
+    },
+    triangulo_invertido: {
+        name: 'Triángulo Invertido',
+        icon: '▽',
+        description: 'Frente amplia, pómulos y mandíbula más estrechos, mentón fino y agudo',
+        recommendedShapes: ['Aviador', 'Mariposa', 'Redondo', 'Semi al aire'],
+    },
+    triangulo: {
+        name: 'Triángulo',
+        icon: '△',
+        description: 'Mandíbula ancha, frente más estrecha, mentón amplio o fuerte',
+        recommendedShapes: ['Cat Eye', 'Browline', 'Ovalado', 'Semi al aire'],
+    },
+    diamante: {
+        name: 'Diamante',
+        icon: '◇',
+        description: 'Frente y mandíbula estrechas, pómulos muy marcados, mentón puntiagudo',
+        recommendedShapes: ['Ovalado', 'Cat Eye', 'Aviador', 'Sin montura'],
+    },
+    corazon: {
+        name: 'Corazón',
+        icon: '♡',
+        description: 'Frente ancha, pómulos altos, barbilla puntiaguda',
+        recommendedShapes: ['Aviador', 'Mariposa', 'Redondo', 'Sin montura inferior'],
+    },
+};
+
+// Mapeo IA → tipos
+const AI_FACE_MAP: Record<string, string> = {
+    oval: 'ovalado',
+    round: 'redondo',
+    square: 'cuadrado',
+    heart: 'corazon',
+    oblong: 'rectangulo',
+};
+
+// ═══════════════════════════════════════════════════════════════════════════
+// COLORES POR TONO DE PIEL
+// ═══════════════════════════════════════════════════════════════════════════
+
+const SKIN_TONE_COLORS: Record<string, Record<string, { colors: string[]; hexes: string[] }>> = {
+    light: {
+        cool: { colors: ['Negro', 'Gris', 'Azul marino', 'Vino/Borgoña', 'Plata'], hexes: ['#1a1a1a', '#808080', '#1e3a5f', '#722F37', '#C0C0C0'] },
+        warm: { colors: ['Carey claro', 'Dorado', 'Verde oliva', 'Nude cálido', 'Ámbar'], hexes: ['#CD853F', '#D4AF37', '#556B2F', '#E3C4A8', '#FFBF00'] },
+        neutral: { colors: ['Transparente', 'Azul medio', 'Carey claro', 'Negro suave', 'Rosa polvo'], hexes: ['#e8e8e8', '#4682B4', '#CD853F', '#333333', '#E8B4B8'] },
+    },
+    medium: {
+        cool: { colors: ['Negro brillante', 'Azul profundo', 'Rojo vino', 'Gris humo', 'Plata'], hexes: ['#0a0a0a', '#1a237e', '#722F37', '#696969', '#C0C0C0'] },
+        warm: { colors: ['Carey miel', 'Dorado', 'Verde militar', 'Marrón chocolate', 'Ámbar'], hexes: ['#D2B48C', '#D4AF37', '#4B5320', '#7B3F00', '#FFBF00'] },
+        neutral: { colors: ['Carey oscuro', 'Azul marino', 'Transparente', 'Verde profundo', 'Borgoña'], hexes: ['#5D4037', '#1e3a5f', '#e8e8e8', '#013220', '#722F37'] },
+    },
+    dark: {
+        cool: { colors: ['Negro brillante', 'Gris grafito', 'Azul intenso', 'Vino oscuro', 'Plata'], hexes: ['#0a0a0a', '#383838', '#0D47A1', '#4A0E0E', '#C0C0C0'] },
+        warm: { colors: ['Dorado', 'Carey oscuro', 'Verde profundo', 'Marrón espresso', 'Rojo cálido'], hexes: ['#D4AF37', '#5D4037', '#013220', '#3E2723', '#C62828'] },
+        neutral: { colors: ['Azul marino', 'Borgoña', 'Transparente', 'Carey oscuro'], hexes: ['#1e3a5f', '#722F37', '#e8e8e8', '#5D4037'] },
+    },
+};
+
+// ═══════════════════════════════════════════════════════════════════════════
+// PREGUNTAS DE PERSONALIDAD
+// ═══════════════════════════════════════════════════════════════════════════
+
+type ScoreEntry = { profile: string; points: number };
+
+interface QuizOption {
+    value: string;
+    label: string;
+    tip: string;
+    emoji: string;
+    scores: ScoreEntry[];
+}
+
+interface QuizQuestion {
+    id: string;
+    title: string;
+    emoji: string;
+    options: QuizOption[];
+}
+
+const PERSONALITY_QUESTIONS: QuizQuestion[] = [
     {
-        id: 'style',
-        title: '¿Cuál es tu vibe?',
-        subtitle: 'Elige el estilo que más te representa',
+        id: 'destino',
+        title: 'Se arma plan en México… ¿a dónde jalas?',
+        emoji: '🇲🇽',
         options: [
-            { value: 'clasico', label: 'Clásico', emoji: '🎩', tip: 'Elegante, atemporal, sofisticado' },
-            { value: 'moderno', label: 'Moderno', emoji: '⚡', tip: 'Tendencias, vanguardia, innovador' },
-            { value: 'relajado', label: 'Relajado', emoji: '🌊', tip: 'Casual, cómodo, natural' },
-            { value: 'atrevido', label: 'Atrevido', emoji: '🔥', tip: 'Llamativo, único, expresivo' },
-            { value: 'minimalista', label: 'Minimalista', emoji: '⚪', tip: 'Simple, limpio, esencial' },
+            { value: 'a', label: 'Los Cabos', tip: 'Hotel top, vista increíble y puro nivel', emoji: '🏖️', scores: [{ profile: 'whitexican', points: 2 }, { profile: 'patron', points: 1 }] },
+            { value: 'b', label: 'Cancún', tip: 'Con el crew, antro y cero dormir', emoji: '🔥', scores: [{ profile: 'bellaco', points: 2 }, { profile: 'alucin', points: 1 }] },
+            { value: 'c', label: 'Monterrey', tip: 'Carne asada, depa con vista y flow pesado', emoji: '🌮', scores: [{ profile: 'buchon', points: 2 }, { profile: 'bellaco', points: 1 }] },
+            { value: 'd', label: 'Cuernavaca', tip: 'Con amigos, alberca y relax sin estrés', emoji: '🌴', scores: [{ profile: 'godin', points: 2 }, { profile: 'fresita', points: 1 }] },
+            { value: 'e', label: 'CDMX', tip: 'Museos en la tarde y rooftop en la noche', emoji: '🏙️', scores: [{ profile: 'influencer', points: 2 }, { profile: 'whitexican', points: 1 }] },
         ],
     },
     {
-        id: 'activity',
-        title: '¿Para qué los usarás más?',
-        subtitle: 'Esto nos ayuda a recomendar el material ideal',
+        id: 'dinero',
+        title: 'El dinero no crece en los árboles… la lana se hace con:',
+        emoji: '💸',
         options: [
-            { value: 'trabajo', label: 'Trabajo', emoji: '💼', tip: 'Oficina, videollamadas' },
-            { value: 'deportes', label: 'Deportes', emoji: '🏃', tip: 'Actividades físicas' },
-            { value: 'diario', label: 'Uso diario', emoji: '☀️', tip: 'Todo el día, versátil' },
-            { value: 'ocasiones', label: 'Ocasiones', emoji: '🎉', tip: 'Eventos, salidas' },
-            { value: 'pantallas', label: 'Pantallas', emoji: '💻', tip: 'Computadora, celular' },
+            { value: 'a', label: 'Haciendo bisne', tip: 'Comprando y vendiendo, siempre viendo la oportunidad', emoji: '💰', scores: [{ profile: 'buchon', points: 2 }, { profile: 'alucin', points: 1 }] },
+            { value: 'b', label: 'Chamba fija', tip: 'Una buena chamba fija (uy esos aguinaldos…)', emoji: '🏢', scores: [{ profile: 'godin', points: 2 }, { profile: 'fresita', points: 1 }] },
+            { value: 'c', label: 'Negocio propio', tip: 'Algo mío que crezca conmigo', emoji: '🚀', scores: [{ profile: 'bellaco', points: 2 }, { profile: 'patron', points: 1 }] },
+            { value: 'd', label: 'Creando contenido', tip: 'Hasta monetizar (el varo está en las redes)', emoji: '📱', scores: [{ profile: 'influencer', points: 2 }, { profile: 'whitexican', points: 1 }] },
+            { value: 'e', label: 'Invirtiendo', tip: 'Bien y moviendo contactos inteligentes', emoji: '📈', scores: [{ profile: 'whitexican', points: 2 }, { profile: 'fresita', points: 1 }] },
+        ],
+    },
+    {
+        id: 'bebida',
+        title: 'Es viernes y hay plan… ¿qué te tomas?',
+        emoji: '🍻',
+        options: [
+            { value: 'a', label: 'Champaña o botella exclusiva', tip: 'Solo lo mejor de lo mejor', emoji: '🍾', scores: [{ profile: 'alucin', points: 2 }, { profile: 'buchon', points: 1 }] },
+            { value: 'b', label: 'Whisky o tequila fino', tip: 'Sin exagerar, buen gusto', emoji: '🥃', scores: [{ profile: 'patron', points: 2 }, { profile: 'whitexican', points: 1 }] },
+            { value: 'c', label: 'Coctelería aesthetic', tip: 'Que se vea bien para la foto', emoji: '🍸', scores: [{ profile: 'fresita', points: 2 }, { profile: 'influencer', points: 1 }] },
+            { value: 'd', label: 'Cerveza o ron clásico', tip: 'Lo seguro nunca falla', emoji: '🍺', scores: [{ profile: 'godin', points: 2 }, { profile: 'bellaco', points: 1 }] },
+            { value: 'e', label: 'Shot para prender', tip: 'La noche apenas empieza', emoji: '🥂', scores: [{ profile: 'bellaco', points: 2 }, { profile: 'buchon', points: 1 }] },
+        ],
+    },
+    {
+        id: 'accesorios',
+        title: 'Ya tienes tu outfit… eliges accesorios y estos deben de:',
+        emoji: '😎',
+        options: [
+            { value: 'a', label: 'Representar quién soy', tip: 'Que hablen por mí', emoji: '🎭', scores: [{ profile: 'influencer', points: 2 }, { profile: 'fresita', points: 1 }] },
+            { value: 'b', label: 'Tener marca, obvio', tip: 'Si no es de marca, ¿para qué?', emoji: '💎', scores: [{ profile: 'buchon', points: 2 }, { profile: 'alucin', points: 1 }] },
+            { value: 'c', label: 'Ser funcionales', tip: 'Cumplir su propósito', emoji: '⚙️', scores: [{ profile: 'godin', points: 2 }, { profile: 'patron', points: 1 }] },
+            { value: 'd', label: 'Ser exclusivos', tip: 'Aunque no griten marca', emoji: '✨', scores: [{ profile: 'whitexican', points: 2 }, { profile: 'patron', points: 1 }] },
+            { value: 'e', label: 'Elevar mi presencia', tip: 'Sin decir nada', emoji: '👑', scores: [{ profile: 'alucin', points: 2 }, { profile: 'buchon', points: 1 }] },
+        ],
+    },
+    {
+        id: 'estilo',
+        title: 'Si tu estilo hablara por ti, diría:',
+        emoji: '🎤',
+        options: [
+            { value: 'a', label: 'Hay niveles', tip: 'Y yo estoy arriba', emoji: '🔥', scores: [{ profile: 'buchon', points: 2 }, { profile: 'bellaco', points: 1 }] },
+            { value: 'b', label: 'Clase se tiene, no se presume', tip: 'Elegancia natural', emoji: '🎩', scores: [{ profile: 'patron', points: 2 }, { profile: 'whitexican', points: 1 }] },
+            { value: 'c', label: 'Siempre en tendencia', tip: 'Lo que está in, lo tengo', emoji: '📸', scores: [{ profile: 'influencer', points: 2 }, { profile: 'fresita', points: 1 }] },
+            { value: 'd', label: 'Primero resultados, luego apariencia', tip: 'Lo importante es cumplir', emoji: '💼', scores: [{ profile: 'godin', points: 2 }, { profile: 'patron', points: 1 }] },
+            { value: 'e', label: 'Como yo no hay dos', tip: 'Único e irrepetible', emoji: '🌟', scores: [{ profile: 'alucin', points: 2 }, { profile: 'whitexican', points: 1 }] },
         ],
     },
 ];
+
+// Total steps: face shape + 5 personality questions
+const TOTAL_STEPS = 1 + PERSONALITY_QUESTIONS.length;
+
+// ═══════════════════════════════════════════════════════════════════════════
+// COMPONENTE
+// ═══════════════════════════════════════════════════════════════════════════
 
 export interface HomeQuizProps {
     isOpen: boolean;
     onClose: () => void;
     initialStep?: number;
+    /** @deprecated No longer used - personality is determined by quiz questions */
     initialStyle?: string;
     embedded?: boolean;
     skipIntro?: boolean;
 }
 
-export default function HomeQuiz({ isOpen, onClose, initialStep = 0, initialStyle, embedded = false, skipIntro = false }: HomeQuizProps) {
+export default function HomeQuiz({ isOpen, onClose, initialStep = 0, embedded = false, skipIntro = false }: HomeQuizProps) {
     const [currentStep, setCurrentStep] = useState(initialStep);
-    const [answers, setAnswers] = useState<Record<string, string>>(initialStyle ? { style: initialStyle } : {});
+    const [faceShape, setFaceShape] = useState('');
+    const [personalityAnswers, setPersonalityAnswers] = useState<Record<string, string>>({});
     const [showResults, setShowResults] = useState(false);
     const [isAnimating, setIsAnimating] = useState(false);
     const [showCamera, setShowCamera] = useState(false);
@@ -128,46 +272,56 @@ export default function HomeQuiz({ isOpen, onClose, initialStep = 0, initialStyl
     const cardRef = useRef<HTMLDivElement>(null);
     const fileInputRef = useRef<HTMLInputElement>(null);
 
-    const totalSteps = QUIZ_STEPS.length;
-    const progress = ((currentStep + 1) / totalSteps) * 100;
-    const currentQuestion = QUIZ_STEPS[currentStep];
+    const progress = ((currentStep + 1) / TOTAL_STEPS) * 100;
+    const isFaceStep = currentStep === 0;
+    const currentPersonalityQuestion = !isFaceStep ? PERSONALITY_QUESTIONS[currentStep - 1] : null;
 
     if (!isOpen && !embedded) return null;
 
-    const handleOptionSelect = (value: string) => {
-        setAnswers(prev => ({
-            ...prev,
-            [currentQuestion.id]: value,
-        }));
-
-        if (isAnimating) return;
-
-        handleNext();
-    };
-
-    const handleAnalysisComplete = (result: AnalysisResult) => {
-        setAnswers(prev => ({
-            ...prev,
-            'face-shape': result.faceShape
-        }));
-        setSkinToneResult(result.skinTone);
-        setShowCamera(false);
-        setUploadedImage(null);
-        // Reset file input to allow re-uploading same file
-        if (fileInputRef.current) {
-            fileInputRef.current.value = '';
-        }
-        setTimeout(() => {
-            if (currentStep < totalSteps - 1) {
-                setCurrentStep(prev => prev + 1);
+    // Compute personality scores
+    const personalityScores = (() => {
+        const scores: Record<string, number> = {};
+        Object.keys(PERSONALITY_PROFILES).forEach(key => { scores[key] = 0; });
+        PERSONALITY_QUESTIONS.forEach(question => {
+            const answer = personalityAnswers[question.id];
+            if (answer) {
+                const option = question.options.find(o => o.value === answer);
+                if (option) {
+                    option.scores.forEach(({ profile, points }) => {
+                        scores[profile] = (scores[profile] || 0) + points;
+                    });
+                }
             }
-        }, 500);
+        });
+        return scores;
+    })();
+
+    const getTopProfiles = () => {
+        const sorted = Object.entries(personalityScores).sort(([, a], [, b]) => b - a);
+        return {
+            primary: sorted[0]?.[0] || 'buchon',
+            secondary: sorted[1]?.[0] || 'bellaco',
+        };
     };
 
-    const handleNext = () => {
+    const handleFaceShapeSelect = (value: string) => {
+        setFaceShape(value);
+        if (isAnimating) return;
+        // Auto-advance on face shape selection
         setIsAnimating(true);
         setTimeout(() => {
-            if (currentStep < totalSteps - 1) {
+            setCurrentStep(prev => prev + 1);
+            setIsAnimating(false);
+        }, 300);
+    };
+
+    const handlePersonalitySelect = (questionId: string, value: string) => {
+        setPersonalityAnswers(prev => ({ ...prev, [questionId]: value }));
+        if (isAnimating) return;
+        // Auto-advance
+        setIsAnimating(true);
+        setTimeout(() => {
+            if (currentStep < TOTAL_STEPS - 1) {
                 setCurrentStep(prev => prev + 1);
             } else {
                 setShowResults(true);
@@ -176,32 +330,38 @@ export default function HomeQuiz({ isOpen, onClose, initialStep = 0, initialStyl
         }, 300);
     };
 
+    const handleAnalysisComplete = (result: AnalysisResult) => {
+        const mappedShape = AI_FACE_MAP[result.faceShape] || 'ovalado';
+        setFaceShape(mappedShape);
+        setSkinToneResult(result.skinTone);
+        setShowCamera(false);
+        setUploadedImage(null);
+        if (fileInputRef.current) fileInputRef.current.value = '';
+        setTimeout(() => {
+            setCurrentStep(prev => prev + 1);
+        }, 500);
+    };
+
     const handlePrevious = () => {
         if (currentStep > 0) {
             setCurrentStep(prev => prev - 1);
         } else {
-            if (embedded) {
-                onClose(); // Reset parent state
-            } else {
-                onClose();
-            }
+            if (embedded) onClose();
+            else onClose();
         }
     };
 
-    const getFaceResult = () => {
-        const faceKey = answers['face-shape'] as keyof typeof FACE_TYPES;
-        return FACE_TYPES[faceKey] || FACE_TYPES.oval;
-    };
-
     const handleShare = async () => {
-        const result = getFaceResult();
-        const shareText = `👓 Descubrí que tengo rostro "${result.name}" en Mexilux!\n\n✨ Mis monturas ideales: ${result.recommendedShapes.slice(0, 2).join(', ')}\n\n¿Cuál es tu tipo de rostro? 🇲🇽\nmexilux.com/quiz`;
+        const { primary, secondary } = getTopProfiles();
+        const primaryProfile = PERSONALITY_PROFILES[primary];
+        const secondaryProfile = PERSONALITY_PROFILES[secondary];
+        const shareText = `¡Soy ${primaryProfile.name} ${primaryProfile.emoji} con un toque de ${secondaryProfile.name} ${secondaryProfile.emoji}!\n\n${primaryProfile.description}\n\n¿Qué tipo de mexicano eres tú?\nmexilux.com/quiz`;
 
         if (cardRef.current) {
             try {
                 const element = cardRef.current;
                 const canvas = await html2canvas(element, {
-                    backgroundColor: '#1a1a2e',
+                    backgroundColor: '#EEEADE',
                     scale: 2,
                     useCORS: true,
                     logging: false,
@@ -212,101 +372,59 @@ export default function HomeQuiz({ isOpen, onClose, initialStep = 0, initialStyl
                     windowHeight: document.documentElement.offsetHeight,
                     allowTaint: true,
                 });
-
                 const imageData = canvas.toDataURL('image/png');
-
                 if (navigator.share) {
                     try {
                         const response = await fetch(imageData);
                         const blob = await response.blob();
                         const file = new File([blob], 'mi-resultado-mexilux.png', { type: 'image/png' });
-
-                        await navigator.share({
-                            title: 'Mi Resultado Mexilux',
-                            text: shareText,
-                            files: [file],
-                        });
+                        await navigator.share({ title: 'Mi Resultado Mexilux', text: shareText, files: [file] });
                         return;
-                    } catch {
-                        // continue
-                    }
+                    } catch { /* continue */ }
                 }
-
                 const link = document.createElement('a');
                 link.download = 'mi-resultado-mexilux.png';
                 link.href = imageData;
                 link.click();
-                alert('¡Imagen descargada! 📱 Compártela en tus historias');
+                alert('¡Imagen descargada! Compártela en tus historias');
                 return;
             } catch (error) {
                 console.error('Error generating image:', error);
             }
         }
-
         navigator.clipboard.writeText(shareText);
         alert('¡Texto copiado! Pégalo en tus redes sociales');
     };
 
-    const canProceed = answers[currentQuestion?.id];
-
-    // --- RENDER HELPERS ---
-
-    // Base styles (modal vs embedded)
+    // --- STYLES ---
     const containerStyle: React.CSSProperties = embedded
         ? { width: '100%', height: '100%', position: 'relative', overflow: 'hidden', backgroundColor: 'transparent' }
-        : {
-            position: 'fixed',
-            top: 0,
-            left: 0,
-            right: 0,
-            bottom: 0,
-            backgroundColor: '#fff',
-            zIndex: 9999,
-            overflowY: 'auto'
-        };
+        : { position: 'fixed', top: 0, left: 0, right: 0, bottom: 0, backgroundColor: '#fff', zIndex: 9999, overflowY: 'auto' };
 
     const contentStyle: React.CSSProperties = embedded
         ? { width: '100%', height: '100%', display: 'flex', flexDirection: 'column' }
         : { paddingTop: '80px', minHeight: '100vh', width: '100%', backgroundColor: '#fff' };
 
-    // --- CAMERA MODE ---
+    // ═══════════════════════════════════════════════════════════════════════════
+    // CAMERA MODE
+    // ═══════════════════════════════════════════════════════════════════════════
     if (showCamera) {
         return (
             <div style={embedded ? {
-                width: '100%',
-                height: '100%',
-                minHeight: '500px',
-                position: 'relative',
-                overflow: 'hidden',
-                backgroundColor: 'transparent',
-                borderRadius: '20px'
+                width: '100%', height: '100%', minHeight: '500px',
+                position: 'relative', overflow: 'hidden', backgroundColor: 'transparent', borderRadius: '20px'
             } : containerStyle}>
                 <div style={{
-                    position: 'relative',
-                    height: '100%',
-                    minHeight: embedded ? '500px' : 'auto',
-                    width: '100%',
-                    backgroundColor: '#f5f7fa',
-                    borderRadius: embedded ? '20px' : '0',
-                    overflow: 'hidden'
+                    position: 'relative', height: '100%', minHeight: embedded ? '500px' : 'auto',
+                    width: '100%', backgroundColor: '#f5f7fa', borderRadius: embedded ? '20px' : '0', overflow: 'hidden'
                 }}>
                     <button
                         onClick={() => setShowCamera(false)}
                         style={{
-                            position: 'absolute',
-                            top: '20px',
-                            right: '25px',
-                            zIndex: 100000,
-                            background: 'rgba(255,255,255,0.8)',
-                            border: 'none',
-                            borderRadius: '50%',
-                            width: '40px',
-                            height: '40px',
-                            fontSize: '24px',
-                            cursor: 'pointer',
-                            display: 'flex',
-                            alignItems: 'center',
-                            justifyContent: 'center',
+                            position: 'absolute', top: '20px', right: '25px', zIndex: 100000,
+                            background: 'rgba(255,255,255,0.8)', border: 'none', borderRadius: '50%',
+                            width: '40px', height: '40px', fontSize: '24px', cursor: 'pointer',
+                            display: 'flex', alignItems: 'center', justifyContent: 'center',
                             boxShadow: '0 2px 10px rgba(0,0,0,0.1)'
                         }}
                     >
@@ -314,14 +432,8 @@ export default function HomeQuiz({ isOpen, onClose, initialStep = 0, initialStyl
                     </button>
                     <FaceAnalyzer
                         onComplete={handleAnalysisComplete}
-                        onCancel={() => {
-                            setShowCamera(false);
-                            setUploadedImage(null);
-                        }}
-                        onManualSelect={() => {
-                            setShowCamera(false);
-                            setUploadedImage(null);
-                        }}
+                        onCancel={() => { setShowCamera(false); setUploadedImage(null); }}
+                        onManualSelect={() => { setShowCamera(false); setUploadedImage(null); }}
                         embedded={embedded}
                         initialImage={uploadedImage}
                     />
@@ -330,15 +442,22 @@ export default function HomeQuiz({ isOpen, onClose, initialStep = 0, initialStyl
         );
     }
 
-    // --- RESULTS MODE ---
+    // ═══════════════════════════════════════════════════════════════════════════
+    // RESULTS MODE
+    // ═══════════════════════════════════════════════════════════════════════════
     if (showResults) {
-        const result = getFaceResult();
+        const { primary, secondary } = getTopProfiles();
+        const primaryProfile = PERSONALITY_PROFILES[primary];
+        const secondaryProfile = PERSONALITY_PROFILES[secondary];
+        const faceType = FACE_TYPES[faceShape] || FACE_TYPES.ovalado;
+        const skinData = skinToneResult
+            ? SKIN_TONE_COLORS[skinToneResult.category]?.[skinToneResult.undertone]
+            : null;
 
         return (
             <div style={{
                 position: embedded ? 'relative' : 'fixed',
-                top: 0,
-                left: 0,
+                top: 0, left: 0,
                 width: embedded ? '100%' : '100vw',
                 height: embedded ? '100%' : '100vh',
                 background: 'linear-gradient(135deg, #EEEADE 0%, #e8e3d6 50%, #d4c9b0 100%)',
@@ -346,51 +465,27 @@ export default function HomeQuiz({ isOpen, onClose, initialStep = 0, initialStyl
                 overflowY: 'auto',
                 borderRadius: embedded ? '24px' : '0'
             }}>
-                {/* Orbes decorativos sutiles */}
+                {/* Orbes decorativos */}
                 <div style={{
-                    position: 'absolute',
-                    top: '10%',
-                    left: '-5%',
-                    width: '300px',
-                    height: '300px',
+                    position: 'absolute', top: '10%', left: '-5%', width: '300px', height: '300px',
                     background: 'radial-gradient(circle, rgba(138, 102, 35, 0.15) 0%, transparent 70%)',
-                    borderRadius: '50%',
-                    filter: 'blur(40px)',
-                    pointerEvents: 'none'
+                    borderRadius: '50%', filter: 'blur(40px)', pointerEvents: 'none'
                 }} />
                 <div style={{
-                    position: 'absolute',
-                    bottom: '20%',
-                    right: '-5%',
-                    width: '250px',
-                    height: '250px',
+                    position: 'absolute', bottom: '20%', right: '-5%', width: '250px', height: '250px',
                     background: 'radial-gradient(circle, rgba(21, 33, 50, 0.08) 0%, transparent 70%)',
-                    borderRadius: '50%',
-                    filter: 'blur(40px)',
-                    pointerEvents: 'none'
+                    borderRadius: '50%', filter: 'blur(40px)', pointerEvents: 'none'
                 }} />
 
-                {/* Botón cerrar */}
                 {!embedded && (
                     <button
                         onClick={onClose}
                         style={{
-                            position: 'fixed',
-                            top: '20px',
-                            right: '20px',
-                            zIndex: 1000,
-                            background: 'rgba(255,255,255,0.8)',
-                            backdropFilter: 'blur(10px)',
-                            color: '#1D1E21',
-                            border: 'none',
-                            borderRadius: '50%',
-                            width: '44px',
-                            height: '44px',
-                            fontSize: '18px',
-                            cursor: 'pointer',
-                            display: 'flex',
-                            alignItems: 'center',
-                            justifyContent: 'center',
+                            position: 'fixed', top: '20px', right: '20px', zIndex: 1000,
+                            background: 'rgba(255,255,255,0.8)', backdropFilter: 'blur(10px)',
+                            color: '#1D1E21', border: 'none', borderRadius: '50%',
+                            width: '44px', height: '44px', fontSize: '18px', cursor: 'pointer',
+                            display: 'flex', alignItems: 'center', justifyContent: 'center',
                             boxShadow: '0 4px 20px rgba(0,0,0,0.1)'
                         }}
                     >
@@ -398,18 +493,14 @@ export default function HomeQuiz({ isOpen, onClose, initialStep = 0, initialStyl
                     </button>
                 )}
 
-                {/* Contenido principal */}
                 <div style={{
-                    position: 'relative',
-                    zIndex: 1,
+                    position: 'relative', zIndex: 1,
                     padding: embedded ? '24px 16px' : '100px 20px 60px',
-                    maxWidth: '440px',
-                    margin: '0 auto',
+                    maxWidth: '440px', margin: '0 auto',
                     minHeight: embedded ? 'auto' : '100vh',
-                    display: 'flex',
-                    flexDirection: 'column'
+                    display: 'flex', flexDirection: 'column'
                 }}>
-                    {/* Tarjeta principal con glassmorphism */}
+                    {/* Card principal */}
                     <div
                         ref={cardRef}
                         style={{
@@ -422,85 +513,108 @@ export default function HomeQuiz({ isOpen, onClose, initialStep = 0, initialStyl
                             marginBottom: '24px'
                         }}
                     >
-                        {/* Badge */}
-                        <div style={{ textAlign: 'center', marginBottom: '24px' }}>
-                            <span style={{
-                                display: 'inline-block',
-                                padding: '8px 20px',
-                                background: 'linear-gradient(135deg, #152132 0%, #1c2d42 100%)',
-                                color: '#EEEADE',
-                                borderRadius: '30px',
-                                fontSize: '11px',
-                                fontWeight: '700',
-                                letterSpacing: '0.15em',
-                                textTransform: 'uppercase'
-                            }}>Tu Análisis Facial</span>
+                        {/* Logo */}
+                        <div style={{ textAlign: 'center', marginBottom: '20px' }}>
+                            <Image
+                                src="/logo-mexilux.png"
+                                alt="Mexilux"
+                                width={100}
+                                height={100}
+                                style={{ objectFit: 'contain', margin: '0 auto' }}
+                            />
                         </div>
 
-                        {/* Icono del tipo de rostro */}
-                        <div style={{
-                            width: '90px',
-                            height: '90px',
-                            margin: '0 auto 20px',
-                            background: 'linear-gradient(135deg, rgba(138, 102, 35, 0.12) 0%, rgba(130, 108, 64, 0.06) 100%)',
-                            borderRadius: result.name === 'Ovalado' ? '48% 48% 42% 42%' :
-                                result.name === 'Redondo' ? '50%' :
-                                    result.name === 'Cuadrado' ? '18%' :
-                                        result.name === 'Corazón' ? '48% 48% 38% 38%' : '38% 38% 32% 32%',
-                            border: '2.5px solid #8A6623',
-                            display: 'flex',
-                            alignItems: 'center',
-                            justifyContent: 'center',
-                            boxShadow: '0 8px 32px rgba(138, 102, 35, 0.12)'
-                        }}>
-                            <span style={{ fontSize: '36px' }}>
-                                {result.name === 'Ovalado' ? '👤' :
-                                    result.name === 'Redondo' ? '😊' :
-                                        result.name === 'Cuadrado' ? '😎' :
-                                            result.name === 'Corazón' ? '💕' : '✨'}
-                            </span>
-                        </div>
-
-                        {/* Título del resultado */}
-                        <div style={{ textAlign: 'center', marginBottom: '28px' }}>
-                            <p style={{ fontSize: '13px', color: '#826C40', margin: '0 0 6px 0', fontWeight: '500' }}>Tu tipo de rostro</p>
+                        {/* Emoji + Nombre del perfil */}
+                        <div style={{ textAlign: 'center', marginBottom: '16px' }}>
+                            <div style={{ fontSize: '64px', marginBottom: '8px', lineHeight: 1 }}>
+                                {primaryProfile.emoji}
+                            </div>
                             <h2 style={{
-                                fontSize: '32px',
-                                fontWeight: '800',
-                                color: '#152132',
-                                margin: '0 0 10px 0',
-                                letterSpacing: '-0.02em'
+                                fontSize: embedded ? '28px' : '34px', fontWeight: '800',
+                                color: '#152132', margin: '0 0 12px 0', letterSpacing: '-0.02em'
                             }}>
-                                {result.name}
+                                {primaryProfile.name}
                             </h2>
-                            <p style={{ fontSize: '14px', color: '#6b5d4d', margin: 0, lineHeight: '1.5', maxWidth: '300px', marginLeft: 'auto', marginRight: 'auto' }}>
-                                {result.description}
+                            <p style={{
+                                fontSize: '14px', color: '#6b5d4d', margin: 0,
+                                lineHeight: '1.6', maxWidth: '320px', marginLeft: 'auto', marginRight: 'auto'
+                            }}>
+                                {primaryProfile.description}
+                            </p>
+                        </div>
+
+                        {/* Estilo de lentes */}
+                        <div style={{
+                            padding: '14px 18px', margin: '16px 0',
+                            borderLeft: '3px solid #8A6623',
+                            background: 'rgba(138, 102, 35, 0.06)',
+                            borderRadius: '0 12px 12px 0',
+                            fontStyle: 'italic'
+                        }}>
+                            <p style={{ margin: 0, fontSize: '14px', color: '#3d3528' }}>{primaryProfile.lensStyle}</p>
+                        </div>
+
+                        {/* Perfil Secundario */}
+                        <div style={{
+                            textAlign: 'center', marginBottom: '24px', padding: '14px',
+                            background: 'rgba(138, 102, 35, 0.06)', borderRadius: '16px'
+                        }}>
+                            <p style={{ fontSize: '11px', color: '#8A6623', margin: '0 0 4px 0', textTransform: 'uppercase', letterSpacing: '0.1em', fontWeight: '700' }}>
+                                Con un toque de:
+                            </p>
+                            <p style={{ fontSize: '18px', fontWeight: '700', color: '#152132', margin: 0 }}>
+                                {secondaryProfile.emoji} {secondaryProfile.name}
+                            </p>
+                        </div>
+
+                        {/* Tipo de Rostro */}
+                        <div style={{ textAlign: 'center', marginBottom: '20px' }}>
+                            <h3 style={{
+                                fontSize: '11px', color: '#8A6623', textTransform: 'uppercase',
+                                letterSpacing: '0.12em', marginBottom: '10px', fontWeight: '700'
+                            }}>Tu tipo de rostro</h3>
+                            <div style={{
+                                width: '60px', height: '72px', margin: '0 auto 10px',
+                                background: 'rgba(138, 102, 35, 0.08)',
+                                border: '2px solid rgba(138, 102, 35, 0.3)',
+                                borderRadius:
+                                    faceType.name === 'Ovalado' ? '50% 50% 45% 45%' :
+                                    faceType.name === 'Redondo' ? '50%' :
+                                    faceType.name === 'Cuadrado' ? '12%' :
+                                    faceType.name === 'Rectángulo' ? '25% 25% 18% 18%' :
+                                    faceType.name === 'Diamante' ? '50% 0 50% 0' :
+                                    faceType.name === 'Corazón' ? '50% 50% 35% 35%' :
+                                    faceType.name === 'Triángulo' ? '0 0 50% 50%' :
+                                    '50% 50% 25% 25%',
+                                display: 'flex', alignItems: 'center', justifyContent: 'center',
+                                fontSize: '22px', color: '#8A6623'
+                            }}>
+                                {faceType.icon}
+                            </div>
+                            <p style={{ fontSize: '18px', fontWeight: '700', color: '#152132', margin: '0 0 4px 0' }}>
+                                {faceType.name}
+                            </p>
+                            <p style={{ fontSize: '12px', color: '#7a6b5a', margin: 0, maxWidth: '280px', marginLeft: 'auto', marginRight: 'auto' }}>
+                                {faceType.description}
                             </p>
                         </div>
 
                         {/* Tono de piel */}
                         {skinToneResult && (
                             <div style={{
-                                background: 'rgba(138, 102, 35, 0.06)',
-                                borderRadius: '18px',
-                                padding: '18px 20px',
-                                marginBottom: '20px',
-                                display: 'flex',
-                                alignItems: 'center',
-                                gap: '16px'
+                                background: 'rgba(138, 102, 35, 0.06)', borderRadius: '18px',
+                                padding: '14px 16px', marginBottom: '16px',
+                                display: 'flex', alignItems: 'center', gap: '14px'
                             }}>
                                 <div style={{
-                                    width: '52px',
-                                    height: '52px',
-                                    borderRadius: '50%',
+                                    width: '44px', height: '44px', borderRadius: '50%',
                                     backgroundColor: `rgb(${skinToneResult.rgb.join(',')})`,
                                     border: '3px solid rgba(255,255,255,0.9)',
-                                    boxShadow: '0 4px 16px rgba(0,0,0,0.12)',
-                                    flexShrink: 0
+                                    boxShadow: '0 4px 16px rgba(0,0,0,0.12)', flexShrink: 0
                                 }} />
                                 <div>
-                                    <h3 style={{ fontSize: '11px', color: '#8A6623', textTransform: 'uppercase', letterSpacing: '0.1em', margin: '0 0 6px 0', fontWeight: '700' }}>Tu Tono</h3>
-                                    <p style={{ fontSize: '15px', fontWeight: '600', color: '#152132', margin: '0 0 2px 0' }}>
+                                    <h3 style={{ fontSize: '11px', color: '#8A6623', textTransform: 'uppercase', letterSpacing: '0.1em', margin: '0 0 4px 0', fontWeight: '700' }}>Tu Tono</h3>
+                                    <p style={{ fontSize: '14px', fontWeight: '600', color: '#152132', margin: '0 0 2px 0' }}>
                                         {skinToneResult.category === 'light' ? 'Claro' : skinToneResult.category === 'medium' ? 'Medio' : 'Oscuro'}
                                     </p>
                                     <p style={{ fontSize: '12px', color: '#7a6b5a', margin: 0 }}>
@@ -510,127 +624,77 @@ export default function HomeQuiz({ isOpen, onClose, initialStep = 0, initialStyl
                             </div>
                         )}
 
-                        {/* Monturas recomendadas */}
+                        {/* Armazones ideales */}
                         <div style={{ textAlign: 'center', marginBottom: '16px' }}>
                             <h3 style={{
-                                fontSize: '11px',
-                                color: '#8A6623',
-                                textTransform: 'uppercase',
-                                letterSpacing: '0.12em',
-                                marginBottom: '14px',
-                                fontWeight: '700'
-                            }}>Monturas Ideales</h3>
-                            <div style={{ display: 'flex', flexWrap: 'wrap', gap: '10px', justifyContent: 'center' }}>
-                                {result.recommendedShapes.slice(0, 4).map((shape, idx) => (
+                                fontSize: '11px', color: '#8A6623', textTransform: 'uppercase',
+                                letterSpacing: '0.12em', marginBottom: '12px', fontWeight: '700'
+                            }}>Armazones Ideales</h3>
+                            <div style={{ display: 'flex', flexWrap: 'wrap', gap: '8px', justifyContent: 'center' }}>
+                                {faceType.recommendedShapes.slice(0, 4).map((shape, idx) => (
                                     <span key={idx} style={{
                                         background: 'linear-gradient(135deg, #152132 0%, #1c2d42 100%)',
-                                        color: '#EEEADE',
-                                        padding: '10px 18px',
-                                        borderRadius: '24px',
-                                        fontSize: '13px',
-                                        fontWeight: '600',
+                                        color: '#EEEADE', padding: '8px 16px', borderRadius: '24px',
+                                        fontSize: '12px', fontWeight: '600',
                                         boxShadow: '0 4px 12px rgba(21, 33, 50, 0.15)'
                                     }}>{shape}</span>
                                 ))}
                             </div>
                         </div>
 
-                        {/* Colores Recomendados - Círculos con títulos */}
-                        <div style={{ textAlign: 'center' }}>
-                            <h3 style={{
-                                fontSize: '11px',
-                                color: '#8A6623',
-                                textTransform: 'uppercase',
-                                letterSpacing: '0.12em',
-                                marginBottom: '16px',
-                                fontWeight: '700'
-                            }}>Colores Recomendados</h3>
-                            <div style={{ display: 'flex', justifyContent: 'center', gap: '24px' }}>
-                                {result.colors.slice(0, 3).map((color, idx) => {
-                                    // Mapeo de nombres de colores a valores hex
-                                    const colorMap: Record<string, string> = {
-                                        'Negro clásico': '#1a1a1a',
-                                        'Negro': '#1a1a1a',
-                                        'Negro mate': '#2d2d2d',
-                                        'Carey': '#8B4513',
-                                        'Carey claro': '#CD853F',
-                                        'Tortoise oscuro': '#5D4037',
-                                        'Dorado': '#D4AF37',
-                                        'Dorado rosa': '#E8B4B8',
-                                        'Plateado': '#C0C0C0',
-                                        'Azul oscuro': '#1a3a5c',
-                                        'Azul marino': '#1e3a5f',
-                                        'Verde bosque': '#228B22',
-                                        'Verde Oliva': '#556B2F',
-                                        'Transparente': '#e8e8e8',
-                                        'Burgundy': '#722F37',
-                                        'Nude': '#E3C4A8',
-                                        'Café': '#8B4513'
-                                    };
-                                    const bgColor = colorMap[color] || '#888888';
-
-                                    return (
+                        {/* Colores recomendados */}
+                        {skinData && (
+                            <div style={{ textAlign: 'center' }}>
+                                <h3 style={{
+                                    fontSize: '11px', color: '#8A6623', textTransform: 'uppercase',
+                                    letterSpacing: '0.12em', marginBottom: '14px', fontWeight: '700'
+                                }}>Colores Recomendados</h3>
+                                <div style={{ display: 'flex', justifyContent: 'center', gap: '20px', flexWrap: 'wrap' }}>
+                                    {skinData.colors.slice(0, 3).map((color, idx) => (
                                         <div key={idx} style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '8px' }}>
                                             <div style={{
-                                                width: '48px',
-                                                height: '48px',
-                                                borderRadius: '50%',
-                                                backgroundColor: bgColor,
+                                                width: '48px', height: '48px', borderRadius: '50%',
+                                                backgroundColor: skinData.hexes[idx] || '#888',
                                                 border: '3px solid rgba(255,255,255,0.9)',
                                                 boxShadow: '0 4px 12px rgba(0,0,0,0.15)'
                                             }} />
                                             <span style={{
-                                                fontSize: '11px',
-                                                color: '#5a5045',
-                                                fontWeight: '500',
-                                                maxWidth: '70px',
-                                                textAlign: 'center',
-                                                lineHeight: '1.3'
+                                                fontSize: '11px', color: '#5a5045', fontWeight: '500',
+                                                maxWidth: '70px', textAlign: 'center', lineHeight: '1.3'
                                             }}>{color}</span>
                                         </div>
-                                    );
-                                })}
+                                    ))}
+                                </div>
                             </div>
-                        </div>
+                        )}
                     </div>
 
-                    {/* Botones de acción - fuera de la tarjeta */}
+                    {/* Acciones */}
                     <div style={{ display: 'flex', flexDirection: 'column', gap: '12px', padding: '0 4px' }}>
                         <Link
                             href="/catalogo"
                             style={{
-                                display: 'block',
-                                textAlign: 'center',
-                                padding: '18px 24px',
+                                display: 'block', textAlign: 'center', padding: '18px 24px',
                                 background: 'linear-gradient(135deg, #8A6623 0%, #a67c2e 100%)',
-                                color: '#fff',
-                                borderRadius: '16px',
-                                fontSize: '16px',
-                                fontWeight: '700',
-                                textDecoration: 'none',
-                                boxShadow: '0 8px 24px rgba(138, 102, 35, 0.25)',
+                                color: '#fff', borderRadius: '16px', fontSize: '16px', fontWeight: '700',
+                                textDecoration: 'none', boxShadow: '0 8px 24px rgba(138, 102, 35, 0.25)',
                                 transition: 'transform 0.2s, box-shadow 0.2s'
                             }}
                         >
-                            Ver Monturas Recomendadas
+                            Ver Armazones Recomendados
                         </Link>
 
                         <button
                             onClick={handleShare}
                             style={{
-                                padding: '16px 24px',
-                                background: 'rgba(255,255,255,0.8)',
-                                backdropFilter: 'blur(10px)',
-                                color: '#152132',
-                                border: '1px solid rgba(21, 33, 50, 0.1)',
-                                borderRadius: '16px',
-                                fontSize: '15px',
-                                fontWeight: '600',
-                                cursor: 'pointer',
+                                padding: '16px 24px', background: 'rgba(255,255,255,0.8)',
+                                backdropFilter: 'blur(10px)', color: '#152132',
+                                border: '1px solid rgba(21, 33, 50, 0.1)', borderRadius: '16px',
+                                fontSize: '15px', fontWeight: '600', cursor: 'pointer',
                                 boxShadow: '0 4px 16px rgba(0,0,0,0.05)'
                             }}
                         >
-                            📤 Compartir Resultado
+                            <Share2 className="inline-block" size={16} /> Compartir Resultado
                         </button>
 
                         <button
@@ -638,17 +702,13 @@ export default function HomeQuiz({ isOpen, onClose, initialStep = 0, initialStyl
                                 if (embedded) onClose();
                                 setShowResults(false);
                                 setCurrentStep(0);
-                                setAnswers({});
+                                setFaceShape('');
+                                setPersonalityAnswers({});
                                 setSkinToneResult(null);
                             }}
                             style={{
-                                padding: '14px',
-                                background: 'transparent',
-                                color: '#7a6b5a',
-                                border: 'none',
-                                fontSize: '14px',
-                                cursor: 'pointer',
-                                fontWeight: '500'
+                                padding: '14px', background: 'transparent', color: '#7a6b5a',
+                                border: 'none', fontSize: '14px', cursor: 'pointer', fontWeight: '500'
                             }}
                         >
                             ← Hacer otro análisis
@@ -659,22 +719,18 @@ export default function HomeQuiz({ isOpen, onClose, initialStep = 0, initialStyl
         );
     }
 
-    // --- WIZARD / QUESTION MODE ---
+    // ═══════════════════════════════════════════════════════════════════════════
+    // WIZARD / QUESTION MODE
+    // ═══════════════════════════════════════════════════════════════════════════
     return (
         <div style={containerStyle} className="quiz-container">
             {!embedded && (
                 <button
                     onClick={onClose}
                     style={{
-                        position: 'absolute',
-                        top: '20px',
-                        right: '20px',
-                        zIndex: 100,
-                        background: 'transparent',
-                        border: 'none',
-                        fontSize: '24px',
-                        cursor: 'pointer',
-                        color: '#000'
+                        position: 'absolute', top: '20px', right: '20px', zIndex: 100,
+                        background: 'transparent', border: 'none', fontSize: '24px',
+                        cursor: 'pointer', color: '#000'
                     }}
                 >
                     ✕
@@ -682,230 +738,221 @@ export default function HomeQuiz({ isOpen, onClose, initialStep = 0, initialStyl
             )}
 
             <main className="quiz-wizard-content" style={contentStyle}>
-                <div className="section-container" style={{ width: '100%', height: '100%', maxWidth: embedded ? '100%' : '800px', margin: '0 auto', padding: embedded ? '0 8px' : '0 20px', display: 'flex', flexDirection: 'column', boxSizing: 'border-box' }}>
-
+                <div className="section-container" style={{
+                    width: '100%', height: '100%', maxWidth: embedded ? '100%' : '800px',
+                    margin: '0 auto', padding: embedded ? '0 8px' : '0 20px',
+                    display: 'flex', flexDirection: 'column', boxSizing: 'border-box'
+                }}>
                     {!embedded && (
                         <header className="quiz-page-header" style={{ textAlign: 'center', marginBottom: '40px' }}>
-                            <h1 style={{ fontSize: '28px', marginBottom: '10px' }}>🇲🇽 ¿Qué tipo de mexicano eres?</h1>
-                            <p style={{ color: '#666' }}>Descubre tu estilo y qué lentes te quedan mejor</p>
+                            <h1 style={{ fontSize: '28px', marginBottom: '10px' }}>¿Qué tipo de mexicano eres?</h1>
+                            <p style={{ color: '#666' }}>Es importante que analicemos tu tipo de rostro y personalidad, para recomendarte los mejores armazones</p>
                         </header>
                     )}
 
                     <div className="quiz-wizard" style={{ flex: 1, display: 'flex', flexDirection: 'column', width: '100%' }}>
-                        {/* Progress Bar */}
+                        {/* Progress */}
                         <div className="quiz-progress" style={{ marginBottom: '24px', width: '100%' }}>
                             <div className="progress-bar" style={{ height: '4px', background: '#f0f0f0', borderRadius: '2px', overflow: 'hidden' }}>
-                                <div
-                                    className="progress-fill"
-                                    style={{ width: `${progress}%`, height: '100%', background: '#0071e3', transition: 'width 0.3s ease' }}
-                                />
+                                <div className="progress-fill" style={{ width: `${progress}%`, height: '100%', background: '#8A6623', transition: 'width 0.3s ease' }} />
                             </div>
                             <span className="progress-text" style={{ fontSize: '12px', color: '#999', marginTop: '4px', display: 'block', textAlign: 'right' }}>
-                                {currentStep + 1} / {totalSteps}
+                                {currentStep + 1} / {TOTAL_STEPS}
                             </span>
                         </div>
 
                         {/* Step Content */}
                         <section className={`quiz-step ${isAnimating ? 'animating-out' : ''}`} style={{ flex: 1, overflowY: 'auto', width: '100%' }}>
-                            <h2 style={{ fontSize: embedded ? '20px' : '24px', textAlign: 'center', marginBottom: '8px' }}>
-                                {currentStep === 0 && !showManualOptions ? '¿Cómo quieres descubrir tu tipo de rostro?' : currentQuestion.title}
-                            </h2>
-                            <p className="step-description" style={{ textAlign: 'center', color: '#666', marginBottom: '24px', fontSize: embedded ? '14px' : '16px' }}>
-                                {currentStep === 0 && !showManualOptions ? 'Conocer tu tipo de rostro nos ayuda a recomendarte los mejores armazones' : currentQuestion.subtitle}
-                            </p>
 
-                            {/* Pantalla inicial con 3 opciones (Solo para paso 0 cuando no se muestran opciones manuales) */}
-                            {currentStep === 0 && !showManualOptions ? (
-                                <div style={{ display: 'flex', flexDirection: 'column', gap: '16px', width: '100%', maxWidth: '400px', margin: '0 auto' }}>
-                                    {/* Botón 1: Analizar mi rostro */}
-                                    <button
-                                        onClick={() => setShowCamera(true)}
-                                        style={{
-                                            padding: '18px 24px',
-                                            background: '#152132',
-                                            color: '#ffffff',
-                                            border: 'none',
-                                            borderRadius: '16px',
-                                            fontSize: '16px',
-                                            fontWeight: '600',
-                                            cursor: 'pointer',
-                                            boxShadow: '0 8px 24px rgba(21, 33, 50, 0.25)',
-                                            display: 'flex',
-                                            alignItems: 'center',
-                                            justifyContent: 'center',
-                                            gap: '12px',
-                                            transition: 'transform 0.2s, box-shadow 0.2s'
-                                        }}
-                                    >
-                                        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                                            <circle cx="12" cy="12" r="3" />
-                                            <path d="M12 2v2m0 16v2M4.93 4.93l1.41 1.41m11.32 11.32l1.41 1.41M2 12h2m16 0h2M4.93 19.07l1.41-1.41m11.32-11.32l1.41-1.41" />
-                                        </svg>
-                                        Analizar mi rostro
-                                    </button>
-
-                                    {/* Botón 2: Subir foto */}
-                                    <button
-                                        onClick={() => fileInputRef.current?.click()}
-                                        style={{
-                                            padding: '18px 24px',
-                                            background: 'rgba(255, 255, 255, 0.9)',
-                                            color: '#1D1E21',
-                                            border: '2px solid rgba(21, 33, 50, 0.15)',
-                                            borderRadius: '16px',
-                                            fontSize: '16px',
-                                            fontWeight: '600',
-                                            cursor: 'pointer',
-                                            boxShadow: '0 4px 12px rgba(0, 0, 0, 0.08)',
-                                            display: 'flex',
-                                            alignItems: 'center',
-                                            justifyContent: 'center',
-                                            gap: '12px',
-                                            transition: 'transform 0.2s, box-shadow 0.2s'
-                                        }}
-                                    >
-                                        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                                            <rect x="3" y="3" width="18" height="18" rx="2" />
-                                            <circle cx="8.5" cy="8.5" r="1.5" />
-                                            <path d="M21 15l-5-5L5 21" />
-                                        </svg>
-                                        Subir foto
-                                    </button>
-
-                                    {/* Botón 3: Ya sé mi tipo de rostro */}
-                                    <button
-                                        onClick={() => setShowManualOptions(true)}
-                                        style={{
-                                            padding: '18px 24px',
-                                            background: 'transparent',
-                                            color: 'rgba(29, 30, 33, 0.7)',
-                                            border: '1px dashed rgba(29, 30, 33, 0.3)',
-                                            borderRadius: '16px',
-                                            fontSize: '16px',
-                                            fontWeight: '500',
-                                            cursor: 'pointer',
-                                            display: 'flex',
-                                            alignItems: 'center',
-                                            justifyContent: 'center',
-                                            gap: '12px',
-                                            transition: 'all 0.2s'
-                                        }}
-                                    >
-                                        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                                            <path d="M9 11l3 3L22 4" />
-                                            <path d="M21 12v7a2 2 0 01-2 2H5a2 2 0 01-2-2V5a2 2 0 012-2h11" />
-                                        </svg>
-                                        Ya sé mi tipo de rostro
-                                    </button>
-
-                                    {/* Input oculto para subir foto */}
-                                    <input
-                                        type="file"
-                                        ref={fileInputRef}
-                                        accept="image/*"
-                                        onChange={(e) => {
-                                            const file = e.target.files?.[0];
-                                            if (file) {
-                                                // Crear URL de la imagen y pasarla al analizador
-                                                const imageUrl = URL.createObjectURL(file);
-                                                setUploadedImage(imageUrl);
-                                                setShowCamera(true);
-                                            }
-                                        }}
-                                        style={{ display: 'none' }}
-                                    />
-                                </div>
-                            ) : (
+                            {/* ── FACE SHAPE STEP (step 0) ── */}
+                            {isFaceStep && (
                                 <>
-                                    {/* Botón volver a opciones iniciales (solo para paso 0 con opciones manuales) */}
-                                    {currentStep === 0 && showManualOptions && (
-                                        <button
-                                            onClick={() => setShowManualOptions(false)}
-                                            style={{
-                                                marginBottom: '16px',
-                                                padding: '8px 16px',
-                                                background: 'transparent',
-                                                border: 'none',
-                                                color: '#666',
-                                                fontSize: '14px',
-                                                cursor: 'pointer',
-                                                display: 'flex',
-                                                alignItems: 'center',
-                                                gap: '4px'
-                                            }}
-                                        >
-                                            ← Volver a opciones
-                                        </button>
-                                    )}
+                                    <h2 style={{ fontSize: embedded ? '20px' : '24px', textAlign: 'center', marginBottom: '8px' }}>
+                                        {!showManualOptions ? '¿Cómo quieres descubrir tu tipo de rostro?' : '¿Cuál es tu tipo de rostro?'}
+                                    </h2>
+                                    <p className="step-description" style={{ textAlign: 'center', color: '#666', marginBottom: '24px', fontSize: embedded ? '14px' : '16px' }}>
+                                        {!showManualOptions ? 'Conocer tu tipo de rostro nos ayuda a recomendarte los mejores armazones' : 'Mírate al espejo y elige la opción que más se parezca'}
+                                    </p>
 
-                                    {/* Options Grid - 2 columns layout */}
-                                    <div className="quiz-options-grid" style={{
-                                        display: 'grid',
-                                        gridTemplateColumns: 'repeat(2, 1fr)',
-                                        gap: '10px',
-                                        width: '100%'
-                                    }}>
-                                        {currentQuestion.options.map((option, index) => {
-                                            const isLastAndOdd = index === currentQuestion.options.length - 1 && currentQuestion.options.length % 2 !== 0;
-                                            return (
-                                                <label
-                                                    key={option.value}
-                                                    className={`quiz-option-card ${answers[currentQuestion.id] === option.value ? 'selected' : ''}`}
-                                                    style={{
-                                                        display: 'flex',
-                                                        flexDirection: 'row',
-                                                        alignItems: 'center',
-                                                        padding: '12px 10px',
-                                                        borderRadius: '12px',
-                                                        cursor: 'pointer',
-                                                        transition: 'all 0.2s',
-                                                        backgroundColor: answers[currentQuestion.id] === option.value ? '#f5f9ff' : '#fff',
-                                                        boxSizing: 'border-box',
-                                                        gap: '8px',
-                                                        minWidth: 0,
-                                                        overflow: 'hidden',
-                                                        gridColumn: isLastAndOdd ? 'span 2' : 'auto'
-                                                    }}
-                                                >
-                                                    <input
-                                                        type="radio"
-                                                        name={currentQuestion.id}
-                                                        value={option.value}
-                                                        checked={answers[currentQuestion.id] === option.value}
-                                                        onChange={() => handleOptionSelect(option.value)}
-                                                        style={{ display: 'none' }}
-                                                    />
-                                                    <span className="option-emoji" style={{ fontSize: '22px', flexShrink: 0 }}>{option.emoji}</span>
-                                                    <span className="option-label" style={{ fontWeight: '600', fontSize: '12px', textAlign: 'left', lineHeight: '1.2' }}>{option.label}</span>
-                                                </label>
-                                            );
-                                        })}
+                                    {!showManualOptions ? (
+                                        <div style={{ display: 'flex', flexDirection: 'column', gap: '16px', width: '100%', maxWidth: '400px', margin: '0 auto' }}>
+                                            <button
+                                                onClick={() => setShowCamera(true)}
+                                                style={{
+                                                    padding: '18px 24px', background: '#152132', color: '#ffffff',
+                                                    border: 'none', borderRadius: '16px', fontSize: '16px', fontWeight: '600',
+                                                    cursor: 'pointer', boxShadow: '0 8px 24px rgba(21, 33, 50, 0.25)',
+                                                    display: 'flex', alignItems: 'center', justifyContent: 'center',
+                                                    gap: '12px', transition: 'transform 0.2s, box-shadow 0.2s'
+                                                }}
+                                            >
+                                                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                                                    <circle cx="12" cy="12" r="3" />
+                                                    <path d="M12 2v2m0 16v2M4.93 4.93l1.41 1.41m11.32 11.32l1.41 1.41M2 12h2m16 0h2M4.93 19.07l1.41-1.41m11.32-11.32l1.41-1.41" />
+                                                </svg>
+                                                Escaneo Visual Mexilux
+                                            </button>
+
+                                            <button
+                                                onClick={() => fileInputRef.current?.click()}
+                                                style={{
+                                                    padding: '18px 24px', background: 'rgba(255, 255, 255, 0.9)',
+                                                    color: '#1D1E21', border: '2px solid rgba(21, 33, 50, 0.15)',
+                                                    borderRadius: '16px', fontSize: '16px', fontWeight: '600',
+                                                    cursor: 'pointer', boxShadow: '0 4px 12px rgba(0, 0, 0, 0.08)',
+                                                    display: 'flex', alignItems: 'center', justifyContent: 'center',
+                                                    gap: '12px', transition: 'transform 0.2s, box-shadow 0.2s'
+                                                }}
+                                            >
+                                                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                                                    <rect x="3" y="3" width="18" height="18" rx="2" />
+                                                    <circle cx="8.5" cy="8.5" r="1.5" />
+                                                    <path d="M21 15l-5-5L5 21" />
+                                                </svg>
+                                                Subir foto
+                                            </button>
+
+                                            <button
+                                                onClick={() => setShowManualOptions(true)}
+                                                style={{
+                                                    padding: '18px 24px', background: 'transparent',
+                                                    color: 'rgba(29, 30, 33, 0.7)', border: '1px dashed rgba(29, 30, 33, 0.3)',
+                                                    borderRadius: '16px', fontSize: '16px', fontWeight: '500',
+                                                    cursor: 'pointer', display: 'flex', alignItems: 'center',
+                                                    justifyContent: 'center', gap: '12px', transition: 'all 0.2s'
+                                                }}
+                                            >
+                                                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                                                    <path d="M9 11l3 3L22 4" />
+                                                    <path d="M21 12v7a2 2 0 01-2 2H5a2 2 0 01-2-2V5a2 2 0 012-2h11" />
+                                                </svg>
+                                                Ya sé mi tipo de rostro
+                                            </button>
+
+                                            <input
+                                                type="file"
+                                                ref={fileInputRef}
+                                                accept="image/*"
+                                                onChange={(e) => {
+                                                    const file = e.target.files?.[0];
+                                                    if (file) {
+                                                        const imageUrl = URL.createObjectURL(file);
+                                                        setUploadedImage(imageUrl);
+                                                        setShowCamera(true);
+                                                    }
+                                                }}
+                                                style={{ display: 'none' }}
+                                            />
+                                        </div>
+                                    ) : (
+                                        <>
+                                            <button
+                                                onClick={() => setShowManualOptions(false)}
+                                                style={{
+                                                    marginBottom: '16px', padding: '8px 16px', background: 'transparent',
+                                                    border: 'none', color: '#666', fontSize: '14px', cursor: 'pointer',
+                                                    display: 'flex', alignItems: 'center', gap: '4px'
+                                                }}
+                                            >
+                                                ← Volver a opciones
+                                            </button>
+                                            <div className="quiz-options-grid" style={{
+                                                display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)',
+                                                gap: '10px', width: '100%'
+                                            }}>
+                                                {Object.entries(FACE_TYPES).map(([key, face]) => (
+                                                    <label
+                                                        key={key}
+                                                        className={`quiz-option-card ${faceShape === key ? 'selected' : ''}`}
+                                                        style={{
+                                                            display: 'flex', flexDirection: 'row', alignItems: 'center',
+                                                            padding: '12px 10px', borderRadius: '12px', cursor: 'pointer',
+                                                            transition: 'all 0.2s',
+                                                            backgroundColor: faceShape === key ? '#f5f3ee' : '#fff',
+                                                            border: faceShape === key ? '2px solid #8A6623' : '1px solid #e5e5e5',
+                                                            boxSizing: 'border-box', gap: '8px', minWidth: 0, overflow: 'hidden'
+                                                        }}
+                                                    >
+                                                        <input
+                                                            type="radio"
+                                                            name="face-shape"
+                                                            value={key}
+                                                            checked={faceShape === key}
+                                                            onChange={() => handleFaceShapeSelect(key)}
+                                                            style={{ display: 'none' }}
+                                                        />
+                                                        <span style={{ fontSize: '22px', flexShrink: 0 }}>{face.icon}</span>
+                                                        <span style={{ fontWeight: '600', fontSize: '12px', textAlign: 'left', lineHeight: '1.2' }}>{face.name}</span>
+                                                    </label>
+                                                ))}
+                                            </div>
+                                        </>
+                                    )}
+                                </>
+                            )}
+
+                            {/* ── PERSONALITY QUESTIONS (steps 1-5) ── */}
+                            {!isFaceStep && currentPersonalityQuestion && (
+                                <>
+                                    <h2 style={{ fontSize: embedded ? '18px' : '22px', textAlign: 'center', marginBottom: '8px' }}>
+                                        <span style={{ marginRight: '8px' }}>{currentPersonalityQuestion.emoji}</span>
+                                        {currentPersonalityQuestion.title}
+                                    </h2>
+                                    <p className="step-description" style={{ textAlign: 'center', color: '#666', marginBottom: '20px', fontSize: '14px' }}>
+                                        Elige la opción que más te represente
+                                    </p>
+
+                                    <div style={{ display: 'flex', flexDirection: 'column', gap: '10px', width: '100%', maxWidth: '440px', margin: '0 auto' }}>
+                                        {currentPersonalityQuestion.options.map((option) => (
+                                            <label
+                                                key={option.value}
+                                                className={`quiz-option-card ${personalityAnswers[currentPersonalityQuestion.id] === option.value ? 'selected' : ''}`}
+                                                style={{
+                                                    display: 'flex', flexDirection: 'row', alignItems: 'center',
+                                                    padding: '14px 16px', borderRadius: '14px', cursor: 'pointer',
+                                                    transition: 'all 0.2s',
+                                                    backgroundColor: personalityAnswers[currentPersonalityQuestion.id] === option.value ? '#f5f3ee' : '#fff',
+                                                    border: personalityAnswers[currentPersonalityQuestion.id] === option.value ? '2px solid #8A6623' : '1px solid #e5e5e5',
+                                                    gap: '12px'
+                                                }}
+                                            >
+                                                <input
+                                                    type="radio"
+                                                    name={currentPersonalityQuestion.id}
+                                                    value={option.value}
+                                                    checked={personalityAnswers[currentPersonalityQuestion.id] === option.value}
+                                                    onChange={() => handlePersonalitySelect(currentPersonalityQuestion.id, option.value)}
+                                                    style={{ display: 'none' }}
+                                                />
+                                                <span style={{ fontSize: '24px', flexShrink: 0 }}>{option.emoji}</span>
+                                                <div style={{ minWidth: 0 }}>
+                                                    <span style={{ fontWeight: '600', fontSize: '14px', display: 'block', lineHeight: '1.3' }}>{option.label}</span>
+                                                    <span style={{ fontSize: '12px', color: '#888', lineHeight: '1.3' }}>{option.tip}</span>
+                                                </div>
+                                            </label>
+                                        ))}
                                     </div>
                                 </>
                             )}
                         </section>
 
                         {/* Navigation */}
-                        <div className="quiz-navigation" style={{ display: 'flex', justifyContent: 'space-between', marginTop: '24px', paddingTop: '16px', borderTop: '1px solid #f0f0f0', width: '100%' }}>
+                        <div className="quiz-navigation" style={{
+                            display: 'flex', justifyContent: 'space-between', marginTop: '24px',
+                            paddingTop: '16px', borderTop: '1px solid #f0f0f0', width: '100%'
+                        }}>
                             {currentStep === 0 && !showManualOptions ? (
-                                /* Solo botón cancelar en pantalla inicial */
                                 <button
                                     onClick={onClose}
                                     style={{
-                                        padding: '8px 16px',
-                                        border: '1px solid #ddd',
-                                        borderRadius: '8px',
-                                        background: 'transparent',
-                                        cursor: 'pointer',
-                                        fontSize: '14px',
-                                        color: '#666'
+                                        padding: '8px 16px', border: '1px solid #ddd', borderRadius: '8px',
+                                        background: 'transparent', cursor: 'pointer', fontSize: '14px', color: '#666'
                                     }}
                                 >
                                     ← Cancelar
                                 </button>
                             ) : (
                                 <button
-                                    className="btn btn-outline"
                                     onClick={() => {
                                         if (currentStep === 0 && showManualOptions) {
                                             setShowManualOptions(false);
@@ -914,13 +961,8 @@ export default function HomeQuiz({ isOpen, onClose, initialStep = 0, initialStyl
                                         }
                                     }}
                                     style={{
-                                        padding: '8px 16px',
-                                        border: '1px solid #ddd',
-                                        borderRadius: '8px',
-                                        background: 'transparent',
-                                        cursor: 'pointer',
-                                        fontSize: '14px',
-                                        color: '#666'
+                                        padding: '8px 16px', border: '1px solid #ddd', borderRadius: '8px',
+                                        background: 'transparent', cursor: 'pointer', fontSize: '14px', color: '#666'
                                     }}
                                 >
                                     ← {currentStep === 0 ? 'Volver' : 'Anterior'}

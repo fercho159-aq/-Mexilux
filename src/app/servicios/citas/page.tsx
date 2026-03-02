@@ -6,6 +6,7 @@
 
 import Link from 'next/link';
 import type { Metadata } from 'next';
+import { Calendar } from 'lucide-react';
 
 export const metadata: Metadata = {
     title: 'Agendar Cita | Mexilux',
@@ -71,7 +72,7 @@ export default function CitasPage() {
                             Selecciona la fecha
                         </h2>
                         <div className="calendar-placeholder">
-                            <p>📅 Calendario de selección de fecha</p>
+                            <p><Calendar size={16} /> Calendario de selección de fecha</p>
                             <p className="text-muted">Próximas fechas disponibles: Esta semana</p>
                         </div>
                     </section>

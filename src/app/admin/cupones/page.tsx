@@ -1,6 +1,7 @@
 import { redirect } from 'next/navigation';
 import { getAdminSession } from '@/lib/auth/admin';
 import { AdminSidebar } from '../dashboard/AdminSidebar';
+import { Ticket } from 'lucide-react';
 import '../admin.css';
 
 export default async function AdminCuponesPage() {
@@ -20,7 +21,7 @@ export default async function AdminCuponesPage() {
                     </header>
 
                     <div className="admin-card" style={{ padding: '3rem', textAlign: 'center' }}>
-                        <div style={{ fontSize: '3rem', marginBottom: '1rem' }}>🎟️</div>
+                        <div style={{ fontSize: '3rem', marginBottom: '1rem' }}><Ticket size={16} /></div>
                         <h3 style={{ margin: '0 0 0.5rem 0', color: '#3f4254' }}>Gestión de Cupones</h3>
                         <p style={{ color: '#b5b5c3', margin: 0 }}>
                             Crea y administra códigos de descuento para tus clientes.

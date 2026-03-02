@@ -6,7 +6,8 @@
 
 'use client';
 
-import React from 'react';
+import React, { ReactNode } from 'react';
+import { Car, BookOpen, Monitor, Glasses, LayoutGrid, Sun, Info } from 'lucide-react';
 import { useConfiguratorActions } from '@/store/lens-configurator';
 import { useLensConfiguratorStore } from '@/store/lens-configurator';
 import type { Frame, LensUsageType } from '@/types';
@@ -22,7 +23,7 @@ const USAGE_OPTIONS: Array<{
     id: LensUsageType;
     name: string;
     description: string;
-    icon: string;
+    icon: ReactNode;
     helpText: string;
     requiresPrescription: boolean;
 }> = [
@@ -30,7 +31,7 @@ const USAGE_OPTIONS: Array<{
             id: 'single_vision_distance',
             name: 'Visión de Lejos',
             description: 'Para ver claramente a distancia (conducir, ver TV)',
-            icon: '🚗',
+            icon: <Car size={20} />,
             helpText: 'Ideal si tienes miopía o hipermetropía sin presbicia',
             requiresPrescription: true,
         },
@@ -38,7 +39,7 @@ const USAGE_OPTIONS: Array<{
             id: 'single_vision_near',
             name: 'Visión de Cerca',
             description: 'Para lectura y trabajo de cerca',
-            icon: '📖',
+            icon: <BookOpen size={20} />,
             helpText: 'Para quienes necesitan ayuda solo para leer',
             requiresPrescription: true,
         },
@@ -46,7 +47,7 @@ const USAGE_OPTIONS: Array<{
             id: 'single_vision_computer',
             name: 'Visión de Computadora',
             description: 'Optimizado para distancia de pantalla (50-70cm)',
-            icon: '💻',
+            icon: <Monitor size={20} />,
             helpText: 'Reduce fatiga visual en uso prolongado de pantallas',
             requiresPrescription: true,
         },
@@ -54,7 +55,7 @@ const USAGE_OPTIONS: Array<{
             id: 'progressive',
             name: 'Progresivos',
             description: 'Para ver bien a todas las distancias sin líneas visibles',
-            icon: '👓',
+            icon: <Glasses size={20} />,
             helpText: 'La solución más versátil para presbicia',
             requiresPrescription: true,
         },
@@ -62,7 +63,7 @@ const USAGE_OPTIONS: Array<{
             id: 'bifocal',
             name: 'Bifocales',
             description: 'Dos zonas de visión: lejos arriba, cerca abajo',
-            icon: '🔲',
+            icon: <LayoutGrid size={20} />,
             helpText: 'Opción clásica para presbicia con línea divisoria',
             requiresPrescription: true,
         },
@@ -70,7 +71,7 @@ const USAGE_OPTIONS: Array<{
             id: 'non_prescription',
             name: 'Sin Graduación',
             description: 'Solo la montura o lentes de sol sin aumento',
-            icon: '🕶️',
+            icon: <Sun size={20} />,
             helpText: 'Para uso cosmético o protección solar',
             requiresPrescription: false,
         },
@@ -154,7 +155,7 @@ export function UsageTypeStep({ frame, errors }: UsageTypeStepProps) {
             {/* Nota informativa sobre prescripción */}
             {selectedType && selectedType !== 'non_prescription' && (
                 <div className="prescription-notice" role="note">
-                    <span className="notice-icon" aria-hidden="true">ℹ️</span>
+                    <span className="notice-icon" aria-hidden="true"><Info size={16} /></span>
                     <p>
                         En el siguiente paso necesitarás tu receta médica actualizada.
                         Si no la tienes, puedes{' '}
@@ -166,7 +167,7 @@ export function UsageTypeStep({ frame, errors }: UsageTypeStepProps) {
             {/* Mensaje para lentes de sol */}
             {frame.sunglassesOnly && (
                 <div className="sunglasses-notice" role="note">
-                    <span className="notice-icon" aria-hidden="true">🕶️</span>
+                    <span className="notice-icon" aria-hidden="true"><Sun size={16} /></span>
                     <p>
                         Este modelo es exclusivo para lentes de sol y no acepta graduación.
                     </p>

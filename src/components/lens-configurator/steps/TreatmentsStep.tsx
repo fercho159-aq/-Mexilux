@@ -6,7 +6,8 @@
 
 'use client';
 
-import React, { useMemo } from 'react';
+import React, { ReactNode, useMemo } from 'react';
+import { Shield, Palette, Moon, Monitor, Glasses, Briefcase, Sparkles } from 'lucide-react';
 import { useConfiguratorActions, useLensConfiguratorStore } from '@/store/lens-configurator';
 import type { Frame, LensTreatment, TreatmentCategory } from '@/types';
 
@@ -147,32 +148,32 @@ const AVAILABLE_TREATMENTS: LensTreatment[] = [
 // Configuración de categorías
 const CATEGORY_CONFIG: Record<
     TreatmentCategory,
-    { name: string; description: string; icon: string }
+    { name: string; description: string; icon: ReactNode }
 > = {
     coating: {
         name: 'Recubrimientos',
         description: 'Capas protectoras para tus lentes',
-        icon: '🛡️',
+        icon: <Shield size={16} />,
     },
     tint: {
         name: 'Tintes',
         description: 'Colores para tus lentes',
-        icon: '🎨',
+        icon: <Palette size={16} />,
     },
     photochromic: {
         name: 'Fotocromático',
         description: 'Lentes que cambian con la luz',
-        icon: '🌓',
+        icon: <Moon size={16} />,
     },
     blue_light: {
         name: 'Luz Azul',
         description: 'Protección para pantallas',
-        icon: '💻',
+        icon: <Monitor size={16} />,
     },
     polarized: {
         name: 'Polarizado',
         description: 'Anti-reflejos para exteriores',
-        icon: '😎',
+        icon: <Glasses size={16} />,
     },
 };
 
@@ -295,7 +296,7 @@ export function TreatmentsStep({ frame, errors }: TreatmentsStepProps) {
                                 : ''
                             }`}
                     >
-                        <span className="bundle-icon" aria-hidden="true">💼</span>
+                        <span className="bundle-icon" aria-hidden="true"><Briefcase size={16} /></span>
                         <span className="bundle-name">Digital</span>
                         <span className="bundle-includes">
                             AR + Luz Azul + Anti-Rayado + Hidrofóbico
@@ -309,7 +310,7 @@ export function TreatmentsStep({ frame, errors }: TreatmentsStepProps) {
                         onClick={() => setTreatments([])}
                         className={`bundle-card ${selectedTreatments.length === 0 ? 'selected' : ''}`}
                     >
-                        <span className="bundle-icon" aria-hidden="true">✨</span>
+                        <span className="bundle-icon" aria-hidden="true"><Sparkles size={16} /></span>
                         <span className="bundle-name">Sin Extras</span>
                         <span className="bundle-includes">Solo el lente base</span>
                         <span className="bundle-price">Incluido</span>
@@ -437,7 +438,7 @@ export function TreatmentsStep({ frame, errors }: TreatmentsStepProps) {
 
             {/* Nota de garantía */}
             <div className="warranty-note" role="note">
-                <span aria-hidden="true">🛡️</span>
+                <span aria-hidden="true"><Shield size={16} /></span>
                 <p>
                     Todos los tratamientos incluyen 1 año de garantía contra defectos de
                     fabricación.

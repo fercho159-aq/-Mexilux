@@ -1,6 +1,7 @@
 'use client';
 
 import Image from 'next/image';
+import { Glasses } from 'lucide-react';
 import { useState, useEffect, useCallback, useRef } from 'react';
 
 interface GalleryImage {
@@ -180,7 +181,7 @@ export default function ProductGallery({
                                 draggable={false}
                             />
                         ) : (
-                            <span className="apple-gallery-emoji" aria-hidden="true">👓</span>
+                            <span className="apple-gallery-emoji" aria-hidden="true"><Glasses size={40} /></span>
                         )}
                     </div>
 

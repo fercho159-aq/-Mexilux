@@ -2,6 +2,7 @@ import { redirect } from 'next/navigation';
 import { getAdminSession } from '@/lib/auth/admin';
 import prisma from '@/lib/db/prisma';
 import { AdminSidebar } from '../dashboard/AdminSidebar';
+import { Eye } from 'lucide-react';
 import '../admin.css';
 
 export default async function AdminUsuariosPage() {
@@ -52,7 +53,7 @@ export default async function AdminUsuariosPage() {
                                         <td>{new Date(user.created_at).toLocaleDateString('es-MX')}</td>
                                         <td>
                                             <div className="action-buttons">
-                                                <button className="btn-icon" title="Ver">👁️</button>
+                                                <button className="btn-icon" title="Ver"><Eye size={14} /></button>
                                             </div>
                                         </td>
                                     </tr>
