@@ -18,13 +18,23 @@ import { getFrames } from '@/lib/db';
 export const dynamic = 'force-dynamic';
 
 export const metadata: Metadata = {
-  title: 'Mexilux | Óptica Premium - Lentes y Servicios de Optometría',
-  description: 'Descubre nuestra colección de monturas de diseñador y lentes graduados personalizados. Agenda tu examen de la vista con nuestros optometristas certificados.',
-  keywords: ['óptica', 'lentes graduados', 'monturas', 'optometría', 'examen de la vista', 'lentes de sol'],
+  title: 'Mexilux | Lentes de Diseñador: Estilo y Esencia Mexicana',
+  description:
+    "El plus para tu estilo. ¿Godín, Patrón o Alucín? Tenemos el armazón que define tu modo. Personaliza tus lentes con tintes para la chamba o la playa. Explora 'Viendo México' y dale una mirada clara a nuestras raíces. Lo hecho en México, bien hecho.",
+  keywords: [
+    'lentes mexicanos',
+    'armazones de diseñador',
+    'lentes graduados México',
+    'Godín Patrón Alucín',
+    'Viendo México',
+    'lentes personalizados',
+  ],
   openGraph: {
-    title: 'Mexilux | Óptica Premium',
-    description: 'Monturas de diseñador y lentes graduados personalizados',
+    title: 'Mexilux | Lentes de Diseñador: Estilo y Esencia Mexicana',
+    description:
+      "El plus para tu estilo. ¿Godín, Patrón o Alucín? Tenemos el armazón que define tu modo. Personaliza tus lentes con tintes para la chamba o la playa. Explora 'Viendo México' y dale una mirada clara a nuestras raíces. Lo hecho en México, bien hecho.",
     type: 'website',
+    images: ['/logo-mexilux.png'],
   },
 };
 

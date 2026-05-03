@@ -22,9 +22,16 @@ interface CheckoutClientProps {
     initialItem?: CheckoutItem;
 }
 
+type CheckoutMode = 'guest' | 'register';
+
+const FREE_SHIPPING_THRESHOLD = 1690;
+const FIRST_PURCHASE_DISCOUNT = 200;
+
 export default function CheckoutClient({ initialItem }: CheckoutClientProps) {
     const [items, setItems] = useState<CheckoutItem[]>([]);
     const [loading, setLoading] = useState(true);
+    const [mode, setMode] = useState<CheckoutMode>('guest');
+    const [registerData, setRegisterData] = useState({ name: '', email: '', password: '' });
 
     useEffect(() => {
         if (initialItem) {
@@ -55,8 +62,10 @@ export default function CheckoutClient({ initialItem }: CheckoutClientProps) {
     }, [initialItem]);
 
     const subtotal = items.reduce((sum, item) => sum + item.price * item.quantity, 0);
-    const shippingCost = subtotal >= 1500 ? 0 : 99;
-    const total = subtotal + shippingCost;
+    const shippingCost = subtotal >= FREE_SHIPPING_THRESHOLD ? 0 : 99;
+    const registerDiscount = mode === 'register' ? FIRST_PURCHASE_DISCOUNT : 0;
+    const total = Math.max(0, subtotal + shippingCost - registerDiscount);
+    const remainingForFreeShipping = Math.max(0, FREE_SHIPPING_THRESHOLD - subtotal);
 
     const formatPrice = (price: number) => `$${price.toLocaleString('es-MX')}`;
 
@@ -139,6 +148,116 @@ export default function CheckoutClient({ initialItem }: CheckoutClientProps) {
                             <h1>Finalizar Compra</h1>
                             <p>Elige tu método de pago preferido</p>
                         </div>
+
+                        {/* Login link manual */}
+                        <div className="login-prompt" style={{
+                            padding: '12px 16px',
+                            background: '#f8fafc',
+                            borderRadius: '12px',
+                            marginBottom: '1rem',
+                            display: 'flex',
+                            justifyContent: 'space-between',
+                            alignItems: 'center',
+                            gap: '0.5rem',
+                            flexWrap: 'wrap',
+                        }}>
+                            <span style={{ color: '#475569', fontSize: '0.9rem' }}>
+                                ¿Ya tienes cuenta?
+                            </span>
+                            <Link href="/login?redirect=/checkout" style={{
+                                color: '#152132',
+                                fontWeight: 600,
+                                textDecoration: 'underline',
+                                fontSize: '0.9rem',
+                            }}>
+                                Ingresa con tu cuenta
+                            </Link>
+                        </div>
+
+                        {/* Guest vs Register */}
+                        <div className="checkout-mode" style={{
+                            display: 'flex',
+                            gap: '0.75rem',
+                            marginBottom: '1.5rem',
+                        }}>
+                            <button
+                                type="button"
+                                onClick={() => setMode('guest')}
+                                style={{
+                                    flex: 1,
+                                    padding: '0.75rem 1rem',
+                                    border: mode === 'guest' ? '2px solid #152132' : '2px solid #e2e8f0',
+                                    background: mode === 'guest' ? '#f7f8fa' : '#fff',
+                                    borderRadius: '12px',
+                                    cursor: 'pointer',
+                                    fontWeight: 600,
+                                    color: '#152132',
+                                }}
+                            >
+                                Continuar como invitado
+                            </button>
+                            <button
+                                type="button"
+                                onClick={() => setMode('register')}
+                                style={{
+                                    flex: 1,
+                                    padding: '0.75rem 1rem',
+                                    border: mode === 'register' ? '2px solid #152132' : '2px solid #e2e8f0',
+                                    background: mode === 'register' ? '#f7f8fa' : '#fff',
+                                    borderRadius: '12px',
+                                    cursor: 'pointer',
+                                    fontWeight: 600,
+                                    color: '#152132',
+                                }}
+                            >
+                                Crear cuenta
+                                <span style={{
+                                    display: 'block',
+                                    fontSize: '0.75rem',
+                                    color: '#16a34a',
+                                    fontWeight: 500,
+                                    marginTop: '0.15rem',
+                                }}>
+                                    -${FIRST_PURCHASE_DISCOUNT} en tu primera compra
+                                </span>
+                            </button>
+                        </div>
+
+                        {mode === 'register' && (
+                            <div style={{
+                                marginBottom: '1.5rem',
+                                padding: '1rem',
+                                border: '1.5px solid #e2e8f0',
+                                borderRadius: '12px',
+                                display: 'grid',
+                                gap: '0.75rem',
+                            }}>
+                                <input
+                                    type="text"
+                                    placeholder="Nombre completo"
+                                    value={registerData.name}
+                                    onChange={(e) => setRegisterData((d) => ({ ...d, name: e.target.value }))}
+                                    style={{ padding: '0.6rem 1rem', border: '1.5px solid #e2e8f0', borderRadius: '8px', fontSize: '0.95rem' }}
+                                />
+                                <input
+                                    type="email"
+                                    placeholder="Correo electrónico"
+                                    value={registerData.email}
+                                    onChange={(e) => setRegisterData((d) => ({ ...d, email: e.target.value }))}
+                                    style={{ padding: '0.6rem 1rem', border: '1.5px solid #e2e8f0', borderRadius: '8px', fontSize: '0.95rem' }}
+                                />
+                                <input
+                                    type="password"
+                                    placeholder="Contraseña"
+                                    value={registerData.password}
+                                    onChange={(e) => setRegisterData((d) => ({ ...d, password: e.target.value }))}
+                                    style={{ padding: '0.6rem 1rem', border: '1.5px solid #e2e8f0', borderRadius: '8px', fontSize: '0.95rem' }}
+                                />
+                                <p style={{ fontSize: '0.75rem', color: '#64748b', margin: 0 }}>
+                                    Tu cuenta se creará al confirmar el pago.
+                                </p>
+                            </div>
+                        )}
 
                         {/* Security badge */}
                         <div className="security-badge">
@@ -259,18 +378,49 @@ export default function CheckoutClient({ initialItem }: CheckoutClientProps) {
                                     <span>Subtotal</span>
                                     <span>{formatPrice(subtotal)}</span>
                                 </div>
+                                {registerDiscount > 0 && (
+                                    <div className="total-row" style={{ color: '#16a34a' }}>
+                                        <span>Descuento por crear cuenta</span>
+                                        <span>−{formatPrice(registerDiscount)}</span>
+                                    </div>
+                                )}
                                 <div className="total-row">
                                     <span>Envío</span>
                                     <span className={shippingCost === 0 ? 'free-shipping' : ''}>
                                         {shippingCost === 0 ? '¡Gratis!' : formatPrice(shippingCost)}
                                     </span>
                                 </div>
-                                {shippingCost === 0 && (
+                                {shippingCost === 0 ? (
                                     <div className="free-shipping-badge">
                                         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
                                             <path strokeLinecap="round" strokeLinejoin="round" d="M8.25 18.75a1.5 1.5 0 01-3 0m3 0a1.5 1.5 0 00-3 0m3 0h6m-9 0H3.375a1.125 1.125 0 01-1.125-1.125V14.25m17.25 4.5a1.5 1.5 0 01-3 0m3 0a1.5 1.5 0 00-3 0m3 0h1.125c.621 0 1.129-.504 1.09-1.124a17.902 17.902 0 00-3.213-9.193 2.056 2.056 0 00-1.58-.86H14.25M16.5 18.75h-2.25m0-11.177v-.958c0-.568-.422-1.048-.987-1.106a48.554 48.554 0 00-10.026 0 1.106 1.106 0 00-.987 1.106v7.635m12-6.677v6.677m0 4.5v-4.5m0 0h-12" />
                                         </svg>
-                                        Envío gratis en compras +$1,500
+                                        Envío gratis en compras +{formatPrice(FREE_SHIPPING_THRESHOLD)}
+                                    </div>
+                                ) : (
+                                    <div style={{
+                                        padding: '0.75rem 0.85rem',
+                                        background: '#fff7ed',
+                                        borderRadius: '10px',
+                                        marginTop: '0.5rem',
+                                        fontSize: '0.8125rem',
+                                        color: '#92400e',
+                                    }}>
+                                        Te faltan <strong>{formatPrice(remainingForFreeShipping)}</strong> para envío gratis.
+                                        <div style={{
+                                            marginTop: '0.5rem',
+                                            height: '6px',
+                                            background: '#fed7aa',
+                                            borderRadius: '3px',
+                                            overflow: 'hidden',
+                                        }}>
+                                            <div style={{
+                                                width: `${Math.min(100, (subtotal / FREE_SHIPPING_THRESHOLD) * 100)}%`,
+                                                height: '100%',
+                                                background: '#f59e0b',
+                                                transition: 'width 200ms',
+                                            }} />
+                                        </div>
                                     </div>
                                 )}
                             </div>

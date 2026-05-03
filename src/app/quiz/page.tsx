@@ -303,10 +303,24 @@ export default function QuizPage() {
 
     const handleFaceShapeSelect = (value: string) => {
         setFaceShape(value);
+        setIsAnimating(true);
+        setTimeout(() => {
+            setCurrentStep(prev => Math.min(prev + 1, TOTAL_STEPS - 1));
+            setIsAnimating(false);
+        }, 200);
     };
 
     const handlePersonalitySelect = (questionId: string, value: string) => {
         setPersonalityAnswers(prev => ({ ...prev, [questionId]: value }));
+        setIsAnimating(true);
+        setTimeout(() => {
+            if (currentStep < TOTAL_STEPS - 1) {
+                setCurrentStep(prev => prev + 1);
+            } else {
+                setShowResults(true);
+            }
+            setIsAnimating(false);
+        }, 200);
     };
 
     const handleAnalysisComplete = (result: AnalysisResult) => {
@@ -319,18 +333,6 @@ export default function QuizPage() {
         }, 500);
     };
 
-    const handleNext = () => {
-        setIsAnimating(true);
-        setTimeout(() => {
-            if (currentStep < TOTAL_STEPS - 1) {
-                setCurrentStep(prev => prev + 1);
-            } else {
-                setShowResults(true);
-            }
-            setIsAnimating(false);
-        }, 300);
-    };
-
     const handlePrevious = () => {
         if (currentStep > 0) {
             setCurrentStep(prev => prev - 1);
@@ -339,54 +341,59 @@ export default function QuizPage() {
 
     const isFaceStep = currentStep === 0;
     const currentPersonalityQuestion = !isFaceStep ? PERSONALITY_QUESTIONS[currentStep - 1] : null;
-    const canProceed = isFaceStep
-        ? !!faceShape
-        : !!personalityAnswers[currentPersonalityQuestion?.id || ''];
 
-    // Compartir resultado
+    // Compartir resultado en Instagram Stories vía Web Share API
     const handleShare = async () => {
         const { primary, secondary } = getTopProfiles();
         const primaryProfile = PERSONALITY_PROFILES[primary];
         const secondaryProfile = PERSONALITY_PROFILES[secondary];
-        const shareText = `¡Soy ${primaryProfile.name} ${primaryProfile.emoji} con un toque de ${secondaryProfile.name} ${secondaryProfile.emoji}!\n\n${primaryProfile.description}\n\n¿Qué tipo de mexicano eres tú?\nmexilux.com/quiz`;
+        const shareText = `¡Soy ${primaryProfile.name} ${primaryProfile.emoji} con un toque de ${secondaryProfile.name} ${secondaryProfile.emoji}!\n\n${primaryProfile.description}\n\n¿Tú qué eres?\nmexilux.com/quiz`;
 
-        if (cardRef.current) {
-            try {
-                const element = cardRef.current;
-                const canvas = await html2canvas(element, {
-                    backgroundColor: '#1a1a2e',
-                    scale: 2,
-                    useCORS: true,
-                    logging: false,
-                    height: element.scrollHeight,
-                    width: element.scrollWidth,
-                    scrollY: -window.scrollY,
-                    scrollX: 0,
-                    windowHeight: document.documentElement.offsetHeight,
-                    allowTaint: true,
-                });
-                const imageData = canvas.toDataURL('image/png');
-                if (navigator.share) {
-                    try {
-                        const response = await fetch(imageData);
-                        const blob = await response.blob();
-                        const file = new File([blob], 'mi-resultado-mexilux.png', { type: 'image/png' });
-                        await navigator.share({ title: 'Mi Resultado Mexilux', text: shareText, files: [file] });
-                        return;
-                    } catch { /* Fall through to download */ }
-                }
-                const link = document.createElement('a');
-                link.download = 'mi-resultado-mexilux.png';
-                link.href = imageData;
-                link.click();
-                alert('¡Imagen descargada! Compártela en tus historias de Instagram, WhatsApp o TikTok');
-                return;
-            } catch (error) {
-                console.error('Error generating image:', error);
-            }
+        if (!cardRef.current) {
+            await navigator.clipboard.writeText(shareText);
+            return;
         }
-        navigator.clipboard.writeText(shareText);
-        alert('¡Texto copiado! Pégalo en tus redes sociales');
+
+        try {
+            const element = cardRef.current;
+            const canvas = await html2canvas(element, {
+                backgroundColor: '#1a1a2e',
+                scale: 2,
+                useCORS: true,
+                logging: false,
+                height: element.scrollHeight,
+                width: element.scrollWidth,
+                scrollY: -window.scrollY,
+                scrollX: 0,
+                windowHeight: document.documentElement.offsetHeight,
+                allowTaint: true,
+            });
+            const blob: Blob | null = await new Promise((resolve) =>
+                canvas.toBlob(resolve, 'image/png')
+            );
+            if (!blob) throw new Error('No se pudo generar la imagen');
+            const file = new File([blob], 'mi-resultado-mexilux.png', { type: 'image/png' });
+
+            const shareData: ShareData = {
+                title: '¿Tú qué eres?',
+                text: shareText,
+                files: [file],
+            };
+            if (navigator.canShare?.(shareData) && navigator.share) {
+                await navigator.share(shareData);
+                return;
+            }
+
+            const url = URL.createObjectURL(blob);
+            const link = document.createElement('a');
+            link.download = 'mi-resultado-mexilux.png';
+            link.href = url;
+            link.click();
+            URL.revokeObjectURL(url);
+        } catch (error) {
+            console.error('Error compartiendo:', error);
+            await navigator.clipboard.writeText(shareText);
+        }
     };
 
     // ═══════════════════════════════════════════════════════════════════════════
@@ -436,16 +443,17 @@ export default function QuizPage() {
                             boxShadow: '0 25px 50px -12px rgba(0, 0, 0, 0.7), 0 0 80px rgba(233, 69, 96, 0.15)',
                             maxWidth: '420px',
                             margin: '0 auto',
+                            position: 'relative',
                         }}
                     >
-                        {/* Logo */}
-                        <div style={{ textAlign: 'center', marginBottom: '24px' }}>
+                        {/* Logo en esquina */}
+                        <div style={{ position: 'absolute', top: '20px', right: '20px' }}>
                             <Image
                                 src="/logo-mexilux.png"
                                 alt="Mexilux"
-                                width={120}
-                                height={120}
-                                style={{ objectFit: 'contain', margin: '0 auto' }}
+                                width={48}
+                                height={48}
+                                style={{ objectFit: 'contain', opacity: 0.85 }}
                             />
                         </div>
 
@@ -616,8 +624,8 @@ export default function QuizPage() {
                         borderTop: '1px solid rgba(255,255,255,0.1)',
                         textAlign: 'center',
                     }}>
-                        <p style={{ color: '#e94560', fontWeight: 600, fontSize: '18px', margin: '0 0 8px 0' }}>
-                            ¿Qué tipo de mexicano eres tú?
+                        <p style={{ color: '#e94560', fontWeight: 800, fontSize: '32px', margin: '0 0 8px 0', letterSpacing: '-0.02em' }}>
+                            ¿Tú qué eres?
                         </p>
                         <p style={{ color: 'rgba(255,255,255,0.5)', fontSize: '14px', margin: 0 }}>
                             mexilux.com/quiz
@@ -628,7 +636,7 @@ export default function QuizPage() {
                     <div className="wrapped-actions">
                         <button className="btn-wrapped-share" onClick={handleShare}>
                             <Share2 size={16} />
-                            Compartir mi resultado
+                            Compartir
                         </button>
 
                         <Link href="/catalogo" className="btn-wrapped-primary">
@@ -763,21 +771,14 @@ export default function QuizPage() {
                         </section>
                     )}
 
-                    {/* Navegación */}
-                    <div className="quiz-navigation">
+                    {/* Navegación: solo botón anterior (auto-avance al seleccionar) */}
+                    <div className="quiz-navigation" style={{ justifyContent: 'flex-start' }}>
                         <button
                             className="btn btn-outline"
                             onClick={handlePrevious}
                             disabled={currentStep === 0}
                         >
                             ← Anterior
-                        </button>
-                        <button
-                            className="btn btn-primary"
-                            onClick={handleNext}
-                            disabled={!canProceed}
-                        >
-                            {currentStep === TOTAL_STEPS - 1 ? '¡Ver mi resultado!' : 'Siguiente →'}
                         </button>
                     </div>
                 </div>

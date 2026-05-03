@@ -208,10 +208,10 @@ export default function BlogList() {
                 <div className="blog-hero-content">
                     <span className="blog-hero-badge">Blog</span>
                     <h1 className="blog-hero-title">
-                        Cosas Mexas
+                        Viendo México
                     </h1>
                     <p className="blog-hero-subtitle">
-                        Historias, lugares y personas que hacen grande a Mexico
+                        Redescubre el país a través de nuestra mirada. Lugares, Cultura, sabor y los mexicanos que están moviendo al mundo.
                     </p>
                 </div>
             </section>
@@ -430,8 +430,13 @@ export default function BlogList() {
 
                 .featured-grid {
                     display: grid;
-                    grid-template-columns: repeat(auto-fit, minmax(340px, 1fr));
+                    grid-template-columns: repeat(2, 1fr);
                     gap: 24px;
+                }
+                @media (max-width: 720px) {
+                    .featured-grid {
+                        grid-template-columns: 1fr;
+                    }
                 }
 
                 .featured-card {
@@ -514,8 +519,13 @@ export default function BlogList() {
 
                 .posts-grid {
                     display: grid;
-                    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+                    grid-template-columns: repeat(2, 1fr);
                     gap: 20px;
+                }
+                @media (max-width: 720px) {
+                    .posts-grid {
+                        grid-template-columns: 1fr;
+                    }
                 }
 
                 .post-card {

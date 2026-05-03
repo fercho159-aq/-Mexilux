@@ -306,9 +306,9 @@ export default function EditarProductoPage({ params }: { params: Promise<{ id: s
                                         Género
                                     </label>
                                     <select name="gender" value={formData.gender} onChange={handleChange} className="admin-select" style={{ width: '100%', padding: '10px 12px' }}>
-                                        <option value="unisex">Unisex</option>
                                         <option value="male">Mexicano</option>
                                         <option value="female">Mexicana</option>
+                                        <option value="unisex">Sin etiquetas</option>
                                         <option value="kids">Niños</option>
                                     </select>
                                 </div>

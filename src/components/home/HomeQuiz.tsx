@@ -307,18 +307,16 @@ export default function HomeQuiz({ isOpen, onClose, initialStep = 0, embedded = 
     const handleFaceShapeSelect = (value: string) => {
         setFaceShape(value);
         if (isAnimating) return;
-        // Auto-advance on face shape selection
         setIsAnimating(true);
         setTimeout(() => {
             setCurrentStep(prev => prev + 1);
             setIsAnimating(false);
-        }, 300);
+        }, 200);
     };
 
     const handlePersonalitySelect = (questionId: string, value: string) => {
         setPersonalityAnswers(prev => ({ ...prev, [questionId]: value }));
         if (isAnimating) return;
-        // Auto-advance
         setIsAnimating(true);
         setTimeout(() => {
             if (currentStep < TOTAL_STEPS - 1) {
@@ -327,7 +325,7 @@ export default function HomeQuiz({ isOpen, onClose, initialStep = 0, embedded = 
                 setShowResults(true);
             }
             setIsAnimating(false);
-        }, 300);
+        }, 200);
     };
 
     const handleAnalysisComplete = (result: AnalysisResult) => {
@@ -355,45 +353,53 @@ export default function HomeQuiz({ isOpen, onClose, initialStep = 0, embedded = 
         const { primary, secondary } = getTopProfiles();
         const primaryProfile = PERSONALITY_PROFILES[primary];
         const secondaryProfile = PERSONALITY_PROFILES[secondary];
-        const shareText = `¡Soy ${primaryProfile.name} ${primaryProfile.emoji} con un toque de ${secondaryProfile.name} ${secondaryProfile.emoji}!\n\n${primaryProfile.description}\n\n¿Qué tipo de mexicano eres tú?\nmexilux.com/quiz`;
+        const shareText = `¡Soy ${primaryProfile.name} ${primaryProfile.emoji} con un toque de ${secondaryProfile.name} ${secondaryProfile.emoji}!\n\n${primaryProfile.description}\n\n¿Tú qué eres?\nmexilux.com/quiz`;
 
-        if (cardRef.current) {
-            try {
-                const element = cardRef.current;
-                const canvas = await html2canvas(element, {
-                    backgroundColor: '#EEEADE',
-                    scale: 2,
-                    useCORS: true,
-                    logging: false,
-                    height: element.scrollHeight,
-                    width: element.scrollWidth,
-                    scrollY: -window.scrollY,
-                    scrollX: 0,
-                    windowHeight: document.documentElement.offsetHeight,
-                    allowTaint: true,
-                });
-                const imageData = canvas.toDataURL('image/png');
-                if (navigator.share) {
-                    try {
-                        const response = await fetch(imageData);
-                        const blob = await response.blob();
-                        const file = new File([blob], 'mi-resultado-mexilux.png', { type: 'image/png' });
-                        await navigator.share({ title: 'Mi Resultado Mexilux', text: shareText, files: [file] });
-                        return;
-                    } catch { /* continue */ }
-                }
-                const link = document.createElement('a');
-                link.download = 'mi-resultado-mexilux.png';
-                link.href = imageData;
-                link.click();
-                alert('¡Imagen descargada! Compártela en tus historias');
-                return;
-            } catch (error) {
-                console.error('Error generating image:', error);
-            }
+        if (!cardRef.current) {
+            await navigator.clipboard.writeText(shareText);
+            return;
         }
-        navigator.clipboard.writeText(shareText);
-        alert('¡Texto copiado! Pégalo en tus redes sociales');
+
+        try {
+            const element = cardRef.current;
+            const canvas = await html2canvas(element, {
+                backgroundColor: '#EEEADE',
+                scale: 2,
+                useCORS: true,
+                logging: false,
+                height: element.scrollHeight,
+                width: element.scrollWidth,
+                scrollY: -window.scrollY,
+                scrollX: 0,
+                windowHeight: document.documentElement.offsetHeight,
+                allowTaint: true,
+            });
+            const blob: Blob | null = await new Promise((resolve) =>
+                canvas.toBlob(resolve, 'image/png')
+            );
+            if (!blob) throw new Error('No se pudo generar la imagen');
+            const file = new File([blob], 'mi-resultado-mexilux.png', { type: 'image/png' });
+
+            const shareData: ShareData = {
+                title: '¿Tú qué eres?',
+                text: shareText,
+                files: [file],
+            };
+            if (navigator.canShare?.(shareData) && navigator.share) {
+                await navigator.share(shareData);
+                return;
+            }
+
+            const url = URL.createObjectURL(blob);
+            const link = document.createElement('a');
+            link.download = 'mi-resultado-mexilux.png';
+            link.href = url;
+            link.click();
+            URL.revokeObjectURL(url);
+        } catch (error) {
+            console.error('Error compartiendo:', error);
+            await navigator.clipboard.writeText(shareText);
+        }
     };
 
     // --- STYLES ---
@@ -510,18 +516,29 @@ export default function HomeQuiz({ isOpen, onClose, initialStep = 0, embedded = 
                             padding: embedded ? '28px 24px' : '40px 32px',
                             border: '1px solid rgba(255, 255, 255, 0.6)',
                             boxShadow: '0 20px 60px rgba(0, 0, 0, 0.08), 0 0 1px rgba(0,0,0,0.1)',
-                            marginBottom: '24px'
+                            marginBottom: '24px',
+                            position: 'relative'
                         }}
                     >
-                        {/* Logo */}
-                        <div style={{ textAlign: 'center', marginBottom: '20px' }}>
+                        {/* Logo en esquina */}
+                        <div style={{ position: 'absolute', top: '16px', right: '16px' }}>
                             <Image
                                 src="/logo-mexilux.png"
                                 alt="Mexilux"
-                                width={100}
-                                height={100}
-                                style={{ objectFit: 'contain', margin: '0 auto' }}
+                                width={42}
+                                height={42}
+                                style={{ objectFit: 'contain', opacity: 0.9 }}
                             />
+                        </div>
+
+                        {/* "¿Tú qué eres?" al fondo */}
+                        <div style={{ textAlign: 'center', marginBottom: '8px', marginTop: '8px' }}>
+                            <p style={{
+                                fontSize: '26px', fontWeight: 800, color: '#152132',
+                                margin: 0, letterSpacing: '-0.02em', opacity: 0.85
+                            }}>
+                                ¿Tú qué eres?
+                            </p>
                         </div>
 
                         {/* Emoji + Nombre del perfil */}
@@ -694,7 +711,7 @@ export default function HomeQuiz({ isOpen, onClose, initialStep = 0, embedded = 
                                 boxShadow: '0 4px 16px rgba(0,0,0,0.05)'
                             }}
                         >
-                            <Share2 className="inline-block" size={16} /> Compartir Resultado
+                            <Share2 className="inline-block" size={16} /> Compartir
                         </button>
 
                         <button
@@ -745,7 +762,7 @@ export default function HomeQuiz({ isOpen, onClose, initialStep = 0, embedded = 
                 }}>
                     {!embedded && (
                         <header className="quiz-page-header" style={{ textAlign: 'center', marginBottom: '40px' }}>
-                            <h1 style={{ fontSize: '28px', marginBottom: '10px' }}>¿Qué tipo de mexicano eres?</h1>
+                            <h1 style={{ fontSize: '28px', marginBottom: '10px' }}>¿Tú qué eres?</h1>
                             <p style={{ color: '#666' }}>Es importante que analicemos tu tipo de rostro y personalidad, para recomendarte los mejores armazones</p>
                         </header>
                     )}

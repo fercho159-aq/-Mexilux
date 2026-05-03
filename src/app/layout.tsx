@@ -94,6 +94,14 @@ export const metadata: Metadata = {
     // yandex: "tu-codigo",
   },
   category: "ecommerce",
+  icons: {
+    icon: [
+      { url: "/logo-mexilux.png", type: "image/png" },
+      { url: "/favicon.svg", type: "image/svg+xml" },
+    ],
+    shortcut: "/logo-mexilux.png",
+    apple: "/logo-mexilux.png",
+  },
 };
 
 // JSON-LD Structured Data para SEO
@@ -111,7 +119,7 @@ const jsonLd = {
       },
       sameAs: [
         "https://facebook.com/mexilux",
-        "https://instagram.com/mexilux",
+        "https://www.instagram.com/mexilux/",
         "https://tiktok.com/@mexilux",
       ],
       contactPoint: {
@@ -252,7 +260,7 @@ export default function RootLayout({
                     </svg>
                   </a>
                   <a
-                    href="https://instagram.com"
+                    href="https://www.instagram.com/mexilux/"
                     aria-label="Instagram"
                     target="_blank"
                     rel="noopener noreferrer"
@@ -279,13 +287,13 @@ export default function RootLayout({
                 <h3>Tienda</h3>
                 <ul>
                   <li>
-                    <a href="/catalogo">Sin etiquetas</a>
-                  </li>
-                  <li>
                     <a href="/catalogo?genero=hombre">Mexicano</a>
                   </li>
                   <li>
                     <a href="/catalogo?genero=mujer">Mexicana</a>
+                  </li>
+                  <li>
+                    <a href="/catalogo">Sin etiquetas</a>
                   </li>
                   <li>
                     <a href="/quiz">Hacer quiz</a>

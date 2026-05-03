@@ -39,7 +39,7 @@ const MATERIAL_LABELS: Record<string, string> = {
 const GENDER_LABELS: Record<string, string> = {
     male: 'Mexicano',
     female: 'Mexicana',
-    unisex: 'Unisex',
+    unisex: 'Sin etiquetas',
     kids: 'Niños',
 };
 
