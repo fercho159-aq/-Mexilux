@@ -1,21 +1,13 @@
 /**
  * ═══════════════════════════════════════════════════════════════════════════
- * LENS CONFIGURATOR WIZARD - COMPONENTE PRINCIPAL
+ * LENS CONFIGURATOR WIZARD - COMPONENTE PRINCIPAL (Flujo Mexilux)
  * ═══════════════════════════════════════════════════════════════════════════
- * 
- * Wizard multi-paso para configurar lentes graduados:
- * 1. Tipo de Uso
- * 2. Receta Médica
- * 3. Material de la Mica
- * 4. Tratamientos
- * 5. Revisión y Confirmación
- * 
- * CONSIDERACIONES DE ACCESIBILIDAD:
- * - Navegación completa por teclado
- * - ARIA labels descriptivos
- * - Focus management entre pasos
- * - Soporte para alto contraste
- * - Tipografía escalable
+ *
+ * Wizard multi-paso para configurar lentes según spec del cliente:
+ * 1. ¿Sin o Con graduación?  (usage_type)
+ * 2. Tipo de mica            (material) — Pa la chamba / La máquina / El nahual / A tu antojo
+ * 3. Graduación              (prescription) — solo si "Con graduación"
+ * 4. Resumen                 (review)
  */
 
 'use client';
@@ -77,37 +69,36 @@ const STEPS_CONFIG: Record<
     }
 > = {
     usage_type: {
-        title: '¿Para qué necesitas tus lentes?',
-        description: 'Selecciona el tipo de uso principal',
-        ariaLabel: 'Paso 1: Seleccionar tipo de uso de los lentes',
-    },
-    prescription: {
-        title: 'Tu receta médica',
-        description: 'Ingresa o selecciona tu graduación',
-        ariaLabel: 'Paso 2: Ingresar información de la receta médica',
+        title: '¿Cómo los quieres?',
+        description: 'Sin graduación o con graduación.',
+        ariaLabel: 'Paso 1: Sin o con graduación',
     },
     material: {
-        title: 'Material del cristal',
-        description: 'Elige el material ideal para tu graduación',
-        ariaLabel: 'Paso 3: Seleccionar material de los cristales',
+        title: 'Tipo de mica',
+        description: 'Elige el flow que va con tu vida.',
+        ariaLabel: 'Paso 2: Tipo de mica Mexilux',
+    },
+    prescription: {
+        title: 'Tu graduación',
+        description: 'Llena tus datos o sube tu receta.',
+        ariaLabel: 'Paso 3: Graduación',
     },
     treatments: {
-        title: 'Tratamientos y coberturas',
-        description: 'Personaliza tus lentes con protecciones adicionales',
-        ariaLabel: 'Paso 4: Seleccionar tratamientos opcionales',
+        title: 'Tratamientos',
+        description: 'Tratamientos adicionales (no usado en flujo Mexilux).',
+        ariaLabel: 'Paso opcional: tratamientos',
     },
     review: {
-        title: 'Revisa tu configuración',
-        description: 'Confirma los detalles antes de agregar al carrito',
-        ariaLabel: 'Paso 5: Revisar y confirmar la configuración',
+        title: 'Revisa tu pedido',
+        description: 'Confirma los detalles antes de agregar al carrito.',
+        ariaLabel: 'Paso final: revisar y confirmar',
     },
 };
 
 const STEPS_ORDER: ConfiguratorStep[] = [
     'usage_type',
-    'prescription',
     'material',
-    'treatments',
+    'prescription',
     'review',
 ];
 
@@ -264,7 +255,16 @@ export function LensConfiguratorWizard({
             case 'usage_type':
                 return <UsageTypeStep {...stepProps} />;
 
+            case 'material':
+                return <MaterialStep {...stepProps} />;
+
             case 'prescription':
+                // Skip prescription step si eligió "Sin graduación"
+                if (configuration?.usageType === 'non_prescription') {
+                    // Avanzar automáticamente a review
+                    setTimeout(() => goToStep('review'), 0);
+                    return null;
+                }
                 return (
                     <PrescriptionStep
                         {...stepProps}
@@ -272,11 +272,10 @@ export function LensConfiguratorWizard({
                     />
                 );
 
-            case 'material':
-                return <MaterialStep {...stepProps} />;
-
             case 'treatments':
-                return <TreatmentsStep {...stepProps} />;
+                // Step legacy, no usado en flujo Mexilux. Avanzar.
+                setTimeout(() => goToStep('review'), 0);
+                return null;
 
             case 'review':
                 return (

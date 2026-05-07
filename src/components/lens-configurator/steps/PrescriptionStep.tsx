@@ -1,34 +1,34 @@
 /**
  * ═══════════════════════════════════════════════════════════════════════════
- * PASO 2: RECETA MÉDICA
+ * PASO 3: GRADUACIÓN (Flujo Mexilux)
  * ═══════════════════════════════════════════════════════════════════════════
- * 
- * Permite al usuario:
- * - Seleccionar una receta guardada
- * - Ingresar una nueva receta manualmente
- * - Subir una imagen de su receta
- * - Agendar una cita para obtener receta
+ *
+ * Captura la receta del usuario por dos vías:
+ * - Form manual con SPH/CYL/AXIS por ojo
+ * - Subir foto de la receta
+ *
+ * Calcula la serie en base a la mayor graduación:
+ * - 0.00 a 2.00       → Gratis (Serie 1)
+ * - 2.25 a 4.00       → +$290 (Serie 2)
+ * - 4.25 a 6.00       → +$590 (Serie 3)
+ * - >6.00             → Asesor con teléfono
+ *
+ * Si el usuario eligió "El nahual" con color (≠ Obsidiana), solo se permite
+ * hasta Serie 1; cualquier valor >2.00 manda directo al flujo de asesor.
  */
 
 'use client';
 
-import React, { useState, useCallback } from 'react';
-import { ClipboardList, PenLine, Camera, Calendar, CheckCircle, HelpCircle, Lightbulb } from 'lucide-react';
+import React, { useEffect, useMemo, useState } from 'react';
+import { Upload, Phone, Info, AlertTriangle } from 'lucide-react';
 import { useConfiguratorActions, useLensConfiguratorStore } from '@/store/lens-configurator';
-import {
-    prescriptionSchema,
-    PRESCRIPTION_LIMITS,
-    isHighPrescription,
-    recommendLensIndex,
-    isPrescriptionExpired,
-} from '@/lib/validations/prescription';
-import type { Frame, PrescriptionSource, EyePrescription } from '@/types';
+import type { Frame } from '@/types';
 
 interface PrescriptionStepProps {
     frame: Frame;
     isAuthenticated: boolean;
     errors: string[];
-    savedPrescriptions: Array<{
+    savedPrescriptions?: Array<{
         id: string;
         name: string;
         issueDate: string;
@@ -36,703 +36,495 @@ interface PrescriptionStepProps {
     }>;
 }
 
-// Valores iniciales para un ojo
-const INITIAL_EYE: EyePrescription = {
-    sphere: 0,
-    cylinder: null,
-    axis: null,
-    add: null,
-    pd: 31,
-};
+interface EyeForm {
+    sphere: string;
+    cylinder: string;
+    axis: string;
+}
 
-// Opciones de fuente de receta
-const SOURCE_OPTIONS: Array<{
-    id: PrescriptionSource;
-    name: string;
-    description: string;
-    icon: React.ReactNode;
-    requiresAuth: boolean;
-}> = [
-        {
-            id: 'saved',
-            name: 'Receta Guardada',
-            description: 'Usa una receta de tu perfil',
-            icon: <ClipboardList size={18} />,
-            requiresAuth: true,
-        },
-        {
-            id: 'manual',
-            name: 'Ingresar Manualmente',
-            description: 'Tengo mi receta en papel',
-            icon: <PenLine size={18} />,
-            requiresAuth: false,
-        },
-        {
-            id: 'upload',
-            name: 'Subir Foto',
-            description: 'Tomaré foto de mi receta',
-            icon: <Camera size={18} />,
-            requiresAuth: false,
-        },
-        {
-            id: 'appointment',
-            name: 'Agendar Cita',
-            description: 'No tengo receta actualizada',
-            icon: <Calendar size={18} />,
-            requiresAuth: false,
-        },
-    ];
+const EMPTY_EYE: EyeForm = { sphere: '', cylinder: '', axis: '' };
 
-export function PrescriptionStep({
-    frame,
-    isAuthenticated,
-    errors,
-    savedPrescriptions,
-}: PrescriptionStepProps) {
-    const {
-        setPrescriptionSource,
-        selectSavedPrescription,
-        setManualPrescription,
-        setUploadedPrescription,
-        linkAppointment,
-    } = useConfiguratorActions();
+/**
+ * Determina la serie según la mayor magnitud absoluta de SPH/CYL en ambos ojos.
+ */
+function calculateSeries(
+    rightEye: EyeForm,
+    leftEye: EyeForm
+): { series: 1 | 2 | 3 | 'asesor'; cost: number; max: number } {
+    const values = [
+        rightEye.sphere,
+        rightEye.cylinder,
+        leftEye.sphere,
+        leftEye.cylinder,
+    ]
+        .map((v) => Math.abs(parseFloat(v) || 0))
+        .filter((v) => !isNaN(v));
 
-    const configuration = useLensConfiguratorStore((state) => state.configuration);
-    const selectedSource = configuration?.prescriptionSource;
-    const usageType = configuration?.usageType;
+    const max = values.length ? Math.max(...values) : 0;
 
-    // Estado local para el formulario manual
-    const [manualForm, setManualForm] = useState({
-        name: '',
-        rightEye: { ...INITIAL_EYE },
-        leftEye: { ...INITIAL_EYE },
-        totalPD: 62,
-        issueDate: new Date().toISOString().split('T')[0],
-        expirationDate: new Date(Date.now() + 365 * 24 * 60 * 60 * 1000)
-            .toISOString()
-            .split('T')[0],
-    });
+    if (max <= 2.0) return { series: 1, cost: 0, max };
+    if (max <= 4.0) return { series: 2, cost: 290, max };
+    if (max <= 6.0) return { series: 3, cost: 590, max };
+    return { series: 'asesor', cost: 0, max };
+}
 
-    const [formErrors, setFormErrors] = useState<Record<string, string>>({});
+export function PrescriptionStep({ frame }: PrescriptionStepProps) {
+    const { updateMexiluxConfig, setManualPrescription, setUploadedPrescription, setPrescriptionSource } =
+        useConfiguratorActions();
+    const m = useLensConfiguratorStore((s) => s.configuration?.mexiluxConfig);
 
-    // Si es sin graduación, skip este paso
-    if (usageType === 'non_prescription') {
-        return (
-            <div className="prescription-skip">
-                <p className="skip-message">
-                    <span aria-hidden="true"><CheckCircle size={16} /></span>
-                    No necesitas receta para lentes sin graduación.
-                    Continúa al siguiente paso.
-                </p>
-            </div>
-        );
-    }
+    const [mode, setMode] = useState<'manual' | 'upload' | 'advisor'>('manual');
+    const [rightEye, setRightEye] = useState<EyeForm>(EMPTY_EYE);
+    const [leftEye, setLeftEye] = useState<EyeForm>(EMPTY_EYE);
+    const [phone, setPhone] = useState('');
+    const [phoneSent, setPhoneSent] = useState(false);
+    const [uploadFileName, setUploadFileName] = useState<string | null>(null);
 
-    // Determinar si necesita ADD
-    const needsAdd = usageType === 'progressive' || usageType === 'bifocal';
+    // Recalcular serie cada vez que cambien los valores
+    const series = useMemo(() => calculateSeries(rightEye, leftEye), [rightEye, leftEye]);
 
-    // Handlers
-    const handleSourceSelect = (source: PrescriptionSource) => {
-        // Verificar si requiere autenticación
-        const option = SOURCE_OPTIONS.find((o) => o.id === source);
-        if (option?.requiresAuth && !isAuthenticated) {
-            // Redirigir a login con return URL
-            window.location.href = `/login?returnTo=/configurador/${frame.slug}`;
-            return;
-        }
-        setPrescriptionSource(source);
-    };
+    // Restricción: si "El nahual" con color (≠ obsidiana) y serie > 1, mandar a asesor
+    const nahualColorRequiresAdvisor =
+        m?.lensType === 'el_nahual' &&
+        m.nahualColor &&
+        m.nahualColor !== 'obsidiana' &&
+        series.series !== 1;
 
-    const handleEyeChange = (
-        eye: 'rightEye' | 'leftEye',
-        field: keyof EyePrescription,
-        value: number | null
-    ) => {
-        setManualForm((prev) => ({
-            ...prev,
-            [eye]: {
-                ...prev[eye],
-                [field]: value,
-            },
-        }));
-    };
+    const finalSeries = nahualColorRequiresAdvisor ? 'asesor' : series.series;
 
-    const handleManualSubmit = useCallback(() => {
-        // Validar con Zod
-        const result = prescriptionSchema.safeParse(manualForm);
+    // Sincronizar serie y costo con el store
+    useEffect(() => {
+        updateMexiluxConfig({
+            prescriptionSeries: finalSeries,
+            prescriptionExtraCost: finalSeries === 'asesor' ? 0 : series.cost,
+        });
 
-        if (!result.success) {
-            const errors: Record<string, string> = {};
-            result.error.issues.forEach((issue) => {
-                errors[issue.path.join('.')] = issue.message;
+        // Guardar prescripción manual cuando hay datos válidos
+        const hasData = rightEye.sphere !== '' || leftEye.sphere !== '';
+        if (mode === 'manual' && hasData) {
+            setPrescriptionSource('manual');
+            const parseEye = (e: EyeForm) => ({
+                sphere: parseFloat(e.sphere) || 0,
+                cylinder: e.cylinder ? parseFloat(e.cylinder) : null,
+                axis: e.axis ? parseInt(e.axis, 10) : null,
+                add: null,
+                pd: 31,
             });
-            setFormErrors(errors);
-            return;
+            setManualPrescription({
+                name: 'Receta Mexilux',
+                rightEye: parseEye(rightEye),
+                leftEye: parseEye(leftEye),
+                totalPD: 62,
+                issueDate: new Date().toISOString(),
+                expirationDate: new Date(Date.now() + 365 * 24 * 60 * 60 * 1000).toISOString(),
+            });
         }
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [rightEye, leftEye, mode, finalSeries, series.cost]);
 
-        setFormErrors({});
-        setManualPrescription(result.data);
-    }, [manualForm, setManualPrescription]);
-
-    // Generar opciones para los selects
-    const generateOptions = (min: number, max: number, step: number, prefix = '') => {
-        const options: Array<{ value: number; label: string }> = [];
-        for (let i = min; i <= max; i += step) {
-            const formatted = i > 0 ? `+${i.toFixed(2)}` : i.toFixed(2);
-            options.push({ value: i, label: `${prefix}${formatted}` });
+    // Si la serie cae en asesor, mostrar el flujo de asesor
+    useEffect(() => {
+        if (finalSeries === 'asesor' && mode !== 'advisor') {
+            setMode('advisor');
         }
-        return options;
-    };
+    }, [finalSeries, mode]);
 
-    const sphereOptions = generateOptions(
-        PRESCRIPTION_LIMITS.sphere.min,
-        PRESCRIPTION_LIMITS.sphere.max,
-        PRESCRIPTION_LIMITS.sphere.step
-    );
-
-    const cylinderOptions = [
-        { value: 0, label: '0.00 (Sin astigmatismo)' },
-        ...generateOptions(
-            PRESCRIPTION_LIMITS.cylinder.min,
-            -0.25,
-            PRESCRIPTION_LIMITS.cylinder.step
-        ),
-    ];
-
-    const axisOptions = Array.from({ length: 180 }, (_, i) => ({
-        value: i + 1,
-        label: `${i + 1}°`,
-    }));
-
-    const addOptions = generateOptions(
-        PRESCRIPTION_LIMITS.add.min,
-        PRESCRIPTION_LIMITS.add.max,
-        PRESCRIPTION_LIMITS.add.step
-    );
-
-    return (
-        <div className="prescription-step">
-            {/* Selector de fuente */}
-            <div className="source-selector">
-                <h3 className="section-title">¿Cómo quieres ingresar tu receta?</h3>
-
-                <div className="source-options" role="radiogroup" aria-label="Fuente de la receta">
-                    {SOURCE_OPTIONS.map((option) => {
-                        const isSelected = selectedSource === option.id;
-                        const isDisabled = option.requiresAuth && !isAuthenticated;
-                        const hasSavedPrescriptions = savedPrescriptions.length > 0;
-
-                        // Ocultar "Receta Guardada" si no hay ninguna
-                        if (option.id === 'saved' && !hasSavedPrescriptions) {
-                            return null;
-                        }
-
-                        return (
-                            <button
-                                key={option.id}
-                                type="button"
-                                onClick={() => handleSourceSelect(option.id)}
-                                className={`source-option ${isSelected ? 'selected' : ''}`}
-                                role="radio"
-                                aria-checked={isSelected}
-                                disabled={isDisabled}
-                                aria-disabled={isDisabled}
-                            >
-                                <span className="source-icon" aria-hidden="true">
-                                    {option.icon}
-                                </span>
-                                <span className="source-name">{option.name}</span>
-                                <span className="source-description">{option.description}</span>
-
-                                {isDisabled && (
-                                    <span className="auth-required">Requiere cuenta</span>
-                                )}
-                            </button>
-                        );
-                    })}
-                </div>
-            </div>
-
-            {/* Contenido según la fuente seleccionada */}
-            {selectedSource === 'saved' && (
-                <SavedPrescriptionSelector
-                    prescriptions={savedPrescriptions}
-                    selectedId={configuration?.savedPrescriptionId || null}
-                    onSelect={selectSavedPrescription}
-                />
-            )}
-
-            {selectedSource === 'manual' && (
-                <ManualPrescriptionForm
-                    form={manualForm}
-                    errors={formErrors}
-                    needsAdd={needsAdd}
-                    sphereOptions={sphereOptions}
-                    cylinderOptions={cylinderOptions}
-                    axisOptions={axisOptions}
-                    addOptions={addOptions}
-                    onEyeChange={handleEyeChange}
-                    onFieldChange={(field, value) =>
-                        setManualForm((prev) => ({ ...prev, [field]: value }))
-                    }
-                    onSubmit={handleManualSubmit}
-                />
-            )}
-
-            {selectedSource === 'upload' && (
-                <PrescriptionUploader
-                    currentUrl={configuration?.uploadedPrescriptionUrl || null}
-                    onUpload={setUploadedPrescription}
-                />
-            )}
-
-            {selectedSource === 'appointment' && (
-                <AppointmentScheduler
-                    linkedAppointmentId={configuration?.appointmentId || null}
-                    onLink={linkAppointment}
-                />
-            )}
-        </div>
-    );
-}
-
-// ═══════════════════════════════════════════════════════════════════════════
-// SUB-COMPONENTES
-// ═══════════════════════════════════════════════════════════════════════════
-
-interface SavedPrescriptionSelectorProps {
-    prescriptions: Array<{
-        id: string;
-        name: string;
-        issueDate: string;
-        isExpired: boolean;
-    }>;
-    selectedId: string | null;
-    onSelect: (id: string) => void;
-}
-
-function SavedPrescriptionSelector({
-    prescriptions,
-    selectedId,
-    onSelect,
-}: SavedPrescriptionSelectorProps) {
-    return (
-        <div className="saved-prescriptions">
-            <h4>Selecciona una receta</h4>
-            <ul className="prescription-list" role="listbox" aria-label="Recetas guardadas">
-                {prescriptions.map((rx) => (
-                    <li key={rx.id}>
-                        <button
-                            type="button"
-                            onClick={() => !rx.isExpired && onSelect(rx.id)}
-                            className={`prescription-item ${selectedId === rx.id ? 'selected' : ''} ${rx.isExpired ? 'expired' : ''
-                                }`}
-                            role="option"
-                            aria-selected={selectedId === rx.id}
-                            disabled={rx.isExpired}
-                        >
-                            <span className="rx-name">{rx.name}</span>
-                            <span className="rx-date">
-                                Emitida: {new Date(rx.issueDate).toLocaleDateString('es-MX')}
-                            </span>
-                            {rx.isExpired && (
-                                <span className="rx-expired-badge">Expirada</span>
-                            )}
-                        </button>
-                    </li>
-                ))}
-            </ul>
-        </div>
-    );
-}
-
-interface ManualPrescriptionFormProps {
-    form: {
-        name: string;
-        rightEye: EyePrescription;
-        leftEye: EyePrescription;
-        totalPD: number;
-        issueDate: string;
-        expirationDate: string;
-    };
-    errors: Record<string, string>;
-    needsAdd: boolean;
-    sphereOptions: Array<{ value: number; label: string }>;
-    cylinderOptions: Array<{ value: number; label: string }>;
-    axisOptions: Array<{ value: number; label: string }>;
-    addOptions: Array<{ value: number; label: string }>;
-    onEyeChange: (
-        eye: 'rightEye' | 'leftEye',
-        field: keyof EyePrescription,
-        value: number | null
-    ) => void;
-    onFieldChange: (field: string, value: unknown) => void;
-    onSubmit: () => void;
-}
-
-function ManualPrescriptionForm({
-    form,
-    errors,
-    needsAdd,
-    sphereOptions,
-    cylinderOptions,
-    axisOptions,
-    addOptions,
-    onEyeChange,
-    onFieldChange,
-    onSubmit,
-}: ManualPrescriptionFormProps) {
-    return (
-        <div className="manual-prescription-form">
-            <h4>Ingresa los datos de tu receta</h4>
-
-            {/* Ayuda visual */}
-            <div className="prescription-help" role="note">
-                <details>
-                    <summary>
-                        <span aria-hidden="true"><HelpCircle size={16} /></span>
-                        ¿Cómo leer mi receta?
-                    </summary>
-                    <div className="help-content">
-                        <img
-                            src="/images/prescription-guide.svg"
-                            alt="Diagrama explicativo de una receta oftalmológica"
-                        />
-                        <ul>
-                            <li><strong>OD</strong>: Ojo derecho (Right Eye)</li>
-                            <li><strong>OS</strong>: Ojo izquierdo (Left Eye)</li>
-                            <li><strong>SPH</strong>: Esfera - Corrige miopía (-) o hipermetropía (+)</li>
-                            <li><strong>CYL</strong>: Cilindro - Corrige astigmatismo</li>
-                            <li><strong>AXIS</strong>: Eje del astigmatismo (1° a 180°)</li>
-                            <li><strong>ADD</strong>: Adición para lectura (solo progresivos/bifocales)</li>
-                            <li><strong>PD</strong>: Distancia pupilar en milímetros</li>
-                        </ul>
-                    </div>
-                </details>
-            </div>
-
-            <form
-                onSubmit={(e) => {
-                    e.preventDefault();
-                    onSubmit();
-                }}
-                className="rx-form"
-            >
-                {/* Nombre de la receta */}
-                <div className="form-field">
-                    <label htmlFor="rx-name">Nombre para identificar esta receta</label>
-                    <input
-                        type="text"
-                        id="rx-name"
-                        value={form.name}
-                        onChange={(e) => onFieldChange('name', e.target.value)}
-                        placeholder="Ej: Receta Dr. García 2024"
-                        aria-describedby={errors.name ? 'rx-name-error' : undefined}
-                    />
-                    {errors.name && (
-                        <span id="rx-name-error" className="field-error" role="alert">
-                            {errors.name}
-                        </span>
-                    )}
-                </div>
-
-                {/* Tabla de graduación */}
-                <table className="rx-table" role="grid" aria-label="Valores de graduación">
-                    <thead>
-                        <tr>
-                            <th scope="col">Ojo</th>
-                            <th scope="col">Esfera (SPH)</th>
-                            <th scope="col">Cilindro (CYL)</th>
-                            <th scope="col">Eje (AXIS)</th>
-                            {needsAdd && <th scope="col">Adición (ADD)</th>}
-                            <th scope="col">PD (mm)</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        {(['rightEye', 'leftEye'] as const).map((eye) => {
-                            const label = eye === 'rightEye' ? 'Derecho (OD)' : 'Izquierdo (OS)';
-                            const eyeData = form[eye];
-                            const hasCylinder = eyeData.cylinder !== null && eyeData.cylinder !== 0;
-
-                            return (
-                                <tr key={eye}>
-                                    <th scope="row">{label}</th>
-
-                                    {/* Esfera */}
-                                    <td>
-                                        <select
-                                            value={eyeData.sphere}
-                                            onChange={(e) =>
-                                                onEyeChange(eye, 'sphere', parseFloat(e.target.value))
-                                            }
-                                            aria-label={`Esfera ojo ${label}`}
-                                        >
-                                            {sphereOptions.map((opt) => (
-                                                <option key={opt.value} value={opt.value}>
-                                                    {opt.label}
-                                                </option>
-                                            ))}
-                                        </select>
-                                    </td>
-
-                                    {/* Cilindro */}
-                                    <td>
-                                        <select
-                                            value={eyeData.cylinder || 0}
-                                            onChange={(e) => {
-                                                const val = parseFloat(e.target.value);
-                                                onEyeChange(eye, 'cylinder', val === 0 ? null : val);
-                                                // Reset axis si no hay cilindro
-                                                if (val === 0) {
-                                                    onEyeChange(eye, 'axis', null);
-                                                }
-                                            }}
-                                            aria-label={`Cilindro ojo ${label}`}
-                                        >
-                                            {cylinderOptions.map((opt) => (
-                                                <option key={opt.value} value={opt.value}>
-                                                    {opt.label}
-                                                </option>
-                                            ))}
-                                        </select>
-                                    </td>
-
-                                    {/* Eje */}
-                                    <td>
-                                        <select
-                                            value={eyeData.axis || ''}
-                                            onChange={(e) =>
-                                                onEyeChange(
-                                                    eye,
-                                                    'axis',
-                                                    e.target.value ? parseInt(e.target.value) : null
-                                                )
-                                            }
-                                            disabled={!hasCylinder}
-                                            aria-label={`Eje ojo ${label}`}
-                                            aria-describedby={!hasCylinder ? 'axis-disabled-hint' : undefined}
-                                        >
-                                            <option value="">-</option>
-                                            {axisOptions.map((opt) => (
-                                                <option key={opt.value} value={opt.value}>
-                                                    {opt.label}
-                                                </option>
-                                            ))}
-                                        </select>
-                                    </td>
-
-                                    {/* Adición (si aplica) */}
-                                    {needsAdd && (
-                                        <td>
-                                            <select
-                                                value={eyeData.add || ''}
-                                                onChange={(e) =>
-                                                    onEyeChange(
-                                                        eye,
-                                                        'add',
-                                                        e.target.value ? parseFloat(e.target.value) : null
-                                                    )
-                                                }
-                                                aria-label={`Adición ojo ${label}`}
-                                            >
-                                                <option value="">Selecciona</option>
-                                                {addOptions.map((opt) => (
-                                                    <option key={opt.value} value={opt.value}>
-                                                        {opt.label}
-                                                    </option>
-                                                ))}
-                                            </select>
-                                        </td>
-                                    )}
-
-                                    {/* PD monocular */}
-                                    <td>
-                                        <input
-                                            type="number"
-                                            value={eyeData.pd}
-                                            onChange={(e) =>
-                                                onEyeChange(eye, 'pd', parseFloat(e.target.value) || 0)
-                                            }
-                                            min={PRESCRIPTION_LIMITS.pd.monocular.min}
-                                            max={PRESCRIPTION_LIMITS.pd.monocular.max}
-                                            step={0.5}
-                                            aria-label={`Distancia pupilar ojo ${label}`}
-                                        />
-                                    </td>
-                                </tr>
-                            );
-                        })}
-                    </tbody>
-                </table>
-
-                {/* Hint para eje */}
-                <p id="axis-disabled-hint" className="sr-only">
-                    El eje solo se puede ingresar cuando hay un valor de cilindro
-                </p>
-
-                {/* PD Total y fechas */}
-                <div className="form-row">
-                    <div className="form-field">
-                        <label htmlFor="rx-total-pd">Distancia Pupilar Total (PD)</label>
-                        <input
-                            type="number"
-                            id="rx-total-pd"
-                            value={form.totalPD}
-                            onChange={(e) => onFieldChange('totalPD', parseFloat(e.target.value) || 0)}
-                            min={PRESCRIPTION_LIMITS.pd.binocular.min}
-                            max={PRESCRIPTION_LIMITS.pd.binocular.max}
-                            step={1}
-                        />
-                        <span className="field-hint">
-                            Suma de ambos PDs: {form.rightEye.pd + form.leftEye.pd}mm
-                        </span>
-                    </div>
-
-                    <div className="form-field">
-                        <label htmlFor="rx-issue-date">Fecha de emisión</label>
-                        <input
-                            type="date"
-                            id="rx-issue-date"
-                            value={form.issueDate}
-                            onChange={(e) => onFieldChange('issueDate', e.target.value)}
-                            max={new Date().toISOString().split('T')[0]}
-                        />
-                    </div>
-                </div>
-
-                {/* Recomendación de índice */}
-                {isHighPrescription(form.rightEye.sphere, form.rightEye.cylinder) ||
-                    isHighPrescription(form.leftEye.sphere, form.leftEye.cylinder) ? (
-                    <div className="high-rx-notice" role="alert">
-                        <span aria-hidden="true"><Lightbulb size={16} /></span>
-                        <p>
-                            Tu graduación es alta. Te recomendamos un material de índice{' '}
-                            <strong>
-                                {recommendLensIndex(
-                                    Math.max(
-                                        Math.abs(form.rightEye.sphere),
-                                        Math.abs(form.leftEye.sphere)
-                                    ),
-                                    Math.max(
-                                        Math.abs(form.rightEye.cylinder || 0),
-                                        Math.abs(form.leftEye.cylinder || 0)
-                                    )
-                                )}
-                            </strong>{' '}
-                            o superior para lentes más delgados.
-                        </p>
-                    </div>
-                ) : null}
-
-                <button type="submit" className="submit-button">
-                    Guardar y continuar
-                </button>
-            </form>
-        </div>
-    );
-}
-
-interface PrescriptionUploaderProps {
-    currentUrl: string | null;
-    onUpload: (url: string) => void;
-}
-
-function PrescriptionUploader({ currentUrl, onUpload }: PrescriptionUploaderProps) {
-    const [isUploading, setIsUploading] = useState(false);
-
-    const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const handleUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
         const file = e.target.files?.[0];
         if (!file) return;
+        setUploadFileName(file.name);
+        // En producción esto subiría a Cloudinary; aquí solo guardamos el nombre.
+        const fakeUrl = `local://${file.name}`;
+        setUploadedPrescription(fakeUrl);
+        setPrescriptionSource('upload');
+    };
 
-        setIsUploading(true);
-
-        // Simular upload - en producción usaría un servicio real
-        try {
-            // TODO: Implementar upload real
-            const fakeUrl = URL.createObjectURL(file);
-            onUpload(fakeUrl);
-        } catch (error) {
-            console.error('Error uploading:', error);
-        } finally {
-            setIsUploading(false);
-        }
+    const handleSubmitPhone = () => {
+        const cleaned = phone.replace(/\D/g, '');
+        if (cleaned.length < 10) return;
+        updateMexiluxConfig({ advisorPhone: cleaned });
+        setPhoneSent(true);
     };
 
     return (
-        <div className="prescription-uploader">
-            <h4>Sube una foto de tu receta</h4>
-
-            <div className="upload-zone">
-                <input
-                    type="file"
-                    id="rx-upload"
-                    accept="image/*,.pdf"
-                    onChange={handleFileChange}
-                    disabled={isUploading}
-                    className="sr-only"
-                />
-
-                <label htmlFor="rx-upload" className="upload-label">
-                    {isUploading ? (
-                        <span>Subiendo...</span>
-                    ) : currentUrl ? (
-                        <>
-                            <img
-                                src={currentUrl}
-                                alt="Vista previa de la receta subida"
-                                className="upload-preview"
-                            />
-                            <span>Cambiar imagen</span>
-                        </>
-                    ) : (
-                        <>
-                            <span className="upload-icon" aria-hidden="true"><Camera size={18} /></span>
-                            <span>Haz clic o arrastra tu receta aquí</span>
-                            <span className="upload-hint">JPG, PNG o PDF. Máximo 10MB.</span>
-                        </>
-                    )}
-                </label>
-            </div>
-
-            <p className="upload-note">
-                Nuestro equipo revisará tu receta y te contactará si hay alguna duda.
-            </p>
-        </div>
-    );
-}
-
-interface AppointmentSchedulerProps {
-    linkedAppointmentId: string | null;
-    onLink: (id: string) => void;
-}
-
-function AppointmentScheduler({ linkedAppointmentId, onLink }: AppointmentSchedulerProps) {
-    return (
-        <div className="appointment-scheduler">
-            <h4>Agenda tu examen de la vista</h4>
-
-            {linkedAppointmentId ? (
-                <div className="appointment-linked">
-                    <span className="linked-icon" aria-hidden="true"><CheckCircle size={16} /></span>
-                    <p>Tienes una cita agendada. Después de tu examen, agregaremos tu receta automáticamente.</p>
-                </div>
-            ) : (
-                <div className="appointment-cta">
-                    <p>
-                        Si no tienes una receta actualizada (menos de 1 año),
-                        agenda una cita con nuestros optometristas certificados.
-                    </p>
-
-                    <a href="/citas" className="schedule-button">
-                        <span aria-hidden="true"><Calendar size={18} /></span>
-                        Agendar Cita
-                    </a>
-
-                    <p className="appointment-hint">
-                        Después de tu cita, tu receta se vinculará automáticamente a esta orden.
-                    </p>
+        <div className="prescription-step mexilux-step">
+            {/* Selector de modo */}
+            {finalSeries !== 'asesor' && (
+                <div className="mexilux-mode-tabs" role="tablist">
+                    <button
+                        role="tab"
+                        aria-selected={mode === 'manual'}
+                        className={`mexilux-tab ${mode === 'manual' ? 'active' : ''}`}
+                        onClick={() => setMode('manual')}
+                    >
+                        Llenar receta
+                    </button>
+                    <button
+                        role="tab"
+                        aria-selected={mode === 'upload'}
+                        className={`mexilux-tab ${mode === 'upload' ? 'active' : ''}`}
+                        onClick={() => setMode('upload')}
+                    >
+                        Subir foto
+                    </button>
                 </div>
             )}
+
+            {/* MODO MANUAL */}
+            {mode === 'manual' && finalSeries !== 'asesor' && (
+                <div className="mexilux-prescription-form">
+                    <div className="mexilux-eye-card">
+                        <h4>Ojo derecho (OD)</h4>
+                        <div className="mexilux-eye-row">
+                            <label>
+                                Esfera (SPH)
+                                <input
+                                    type="number"
+                                    step="0.25"
+                                    min="-20"
+                                    max="20"
+                                    placeholder="0.00"
+                                    value={rightEye.sphere}
+                                    onChange={(e) =>
+                                        setRightEye({ ...rightEye, sphere: e.target.value })
+                                    }
+                                />
+                            </label>
+                            <label>
+                                Cilindro (CYL)
+                                <input
+                                    type="number"
+                                    step="0.25"
+                                    min="-6"
+                                    max="6"
+                                    placeholder="0.00"
+                                    value={rightEye.cylinder}
+                                    onChange={(e) =>
+                                        setRightEye({ ...rightEye, cylinder: e.target.value })
+                                    }
+                                />
+                            </label>
+                            <label>
+                                Eje
+                                <input
+                                    type="number"
+                                    min="1"
+                                    max="180"
+                                    placeholder="180"
+                                    value={rightEye.axis}
+                                    onChange={(e) => setRightEye({ ...rightEye, axis: e.target.value })}
+                                />
+                            </label>
+                        </div>
+                    </div>
+
+                    <div className="mexilux-eye-card">
+                        <h4>Ojo izquierdo (OI)</h4>
+                        <div className="mexilux-eye-row">
+                            <label>
+                                Esfera (SPH)
+                                <input
+                                    type="number"
+                                    step="0.25"
+                                    min="-20"
+                                    max="20"
+                                    placeholder="0.00"
+                                    value={leftEye.sphere}
+                                    onChange={(e) => setLeftEye({ ...leftEye, sphere: e.target.value })}
+                                />
+                            </label>
+                            <label>
+                                Cilindro (CYL)
+                                <input
+                                    type="number"
+                                    step="0.25"
+                                    min="-6"
+                                    max="6"
+                                    placeholder="0.00"
+                                    value={leftEye.cylinder}
+                                    onChange={(e) =>
+                                        setLeftEye({ ...leftEye, cylinder: e.target.value })
+                                    }
+                                />
+                            </label>
+                            <label>
+                                Eje
+                                <input
+                                    type="number"
+                                    min="1"
+                                    max="180"
+                                    placeholder="180"
+                                    value={leftEye.axis}
+                                    onChange={(e) => setLeftEye({ ...leftEye, axis: e.target.value })}
+                                />
+                            </label>
+                        </div>
+                    </div>
+
+                    {/* Indicador de serie */}
+                    {(rightEye.sphere !== '' || leftEye.sphere !== '') && (
+                        <div className="mexilux-series-indicator">
+                            <Info size={18} />
+                            <div>
+                                <strong>
+                                    {series.series === 1 && 'Tu graduación entra en la Serie 1'}
+                                    {series.series === 2 && 'Tu graduación entra en la Serie 2'}
+                                    {series.series === 3 && 'Tu graduación entra en la Serie 3'}
+                                </strong>
+                                <span>
+                                    {series.cost === 0
+                                        ? 'Sin costo extra de graduación'
+                                        : `+$${series.cost} por graduación`}
+                                </span>
+                            </div>
+                        </div>
+                    )}
+                </div>
+            )}
+
+            {/* MODO UPLOAD */}
+            {mode === 'upload' && finalSeries !== 'asesor' && (
+                <div className="mexilux-upload">
+                    <label className="mexilux-upload-zone">
+                        <Upload size={32} />
+                        <strong>Sube tu receta</strong>
+                        <span>Acepta JPG, PNG o PDF · máx 10 MB</span>
+                        <input
+                            type="file"
+                            accept="image/*,application/pdf"
+                            onChange={handleUpload}
+                            style={{ display: 'none' }}
+                        />
+                    </label>
+                    {uploadFileName && (
+                        <p className="mexilux-upload-confirm">
+                            Subiste <strong>{uploadFileName}</strong>. Un asesor la revisará para
+                            calcular tu costo.
+                        </p>
+                    )}
+                </div>
+            )}
+
+            {/* MODO ASESOR (graduación >6 o restricción de El nahual) */}
+            {finalSeries === 'asesor' && (
+                <div className="mexilux-advisor">
+                    <div className="mexilux-advisor__head">
+                        <AlertTriangle size={28} />
+                        <div>
+                            <h3>Tu graduación necesita atención personalizada</h3>
+                            <p>
+                                {nahualColorRequiresAdvisor
+                                    ? 'Los colores fotocromáticos diferentes de Obsidiana solo aplican para Serie 1. Te conectamos con un asesor.'
+                                    : 'Tu graduación supera los 6.00. Para darte la mejor opción te conectamos con un asesor.'}
+                            </p>
+                        </div>
+                    </div>
+
+                    {!phoneSent ? (
+                        <div className="mexilux-advisor__form">
+                            <label>
+                                <Phone size={18} />
+                                Tu teléfono (10 dígitos)
+                                <input
+                                    type="tel"
+                                    placeholder="55 1234 5678"
+                                    value={phone}
+                                    onChange={(e) => setPhone(e.target.value)}
+                                />
+                            </label>
+                            <button
+                                type="button"
+                                className="mexilux-advisor__cta"
+                                disabled={phone.replace(/\D/g, '').length < 10}
+                                onClick={handleSubmitPhone}
+                            >
+                                Solicitar asesor
+                            </button>
+                        </div>
+                    ) : (
+                        <div className="mexilux-advisor__sent">
+                            <strong>¡Listo!</strong> En breve se comunicará un asesor para darte
+                            cotización personalizada.
+                        </div>
+                    )}
+                </div>
+            )}
+
+            <style jsx>{`
+                .mexilux-step { padding: 1rem 0; }
+                .mexilux-mode-tabs {
+                    display: flex;
+                    gap: 0.5rem;
+                    margin-bottom: 1.5rem;
+                }
+                .mexilux-tab {
+                    flex: 1;
+                    padding: 0.875rem 1rem;
+                    border: 2px solid #e2e8f0;
+                    border-radius: 12px;
+                    background: #ffffff;
+                    cursor: pointer;
+                    font-weight: 600;
+                    color: #475569;
+                    transition: all 0.2s;
+                }
+                .mexilux-tab:hover { border-color: #152132; }
+                .mexilux-tab.active {
+                    border-color: #152132;
+                    background: #152132;
+                    color: #ffffff;
+                }
+                .mexilux-prescription-form {
+                    display: flex;
+                    flex-direction: column;
+                    gap: 1rem;
+                }
+                .mexilux-eye-card {
+                    background: #f7f8fa;
+                    border-radius: 14px;
+                    padding: 1.25rem;
+                }
+                .mexilux-eye-card h4 {
+                    margin: 0 0 0.75rem;
+                    color: #152132;
+                    font-size: 1rem;
+                }
+                .mexilux-eye-row {
+                    display: grid;
+                    grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+                    gap: 0.75rem;
+                }
+                .mexilux-eye-row label {
+                    display: flex;
+                    flex-direction: column;
+                    gap: 0.35rem;
+                    font-size: 0.85rem;
+                    color: #475569;
+                    font-weight: 600;
+                }
+                .mexilux-eye-row input {
+                    padding: 0.625rem 0.75rem;
+                    border: 2px solid #e2e8f0;
+                    border-radius: 10px;
+                    font-size: 1rem;
+                    color: #152132;
+                    background: #ffffff;
+                }
+                .mexilux-eye-row input:focus {
+                    outline: none;
+                    border-color: #152132;
+                }
+                .mexilux-series-indicator {
+                    display: flex;
+                    align-items: flex-start;
+                    gap: 0.75rem;
+                    padding: 1rem;
+                    background: #ecfdf5;
+                    border-left: 3px solid #16a34a;
+                    border-radius: 8px;
+                    color: #166534;
+                }
+                .mexilux-series-indicator strong { display: block; }
+                .mexilux-series-indicator span {
+                    display: block;
+                    font-size: 0.85rem;
+                    color: #16a34a;
+                    margin-top: 0.25rem;
+                }
+                .mexilux-upload-zone {
+                    display: flex;
+                    flex-direction: column;
+                    align-items: center;
+                    justify-content: center;
+                    gap: 0.5rem;
+                    padding: 3rem 2rem;
+                    border: 2px dashed #cbd5e1;
+                    border-radius: 16px;
+                    background: #f7f8fa;
+                    cursor: pointer;
+                    color: #475569;
+                    transition: all 0.2s;
+                }
+                .mexilux-upload-zone:hover {
+                    border-color: #152132;
+                    background: #f1f5f9;
+                }
+                .mexilux-upload-zone strong {
+                    font-size: 1.05rem;
+                    color: #152132;
+                }
+                .mexilux-upload-zone span {
+                    font-size: 0.85rem;
+                }
+                .mexilux-upload-confirm {
+                    margin-top: 1rem;
+                    color: #16a34a;
+                    font-size: 0.9rem;
+                }
+                .mexilux-advisor {
+                    background: #fff7ed;
+                    border-left: 3px solid #f97316;
+                    border-radius: 12px;
+                    padding: 1.5rem;
+                }
+                .mexilux-advisor__head {
+                    display: flex;
+                    gap: 1rem;
+                    align-items: flex-start;
+                    color: #9a3412;
+                    margin-bottom: 1rem;
+                }
+                .mexilux-advisor__head h3 {
+                    margin: 0 0 0.25rem;
+                    font-size: 1.1rem;
+                }
+                .mexilux-advisor__head p {
+                    margin: 0;
+                    font-size: 0.9rem;
+                    color: #7c2d12;
+                }
+                .mexilux-advisor__form label {
+                    display: flex;
+                    align-items: center;
+                    gap: 0.5rem;
+                    font-weight: 600;
+                    color: #7c2d12;
+                    margin-bottom: 0.75rem;
+                    flex-wrap: wrap;
+                }
+                .mexilux-advisor__form input {
+                    flex: 1;
+                    padding: 0.625rem 0.75rem;
+                    border: 2px solid #fed7aa;
+                    border-radius: 10px;
+                    background: #ffffff;
+                    font-size: 1rem;
+                    min-width: 200px;
+                }
+                .mexilux-advisor__cta {
+                    padding: 0.75rem 1.5rem;
+                    background: #f97316;
+                    color: #ffffff;
+                    border: none;
+                    border-radius: 999px;
+                    font-weight: 700;
+                    cursor: pointer;
+                    transition: background 0.2s;
+                }
+                .mexilux-advisor__cta:hover:not(:disabled) {
+                    background: #ea580c;
+                }
+                .mexilux-advisor__cta:disabled {
+                    opacity: 0.5;
+                    cursor: not-allowed;
+                }
+                .mexilux-advisor__sent {
+                    padding: 1rem;
+                    background: #ecfdf5;
+                    border-radius: 8px;
+                    color: #166534;
+                }
+            `}</style>
         </div>
     );
 }

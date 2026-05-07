@@ -250,7 +250,7 @@ export default function RootLayout({
 
                 <div className="footer-social">
                   <a
-                    href="https://facebook.com"
+                    href="https://www.facebook.com/mexilux"
                     aria-label="Facebook"
                     target="_blank"
                     rel="noopener noreferrer"
@@ -270,7 +270,7 @@ export default function RootLayout({
                     </svg>
                   </a>
                   <a
-                    href="https://tiktok.com"
+                    href="https://www.tiktok.com/@mexilux"
                     aria-label="TikTok"
                     target="_blank"
                     rel="noopener noreferrer"

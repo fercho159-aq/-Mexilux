@@ -262,52 +262,127 @@ export type PrescriptionSource =
   | 'appointment';      // Será obtenida en cita agendada
 
 /**
+ * ═══════════════════════════════════════════════════════════════════════════
+ * CONFIG MEXILUX - Lenguaje del configurador según spec del cliente
+ * ═══════════════════════════════════════════════════════════════════════════
+ */
+
+/** Tipo de mica del flujo Mexilux */
+export type MexiluxLensType =
+  | 'pa_la_chamba'           // Antirreflejo, gratis
+  | 'la_maquina_de_chambear' // Anti azul, +$450
+  | 'el_nahual'              // Fotocromático con sub-opciones
+  | 'a_tu_antojo';           // Personalizadas (Entituneados o Solazo)
+
+/** Color de "El nahual" (fotocromático) */
+export type NahualColor = 'obsidiana' | 'cenote' | 'elote' | 'ajolote';
+
+/** Tratamiento adicional al elegir "El nahual" */
+export type NahualTreatment = 'sin' | 'pa_la_chamba' | 'la_maquina';
+
+/** Sub-tipo de "A tu antojo" */
+export type AtuAntojoType = 'entituneados' | 'solazo';
+
+/** Color de "Entituneados" (tintes) */
+export type EntituneadoColor =
+  | 'sangre_azteca'
+  | 'obsidiana'
+  | 'cenote'
+  | 'cacao'
+  | 'nopal'
+  | 'ajolote'
+  | 'elote'
+  | 'cempasuchil';
+
+/** Estilo de tinte */
+export type EntituneadoStyle = 'parejito' | 'amanecido';
+
+/** Intensidad del tinte */
+export type EntituneadoIntensity = 'I' | 'II' | 'III';
+
+/** Color de "Solazo" (polarizado) */
+export type SolazoColor = 'obsidiana' | 'cacao';
+
+/** Configuración Mexilux específica (sub-opciones del tipo de mica) */
+export interface MexiluxLensConfig {
+  /** Tipo de mica seleccionado */
+  lensType: MexiluxLensType | null;
+
+  // Sub-opciones de "El nahual"
+  nahualColor: NahualColor | null;
+  nahualTreatment: NahualTreatment | null;
+
+  // Sub-opciones de "A tu antojo"
+  atuAntojoType: AtuAntojoType | null;
+
+  // Sub-opciones de "Entituneados"
+  entituneadoColor: EntituneadoColor | null;
+  entituneadoStyle: EntituneadoStyle | null;
+  entituneadoIntensity: EntituneadoIntensity | null;
+
+  // Sub-opciones de "Solazo"
+  solazoColor: SolazoColor | null;
+
+  /** Serie de graduación calculada (solo si "Con graduación") */
+  prescriptionSeries: 1 | 2 | 3 | 'asesor' | null;
+
+  /** Teléfono ingresado para flujo de asesor (graduación >6) */
+  advisorPhone: string | null;
+
+  /** Costo extra por serie de graduación */
+  prescriptionExtraCost: number;
+}
+
+/**
  * Configuración completa de lentes
  * Este es el objeto que se guarda cuando el usuario completa el wizard
  */
 export interface LensConfiguration {
   id: UUID;
-  
+
   /** ID de la montura asociada */
   frameId: UUID;
-  
+
   /** Paso actual del wizard */
   currentStep: ConfiguratorStep;
-  
+
   /** El wizard ha sido completado */
   isComplete: boolean;
-  
+
   // ─── PASO 1: TIPO DE USO ───────────────────────────────────────────────
   usageType: LensUsageType | null;
-  
+
   // ─── PASO 2: RECETA ────────────────────────────────────────────────────
   prescriptionSource: PrescriptionSource | null;
-  
+
   /** ID de receta guardada (si source = 'saved') */
   savedPrescriptionId: UUID | null;
-  
+
   /** Receta ingresada manualmente (si source = 'manual') */
   manualPrescription: Omit<Prescription, 'id' | 'userId' | 'createdAt' | 'updatedAt'> | null;
-  
+
   /** URL de imagen subida (si source = 'upload') */
   uploadedPrescriptionUrl: string | null;
-  
+
   /** ID de cita agendada (si source = 'appointment') */
   appointmentId: UUID | null;
-  
+
   // ─── PASO 3: MATERIAL ──────────────────────────────────────────────────
   materialId: UUID | null;
-  
+
   // ─── PASO 4: TRATAMIENTOS ──────────────────────────────────────────────
   treatmentIds: UUID[];
-  
+
+  // ─── CONFIG MEXILUX (lenguaje del cliente) ─────────────────────────────
+  mexiluxConfig?: MexiluxLensConfig;
+
   // ─── PRECIOS CALCULADOS ────────────────────────────────────────────────
   pricing: LensConfigurationPricing | null;
-  
+
   // ─── METADATOS ─────────────────────────────────────────────────────────
   createdAt: ISODateString;
   updatedAt: ISODateString;
-  
+
   /** TTL para limpieza automática de configuraciones abandonadas */
   expiresAt: ISODateString;
 }

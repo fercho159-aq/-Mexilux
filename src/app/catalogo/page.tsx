@@ -88,17 +88,6 @@ export default async function CatalogoPage({ searchParams }: PageProps) {
                     {/* Gender filter links with character illustrations */}
                     <div className="filter-links">
                         <Link
-                            href="/catalogo"
-                            className={`filter-link filter-link-character ${!activeGenero ? 'active' : ''}`}
-                        >
-                            <svg width="28" height="28" viewBox="0 0 40 40" fill="none" xmlns="http://www.w3.org/2000/svg">
-                                <circle cx="20" cy="20" r="18" fill={!activeGenero ? '#fff' : '#e8ecf1'} opacity="0.5"/>
-                                <circle cx="20" cy="16" r="6" stroke="currentColor" strokeWidth="2" fill="none"/>
-                                <path d="M10 34c0-5.5 4.5-10 10-10s10 4.5 10 10" stroke="currentColor" strokeWidth="2" fill="none" strokeLinecap="round"/>
-                            </svg>
-                            <span>Todos</span>
-                        </Link>
-                        <Link
                             href="/catalogo?genero=hombre"
                             className={`filter-link filter-link-character ${activeGenero === 'hombre' ? 'active' : ''}`}
                         >
@@ -135,6 +124,17 @@ export default async function CatalogoPage({ searchParams }: PageProps) {
                                 <path d="M12 36c0-4.5 3.5-8 8-8s8 3.5 8 8" stroke="currentColor" strokeWidth="1.8" fill="none" strokeLinecap="round"/>
                             </svg>
                             <span>Mexicana</span>
+                        </Link>
+                        <Link
+                            href="/catalogo"
+                            className={`filter-link filter-link-character ${!activeGenero ? 'active' : ''}`}
+                        >
+                            <svg width="28" height="28" viewBox="0 0 40 40" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                <circle cx="20" cy="20" r="18" fill={!activeGenero ? '#fff' : '#e8ecf1'} opacity="0.5"/>
+                                <circle cx="20" cy="16" r="6" stroke="currentColor" strokeWidth="2" fill="none"/>
+                                <path d="M10 34c0-5.5 4.5-10 10-10s10 4.5 10 10" stroke="currentColor" strokeWidth="2" fill="none" strokeLinecap="round"/>
+                            </svg>
+                            <span>Sin etiquetas</span>
                         </Link>
                     </div>
 

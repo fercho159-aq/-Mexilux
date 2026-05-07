@@ -18,6 +18,7 @@ import type {
     PrescriptionSource,
     Prescription,
     LensConfigurationPricing,
+    MexiluxLensConfig,
     UUID,
 } from '@/types';
 
@@ -94,6 +95,9 @@ interface LensConfiguratorState {
     /** Establece múltiples tratamientos */
     setTreatments: (treatmentIds: UUID[]) => void;
 
+    /** Actualiza la config Mexilux (parcial) */
+    updateMexiluxConfig: (patch: Partial<MexiluxLensConfig>) => void;
+
     /** Actualiza los precios calculados */
     updatePricing: (pricing: LensConfigurationPricing) => void;
 
@@ -125,11 +129,24 @@ interface LensConfiguratorState {
 
 const STEPS_ORDER: ConfiguratorStep[] = [
     'usage_type',
-    'prescription',
     'material',
-    'treatments',
+    'prescription',
     'review',
 ];
+
+const EMPTY_MEXILUX_CONFIG: MexiluxLensConfig = {
+    lensType: null,
+    nahualColor: null,
+    nahualTreatment: null,
+    atuAntojoType: null,
+    entituneadoColor: null,
+    entituneadoStyle: null,
+    entituneadoIntensity: null,
+    solazoColor: null,
+    prescriptionSeries: null,
+    advisorPhone: null,
+    prescriptionExtraCost: 0,
+};
 
 const STORAGE_KEY = 'mexilux-lens-configurator';
 const TTL_DAYS = 7;
@@ -177,6 +194,7 @@ const initialState: Omit<
     | 'setMaterial'
     | 'toggleTreatment'
     | 'setTreatments'
+    | 'updateMexiluxConfig'
     | 'updatePricing'
     | 'completeStep'
     | 'setStepErrors'
@@ -230,6 +248,7 @@ export const useLensConfiguratorStore = create<LensConfiguratorState>()(
                         appointmentId: null,
                         materialId: null,
                         treatmentIds: [],
+                        mexiluxConfig: { ...EMPTY_MEXILUX_CONFIG },
                         pricing: null,
                         createdAt: now,
                         updatedAt: now,
@@ -468,6 +487,25 @@ export const useLensConfiguratorStore = create<LensConfiguratorState>()(
             },
 
             // ─────────────────────────────────────────────────────────────────────
+            // CONFIG MEXILUX (Pa la chamba, El nahual, A tu antojo, etc.)
+            // ─────────────────────────────────────────────────────────────────────
+
+            updateMexiluxConfig: (patch) => {
+                set((state) => ({
+                    configuration: state.configuration
+                        ? {
+                            ...state.configuration,
+                            mexiluxConfig: {
+                                ...(state.configuration.mexiluxConfig || EMPTY_MEXILUX_CONFIG),
+                                ...patch,
+                            },
+                            updatedAt: new Date().toISOString(),
+                        }
+                        : null,
+                }));
+            },
+
+            // ─────────────────────────────────────────────────────────────────────
             // PRECIOS
             // ─────────────────────────────────────────────────────────────────────
 
@@ -548,8 +586,16 @@ export const useLensConfiguratorStore = create<LensConfiguratorState>()(
                     case 'usage_type':
                         return config.usageType !== null;
 
-                    case 'prescription':
+                    case 'prescription': {
                         if (config.usageType === 'non_prescription') return true;
+
+                        // Flujo Mexilux: si la serie cae en 'asesor', requerir teléfono
+                        const mx = config.mexiluxConfig;
+                        if (mx?.prescriptionSeries === 'asesor') {
+                            return !!mx.advisorPhone;
+                        }
+
+                        // Si no se ha capturado nada aún
                         if (!config.prescriptionSource) return false;
 
                         switch (config.prescriptionSource) {
@@ -564,9 +610,31 @@ export const useLensConfiguratorStore = create<LensConfiguratorState>()(
                             default:
                                 return false;
                         }
+                    }
 
-                    case 'material':
-                        return config.materialId !== null;
+                    case 'material': {
+                        // Avance basado en MexiluxConfig: el lensType debe estar elegido
+                        // y, si tiene sub-opciones, deben estar resueltas.
+                        const m = config.mexiluxConfig;
+                        if (!m?.lensType) return false;
+                        switch (m.lensType) {
+                            case 'pa_la_chamba':
+                            case 'la_maquina_de_chambear':
+                                return true;
+                            case 'el_nahual':
+                                return !!m.nahualColor && !!m.nahualTreatment;
+                            case 'a_tu_antojo':
+                                if (m.atuAntojoType === 'entituneados') {
+                                    return !!m.entituneadoColor && !!m.entituneadoStyle && !!m.entituneadoIntensity;
+                                }
+                                if (m.atuAntojoType === 'solazo') {
+                                    return !!m.solazoColor;
+                                }
+                                return false;
+                            default:
+                                return false;
+                        }
+                    }
 
                     case 'treatments':
                         // Tratamientos son opcionales
@@ -650,6 +718,7 @@ export const useConfiguratorActions = () =>
         setMaterial: state.setMaterial,
         toggleTreatment: state.toggleTreatment,
         setTreatments: state.setTreatments,
+        updateMexiluxConfig: state.updateMexiluxConfig,
         updatePricing: state.updatePricing,
         finalizeConfiguration: state.finalizeConfiguration,
         reset: state.reset,

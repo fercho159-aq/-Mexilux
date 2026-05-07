@@ -46,12 +46,6 @@ const TRUST_BADGES = [
         useEmoji: true,
     },
     {
-        icon: 'shield',
-        label: "Pa' que no te preocupes",
-        detail: 'Todos los armazones tienen garantía',
-        useEmoji: false,
-    },
-    {
         icon: '🚛',
         label: 'Ya vamos, hay mucho tráfico',
         detail: '5-7 días de entrega',
