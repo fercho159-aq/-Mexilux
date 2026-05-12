@@ -160,36 +160,17 @@ export default function CheckoutClient({ initialItem }: CheckoutClientProps) {
                         </div>
 
                         {/* Login link manual */}
-                        <div className="login-prompt" style={{
-                            padding: '12px 16px',
-                            background: '#f8fafc',
-                            borderRadius: '12px',
-                            marginBottom: '1rem',
-                            display: 'flex',
-                            justifyContent: 'space-between',
-                            alignItems: 'center',
-                            gap: '0.5rem',
-                            flexWrap: 'wrap',
-                        }}>
-                            <span style={{ color: '#475569', fontSize: '0.9rem' }}>
+                        <div className="login-prompt">
+                            <span className="login-prompt-text">
                                 ¿Ya tienes cuenta?
                             </span>
-                            <Link href="/cuenta?redirect=/checkout" style={{
-                                color: '#152132',
-                                fontWeight: 600,
-                                textDecoration: 'underline',
-                                fontSize: '0.9rem',
-                            }}>
+                            <Link href="/cuenta?redirect=/checkout" className="login-prompt-link">
                                 Ingresa con tu cuenta
                             </Link>
                         </div>
 
                         {/* Guest vs Register */}
-                        <div className="checkout-mode" style={{
-                            display: 'flex',
-                            gap: '0.75rem',
-                            marginBottom: '1.5rem',
-                        }}>
+                        <div className="checkout-mode">
                             <button
                                 type="button"
                                 onClick={() => setMode('guest')}
@@ -221,13 +202,7 @@ export default function CheckoutClient({ initialItem }: CheckoutClientProps) {
                                 }}
                             >
                                 Crear cuenta
-                                <span style={{
-                                    display: 'block',
-                                    fontSize: '0.75rem',
-                                    color: '#16a34a',
-                                    fontWeight: 500,
-                                    marginTop: '0.15rem',
-                                }}>
+                                <span className="checkout-mode-subtext">
                                     -${FIRST_PURCHASE_DISCOUNT} en tu primera compra
                                 </span>
                             </button>
@@ -375,9 +350,9 @@ export default function CheckoutClient({ initialItem }: CheckoutClientProps) {
                                                 </div>
                                             )}
                                         </div>
-                                        <div className="item-details" style={{ gap: '0.125rem' }}>
-                                            <h4 className="item-name" style={{ fontSize: '0.8125rem' }}>{item.brand} {item.name}</h4>
-                                            <span className="item-variant" style={{ fontSize: '0.6875rem' }}>{item.variant} &middot; {item.quantity}u</span>
+                                        <div className="item-details">
+                                            <h4 className="item-name">{item.brand} {item.name}</h4>
+                                            <span className="item-variant">{item.variant} &middot; {item.quantity}u</span>
                                             {item.treatmentsDescription && (
                                                 <span style={{ fontSize: '0.6875rem', color: '#8A6623', marginTop: '2px' }}>
                                                     {item.treatmentsDescription}
