@@ -64,7 +64,7 @@ export default function MercadoPagoButton({ items }: MercadoPagoButtonProps) {
         <div className="mp-container">
             {preferenceId && (
                 <Wallet
-                    initialization={{ preferenceId: preferenceId }}
+                    initialization={{ preferenceId: preferenceId, redirectMode: 'self' }}
                 />
             )}
         </div>

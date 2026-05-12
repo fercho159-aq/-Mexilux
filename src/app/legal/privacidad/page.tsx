@@ -129,9 +129,9 @@ export default function PrivacidadPage() {
                         <h2>9. Contacto</h2>
                         <p>Para preguntas sobre privacidad:</p>
                         <div className="contact-options">
-                            <Link href="mailto:privacidad@mexilux.com" className="contact-option">
+                            <a href="mailto:privacidad@mexilux.com" className="contact-option">
                                 <Mail className="inline-block" size={16} /> privacidad@mexilux.com
-                            </Link>
+                            </a>
                             <Link href="/contacto" className="contact-option">
                                 <MessageCircle className="inline-block" size={16} /> Formulario de contacto
                             </Link>

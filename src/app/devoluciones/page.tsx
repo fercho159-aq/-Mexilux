@@ -59,7 +59,7 @@ export default function DevolucionesPage() {
                         <h2>Iniciar devolución</h2>
                         <div className="contact-options">
                             <Link href="/contacto" className="contact-option"><MessageCircle className="inline-block" size={16} /> WhatsApp: (55) 1234-5678</Link>
-                            <Link href="mailto:soporte@mexilux.com" className="contact-option"><Mail className="inline-block" size={16} /> soporte@mexilux.com</Link>
+                            <a href="mailto:soporte@mexilux.com" className="contact-option"><Mail className="inline-block" size={16} /> soporte@mexilux.com</a>
                         </div>
                         <p style={{ marginTop: '1rem' }}>
                             <Link href="/legal/garantia">Ver política de garantía completa →</Link>

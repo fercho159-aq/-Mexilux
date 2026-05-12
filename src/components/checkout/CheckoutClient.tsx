@@ -6,6 +6,17 @@ import Image from 'next/image';
 import MercadoPagoButton from './MercadoPagoButton';
 import './checkout.css';
 
+interface LensConfiguration {
+    lensType: string | null;
+    hasPrescription: boolean | null;
+    tier: string | number | null;
+    totalPrice: number;
+    framePrice: number;
+    lensPrice: number;
+    extrasPrice: number;
+    prescriptionCost: number;
+}
+
 interface CheckoutItem {
     id: string;
     slug: string;
@@ -16,6 +27,8 @@ interface CheckoutItem {
     price: number;
     quantity: number;
     uvProtection?: string;
+    treatmentsDescription?: string;
+    lensConfiguration?: LensConfiguration;
 }
 
 interface CheckoutClientProps {
@@ -51,7 +64,9 @@ export default function CheckoutClient({ initialItem }: CheckoutClientProps) {
                         image: item.image,
                         price: item.price,
                         quantity: item.quantity,
-                        uvProtection: 'UV400'
+                        uvProtection: 'UV400',
+                        treatmentsDescription: item.treatmentsDescription,
+                        lensConfiguration: item.lensConfiguration,
                     })));
                 } catch (e) {
                     console.error('Error loading cart:', e);
@@ -164,7 +179,7 @@ export default function CheckoutClient({ initialItem }: CheckoutClientProps) {
                             <span style={{ color: '#475569', fontSize: '0.9rem' }}>
                                 ¿Ya tienes cuenta?
                             </span>
-                            <Link href="/login?redirect=/checkout" style={{
+                            <Link href="/cuenta?redirect=/checkout" style={{
                                 color: '#152132',
                                 fontWeight: 600,
                                 textDecoration: 'underline',
@@ -365,6 +380,11 @@ export default function CheckoutClient({ initialItem }: CheckoutClientProps) {
                                         <div className="item-details" style={{ gap: '0.125rem' }}>
                                             <h4 className="item-name" style={{ fontSize: '0.8125rem' }}>{item.brand} {item.name}</h4>
                                             <span className="item-variant" style={{ fontSize: '0.6875rem' }}>{item.variant} &middot; {item.quantity}u</span>
+                                            {item.treatmentsDescription && (
+                                                <span style={{ fontSize: '0.6875rem', color: '#8A6623', marginTop: '2px' }}>
+                                                    {item.treatmentsDescription}
+                                                </span>
+                                            )}
                                         </div>
                                         <div className="item-price" style={{ fontSize: '0.8125rem' }}>
                                             {formatPrice(item.price * item.quantity)}
@@ -374,6 +394,35 @@ export default function CheckoutClient({ initialItem }: CheckoutClientProps) {
                             </div>
 
                             <div className="summary-totals">
+                                {/* Desglose de configuración de lentes */}
+                                {items.map((item) =>
+                                    item.lensConfiguration ? (
+                                        <div key={`config-${item.id}`} style={{ marginBottom: '0.75rem', paddingBottom: '0.75rem', borderBottom: '1px dashed #e2e8f0' }}>
+                                            <div className="total-row" style={{ fontSize: '0.8125rem' }}>
+                                                <span>Armazón</span>
+                                                <span>{formatPrice(item.lensConfiguration.framePrice)}</span>
+                                            </div>
+                                            {item.lensConfiguration.lensPrice > 0 && (
+                                                <div className="total-row" style={{ fontSize: '0.8125rem' }}>
+                                                    <span>Mica</span>
+                                                    <span>{formatPrice(item.lensConfiguration.lensPrice)}</span>
+                                                </div>
+                                            )}
+                                            {item.lensConfiguration.extrasPrice > 0 && (
+                                                <div className="total-row" style={{ fontSize: '0.8125rem' }}>
+                                                    <span>Tratamientos extras</span>
+                                                    <span>{formatPrice(item.lensConfiguration.extrasPrice)}</span>
+                                                </div>
+                                            )}
+                                            {item.lensConfiguration.prescriptionCost > 0 && (
+                                                <div className="total-row" style={{ fontSize: '0.8125rem' }}>
+                                                    <span>Graduación</span>
+                                                    <span>{formatPrice(item.lensConfiguration.prescriptionCost)}</span>
+                                                </div>
+                                            )}
+                                        </div>
+                                    ) : null
+                                )}
                                 <div className="total-row">
                                     <span>Subtotal</span>
                                     <span>{formatPrice(subtotal)}</span>

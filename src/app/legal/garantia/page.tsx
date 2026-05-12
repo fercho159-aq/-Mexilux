@@ -133,9 +133,9 @@ export default function GarantiaPage() {
                             <Link href="/contacto" className="contact-option">
                                 <MessageCircle className="inline-block" size={16} /> WhatsApp: (55) 1234-5678
                             </Link>
-                            <Link href="mailto:soporte@mexilux.com" className="contact-option">
+                            <a href="mailto:soporte@mexilux.com" className="contact-option">
                                 <Mail className="inline-block" size={16} /> soporte@mexilux.com
-                            </Link>
+                            </a>
                         </div>
                     </section>
                 </div>

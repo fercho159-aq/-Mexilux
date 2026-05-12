@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import Link from 'next/link';
 
 const MENU_ITEMS = [
@@ -12,8 +12,39 @@ const MENU_ITEMS = [
     { href: '/contacto', label: 'Contáctanos' },
 ];
 
+function useCartCount() {
+    const [count, setCount] = useState(0);
+
+    useEffect(() => {
+        const updateCount = () => {
+            try {
+                const cart = JSON.parse(localStorage.getItem('mexilux_cart') || '[]');
+                setCount(cart.reduce((sum: number, item: any) => sum + (item.quantity || 1), 0));
+            } catch {
+                setCount(0);
+            }
+        };
+        updateCount();
+        window.addEventListener('cart-updated', updateCount);
+        return () => window.removeEventListener('cart-updated', updateCount);
+    }, []);
+
+    return count;
+}
+
 export default function Header() {
     const [isMenuOpen, setIsMenuOpen] = useState(false);
+    const cartCount = useCartCount();
+
+    // Bloquear scroll cuando el menú móvil está abierto
+    useEffect(() => {
+        if (isMenuOpen) {
+            document.body.style.overflow = 'hidden';
+        } else {
+            document.body.style.overflow = '';
+        }
+        return () => { document.body.style.overflow = ''; };
+    }, [isMenuOpen]);
 
     return (
         <>
@@ -38,7 +69,7 @@ export default function Header() {
 
                         {/* Shopping Bag */}
                         <Link
-                            href="/carrito"
+                            href="/checkout"
                             className="header-action cart-action"
                             aria-label="Carrito de compras"
                         >
@@ -47,9 +78,11 @@ export default function Header() {
                                 <line x1="3" y1="6" x2="21" y2="6" />
                                 <path d="M16 10a4 4 0 0 1-8 0" />
                             </svg>
-                            <span className="cart-count" aria-label="0 productos">
-                                0
-                            </span>
+                            {cartCount > 0 && (
+                                <span className="cart-count" aria-label={`${cartCount} productos`}>
+                                    {cartCount}
+                                </span>
+                            )}
                         </Link>
 
                         {/* Hamburger Menu */}

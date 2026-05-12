@@ -166,9 +166,9 @@ export default function FAQPage() {
                         <Link href="/contacto" className="btn btn-primary">
                             <MessageCircle className="inline-block" size={16} /> Contactar por WhatsApp
                         </Link>
-                        <Link href="mailto:info@mexilux.com" className="btn btn-outline">
+                        <a href="mailto:info@mexilux.com" className="btn btn-outline">
                             <Mail className="inline-block" size={16} /> Enviar correo
-                        </Link>
+                        </a>
                     </div>
                 </section>
             </div>

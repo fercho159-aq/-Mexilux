@@ -3833,6 +3833,10 @@
         height: 300px;
     }
 
+    .gallery-nav-arrows {
+        display: none !important;
+    }
+
     .apple-gallery-nav {
         width: 36px;
         height: 36px;

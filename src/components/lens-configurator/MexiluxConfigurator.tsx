@@ -156,16 +156,63 @@ export default function MexiluxConfigurator({ frameSlug, frameName, frameImage, 
     const handleAddToCart = () => {
         const lensType = LENS_TYPES.find((l) => l.id === config.lensType);
         const summaryName = `${frameName} · ${lensType?.name ?? 'Lentes'}`;
-        const url = `/carrito?add=${frameSlug}&config=${encodeURIComponent(
-            JSON.stringify({
+
+        // Build treatments description for checkout display
+        const treatments: string[] = [];
+        if (config.lensType === 'el-nahual') {
+            const color = NAHUAL_COLORS.find((c) => c.id === config.nahualColor);
+            const additional = NAHUAL_ADDITIONAL.find((a) => a.id === config.nahualAdditional);
+            if (color) treatments.push(color.label);
+            if (additional && additional.id !== 'none') treatments.push(additional.label);
+        }
+        if (config.lensType === 'a-tu-antojo') {
+            const cm = CUSTOM_MICAS.find((c) => c.id === config.customMica);
+            if (cm) treatments.push(cm.name);
+            if (config.customMica === 'entituneados' && config.tintColor) {
+                const color = ENTITUNEADOS_COLORS.find((c) => c.id === config.tintColor);
+                if (color) treatments.push(`${color.label} (${config.tintStyle === 'amanecido' ? 'Amanecido' : 'Parejito'}) · Nivel ${config.intensity ?? 'I'}`);
+            }
+            if (config.customMica === 'solazo' && config.solazoColor) {
+                const color = SOLAZO_COLORS.find((c) => c.id === config.solazoColor);
+                if (color) treatments.push(color.label);
+            }
+        }
+        if (config.hasPrescription && tier && !requiresAdvisor) {
+            treatments.push(`Graduación ${tier.label}`);
+        }
+
+        const cartItem = {
+            id: `cart-${Date.now()}`,
+            productId: frameSlug,
+            name: frameName,
+            brand: 'Mexilux',
+            variant: summaryName,
+            variantId: frameSlug,
+            image: frameImage || '',
+            price: pricing.total,
+            quantity: 1,
+            slug: frameSlug,
+            // Extra fields for checkout display
+            treatmentsDescription: treatments.join(' · ') || undefined,
+            lensConfiguration: {
                 lensType: config.lensType,
                 hasPrescription: config.hasPrescription,
                 tier: tier?.tier,
-                summary: summaryName,
-                price: pricing.total,
-            })
-        )}`;
-        window.location.href = url;
+                totalPrice: pricing.total,
+                framePrice: framePrice,
+                lensPrice: pricing.lensTypePrice,
+                extrasPrice: pricing.extras,
+                prescriptionCost: pricing.prescriptionCost,
+            },
+        };
+
+        // Save directly to cart and go straight to checkout (skip cart page)
+        const existingCart = JSON.parse(localStorage.getItem('mexilux_cart') || '[]');
+        const updatedCart = [...existingCart, cartItem];
+        localStorage.setItem('mexilux_cart', JSON.stringify(updatedCart));
+        window.dispatchEvent(new CustomEvent('cart-updated', { detail: updatedCart.length }));
+
+        window.location.href = '/checkout';
     };
 
     return (

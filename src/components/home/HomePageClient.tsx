@@ -60,7 +60,7 @@ const TREATMENTS = [
         description: 'Antirreflejo. Ideal para 0–4 hrs frente a pantallas.',
         icon: <Monitor size={28} />,
         color: '#1a73e8',
-        href: '/tratamientos/pa-la-chamba',
+        href: '/tratamientos',
     },
     {
         id: 'la-maquina-de-chambear',
@@ -68,7 +68,7 @@ const TREATMENTS = [
         description: 'Filtro azul. Ideal para +4 hrs frente a pantallas.',
         icon: <Laptop size={28} />,
         color: '#6b4c9a',
-        href: '/tratamientos/la-maquina-de-chambear',
+        href: '/tratamientos',
     },
     {
         id: 'solazo',
@@ -76,7 +76,7 @@ const TREATMENTS = [
         description: 'Polarizado. Para carreteras, playa y flow.',
         icon: <Sun size={28} />,
         color: '#e8a01a',
-        href: '/tratamientos/solazo',
+        href: '/tratamientos',
     },
     {
         id: 'entituneados',
@@ -84,7 +84,7 @@ const TREATMENTS = [
         description: 'Tintes a tu antojo: Parejito (uniforme) o Amanecido (degradado).',
         icon: <Palette size={28} />,
         color: '#e91e63',
-        href: '/tratamientos/entituneados',
+        href: '/tratamientos',
     },
 ];
 
@@ -271,7 +271,7 @@ export default function HomePageClient({ featuredProducts = [] }: HomePageClient
                             {BLOG_PREVIEW.map((section) => (
                                 <Link
                                     key={section.slug}
-                                    href={`/blog/categoria/${section.slug}`}
+                                    href={`/blog?categoria=${section.slug}`}
                                     className="blog-preview-card"
                                     style={{ background: section.gradient }}
                                 >

@@ -434,7 +434,7 @@ export function LensConfiguratorWizard({
                         <h3>¿Necesitas ayuda?</h3>
                         <p>
                             Si tienes dudas sobre tu receta o qué opciones elegir,
-                            puedes <a href="/citas">agendar una cita</a> con uno de
+                            puedes <a href="/servicios/citas">agendar una cita</a> con uno de
                             nuestros optometristas.
                         </p>
                     </div>

@@ -76,6 +76,7 @@ export async function POST(request: NextRequest) {
                     pending: `${request.nextUrl.origin}/checkout/pending${externalReference ? `?order=${externalReference}` : ''}`,
                 },
                 auto_return: 'approved',
+                binary_mode: true,
                 statement_descriptor: 'MEXILUX',
                 expires: true,
                 expiration_date_from: new Date().toISOString(),

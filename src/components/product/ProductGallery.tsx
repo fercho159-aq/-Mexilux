@@ -257,13 +257,6 @@ export default function ProductGallery({
             )}
 
             {/* CSS para ocultar flechas en móvil */}
-            <style jsx>{`
-                @media (max-width: 768px) {
-                    .gallery-nav-arrows {
-                        display: none !important;
-                    }
-                }
-            `}</style>
         </section>
     );
 }

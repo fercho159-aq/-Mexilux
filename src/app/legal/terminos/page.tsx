@@ -47,7 +47,7 @@ export default function TerminosPage() {
                     <section className="legal-section">
                         <h2>5. Contacto</h2>
                         <div className="contact-options">
-                            <Link href="mailto:legal@mexilux.com" className="contact-option">✉️ legal@mexilux.com</Link>
+                            <a href="mailto:legal@mexilux.com" className="contact-option">✉️ legal@mexilux.com</a>
                         </div>
                     </section>
                 </div>
