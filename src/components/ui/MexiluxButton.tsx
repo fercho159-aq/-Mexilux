@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { ButtonHTMLAttributes, ReactNode } from "react";
+import { ButtonHTMLAttributes, ReactNode, CSSProperties } from "react";
 
 type Variant = "primary" | "secondary" | "ghost";
 type Size = "sm" | "md" | "lg";
@@ -30,6 +30,32 @@ const variantClasses: Record<Variant, string> = {
 const baseClasses =
   "inline-flex items-center justify-center gap-2 rounded-full font-medium tracking-wide transition-all duration-200 active:scale-95 focus:outline-none focus:ring-2 focus:ring-[#8A6623] focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed";
 
+const baseStyle: CSSProperties = {
+  display: "inline-flex",
+  alignItems: "center",
+  justifyContent: "center",
+  gap: "0.5rem",
+  borderRadius: "9999px",
+  fontWeight: 500,
+  textDecoration: "none",
+  transition: "all 200ms",
+  cursor: "pointer",
+  textAlign: "center",
+};
+
+const sizeStyles: Record<Size, CSSProperties> = {
+  sm: { padding: "0.5rem 1.25rem", fontSize: "0.875rem" },
+  md: { padding: "0.75rem 1.75rem", fontSize: "1rem" },
+  lg: { padding: "1rem 2.25rem", fontSize: "1.125rem" },
+};
+
+export function buttonStyle(
+  size: Size = "md",
+  extra?: CSSProperties
+): CSSProperties {
+  return { ...baseStyle, ...sizeStyles[size], ...extra };
+}
+
 export function buttonClassNames({
   variant = "primary",
   size = "md",
@@ -57,11 +83,13 @@ export function MexiluxButton({
   fullWidth = false,
   className = "",
   children,
+  style,
   ...rest
 }: ButtonProps) {
   return (
     <button
       className={buttonClassNames({ variant, size, fullWidth, className })}
+      style={buttonStyle(size, style)}
       {...rest}
     >
       {children}
@@ -74,6 +102,7 @@ interface LinkProps extends BaseProps {
   target?: string;
   rel?: string;
   prefetch?: boolean;
+  style?: React.CSSProperties;
 }
 
 export function MexiluxButtonLink({
@@ -85,10 +114,12 @@ export function MexiluxButtonLink({
   target,
   rel,
   prefetch,
+  style,
   children,
 }: LinkProps) {
   const computedRel = target === "_blank" ? rel ?? "noopener noreferrer" : rel;
   const isExternal = href.startsWith("http") || target === "_blank";
+  const computedStyle = buttonStyle(size, style);
 
   if (isExternal) {
     return (
@@ -97,6 +128,7 @@ export function MexiluxButtonLink({
         target={target}
         rel={computedRel}
         className={buttonClassNames({ variant, size, fullWidth, className })}
+        style={computedStyle}
       >
         {children}
       </a>
@@ -108,6 +140,7 @@ export function MexiluxButtonLink({
       href={href}
       prefetch={prefetch}
       className={buttonClassNames({ variant, size, fullWidth, className })}
+      style={computedStyle}
     >
       {children}
     </Link>

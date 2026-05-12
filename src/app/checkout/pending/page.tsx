@@ -13,6 +13,7 @@ export default function CheckoutPendingPage() {
                 <Link
                     href="/"
                     className="block w-full py-3 px-4 bg-black text-white rounded-lg font-medium hover:bg-gray-800 transition"
+                    style={{ color: '#fff' }}
                 >
                     Volver al inicio
                 </Link>

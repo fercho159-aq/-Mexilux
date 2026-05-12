@@ -53,7 +53,7 @@ export default async function LentesOftalmicosPage() {
             {/* Hero Header */}
             <section className="catalog-hero" style={{ background: 'linear-gradient(135deg, #2d3436 0%, #636e72 100%)' }}>
                 <div className="catalog-hero-content">
-                    <span style={{ marginBottom: '1rem', display: 'block' }}><Glasses size={48} /></span>
+                    <span style={{ marginBottom: '1rem', display: 'block', textAlign: 'center' }}><Glasses size={48} /></span>
                     <h1 className="catalog-hero-title" style={{ color: 'white' }}>
                         Lentes Oftálmicos
                     </h1>
@@ -123,7 +123,7 @@ export default async function LentesOftalmicosPage() {
                 <div className="catalog-products-container">
                     {frames.length > 0 ? (
                         <div className="products-grid-clean">
-                            {frames.map((frame) => {
+                            {frames.map((frame, frameIdx) => {
                                 const defaultVariant = frame.frame_color_variants[0];
                                 const defaultImage = defaultVariant?.frame_images[0];
                                 const basePrice = typeof frame.base_price === 'number'
@@ -160,6 +160,7 @@ export default async function LentesOftalmicosPage() {
                                                         fill
                                                         style={{ objectFit: 'contain' }}
                                                         sizes="(max-width: 768px) 50vw, 25vw"
+                                                        priority={frameIdx === 0}
                                                     />
                                                 ) : (
                                                     <span className="product-emoji-clean"><Glasses size={40} /></span>

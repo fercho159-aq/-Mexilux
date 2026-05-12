@@ -24,31 +24,31 @@ interface ScrollAnimateProps {
 
 const animationStyles: Record<AnimationType, { initial: CSSProperties; visible: CSSProperties }> = {
     'fade-up': {
-        initial: { opacity: 0, transform: 'translateY(40px)' },
+        initial: { opacity: 1, transform: 'translateY(24px)' },
         visible: { opacity: 1, transform: 'translateY(0)' },
     },
     'fade-down': {
-        initial: { opacity: 0, transform: 'translateY(-40px)' },
+        initial: { opacity: 1, transform: 'translateY(-24px)' },
         visible: { opacity: 1, transform: 'translateY(0)' },
     },
     'fade-left': {
-        initial: { opacity: 0, transform: 'translateX(40px)' },
+        initial: { opacity: 1, transform: 'translateX(24px)' },
         visible: { opacity: 1, transform: 'translateX(0)' },
     },
     'fade-right': {
-        initial: { opacity: 0, transform: 'translateX(-40px)' },
+        initial: { opacity: 1, transform: 'translateX(-24px)' },
         visible: { opacity: 1, transform: 'translateX(0)' },
     },
     'fade-in': {
-        initial: { opacity: 0 },
+        initial: { opacity: 1 },
         visible: { opacity: 1 },
     },
     'zoom-in': {
-        initial: { opacity: 0, transform: 'scale(0.9)' },
+        initial: { opacity: 1, transform: 'scale(0.97)' },
         visible: { opacity: 1, transform: 'scale(1)' },
     },
     'zoom-out': {
-        initial: { opacity: 0, transform: 'scale(1.1)' },
+        initial: { opacity: 1, transform: 'scale(1.03)' },
         visible: { opacity: 1, transform: 'scale(1)' },
     },
 };

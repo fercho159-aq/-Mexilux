@@ -119,7 +119,7 @@ const jsonLd = {
       },
       sameAs: [
         "https://facebook.com/mexilux",
-        "https://www.instagram.com/mexilux/",
+        "https://www.instagram.com/its.coronado",
         "https://tiktok.com/@mexilux",
       ],
       contactPoint: {
@@ -260,7 +260,7 @@ export default function RootLayout({
                     </svg>
                   </a>
                   <a
-                    href="https://www.instagram.com/mexilux/"
+                    href="https://www.instagram.com/its.coronado"
                     aria-label="Instagram"
                     target="_blank"
                     rel="noopener noreferrer"

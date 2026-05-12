@@ -90,12 +90,15 @@ export default function CitasPage() {
 
                     {/* Trust badges */}
                     <div style={{
-                        display: 'flex',
+                        display: 'grid',
+                        gridTemplateColumns: 'repeat(4, 1fr)',
                         justifyContent: 'center',
-                        gap: '2rem',
+                        gap: '1rem 2rem',
                         marginTop: '1.5rem',
-                        flexWrap: 'wrap',
-                    }}>
+                        maxWidth: '900px',
+                        marginLeft: 'auto',
+                        marginRight: 'auto',
+                    }} className="features-grid">
                         {FEATURES.map((feature, idx) => (
                             <span key={idx} style={{
                                 display: 'flex',
@@ -104,6 +107,7 @@ export default function CitasPage() {
                                 color: '#059669',
                                 fontSize: '0.875rem',
                                 fontWeight: '500',
+                                justifyContent: 'center',
                             }}>
                                 {feature.icon} {feature.text}
                             </span>

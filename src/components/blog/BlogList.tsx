@@ -384,6 +384,8 @@ export default function BlogList() {
                     overflow-x: auto;
                     padding-bottom: 4px;
                     scrollbar-width: none;
+                    justify-content: center;
+                    flex-wrap: wrap;
                 }
 
                 .categories-scroll::-webkit-scrollbar {
@@ -422,6 +424,7 @@ export default function BlogList() {
                     text-transform: uppercase;
                     letter-spacing: 0.05em;
                     margin: 0 0 20px;
+                    text-align: center;
                 }
 
                 .blog-featured {

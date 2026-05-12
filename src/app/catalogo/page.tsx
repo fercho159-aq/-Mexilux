@@ -152,7 +152,7 @@ export default async function CatalogoPage({ searchParams }: PageProps) {
                 <div className="catalog-products-container">
                     {frames.length > 0 ? (
                         <div className="products-grid-clean">
-                            {frames.map((frame) => {
+                            {frames.map((frame, frameIdx) => {
                                 const defaultVariant = frame.frame_color_variants[0];
                                 const defaultImage = defaultVariant?.frame_images[0];
                                 const basePrice = typeof frame.base_price === 'number'
@@ -190,6 +190,7 @@ export default async function CatalogoPage({ searchParams }: PageProps) {
                                                         fill
                                                         style={{ objectFit: 'contain' }}
                                                         sizes="(max-width: 768px) 50vw, 25vw"
+                                                        priority={frameIdx === 0}
                                                     />
                                                 ) : (
                                                     <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="#cbd5e1" strokeWidth="1.5" aria-hidden="true">

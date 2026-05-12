@@ -288,45 +288,6 @@ export default function HomePageClient({ featuredProducts = [] }: HomePageClient
                         </div>
                     </ScrollAnimate>
                 </div>
-
-                <style jsx>{`
-                    .blog-preview-grid {
-                        display: grid;
-                        grid-template-columns: repeat(2, 1fr);
-                        gap: 1rem;
-                        margin-bottom: 1rem;
-                    }
-                    .blog-preview-card {
-                        display: flex;
-                        flex-direction: column;
-                        justify-content: flex-end;
-                        padding: 1.75rem;
-                        border-radius: 16px;
-                        color: white;
-                        text-decoration: none;
-                        min-height: 180px;
-                        transition: transform 0.3s ease, box-shadow 0.3s ease;
-                    }
-                    .blog-preview-card:hover {
-                        transform: translateY(-4px);
-                        box-shadow: 0 14px 28px rgba(0, 0, 0, 0.15);
-                    }
-                    .blog-preview-card h3 {
-                        font-size: 1.25rem;
-                        font-weight: 700;
-                        margin: 0 0 0.35rem;
-                    }
-                    .blog-preview-card p {
-                        font-size: 0.9rem;
-                        opacity: 0.9;
-                        margin: 0;
-                    }
-                    @media (max-width: 640px) {
-                        .blog-preview-grid {
-                            grid-template-columns: 1fr;
-                        }
-                    }
-                `}</style>
             </section>
 
             {/* 5. Quiz embebido */}
@@ -408,54 +369,6 @@ export default function HomePageClient({ featuredProducts = [] }: HomePageClient
                     </ScrollAnimate>
                 </div>
 
-                <style jsx>{`
-                    .treatments-grid {
-                        display: grid;
-                        grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
-                        gap: 1rem;
-                        padding: 1rem 0;
-                    }
-                    .treatment-card {
-                        border-radius: 20px;
-                        padding: 1.5rem;
-                        display: flex;
-                        flex-direction: column;
-                        gap: 0.75rem;
-                        text-decoration: none;
-                        color: inherit;
-                        transition: transform 0.3s ease, box-shadow 0.3s ease;
-                    }
-                    .treatment-card:hover {
-                        transform: translateY(-4px);
-                        box-shadow: 0 12px 24px rgba(0,0,0,0.1);
-                    }
-                    .treatment-icon {
-                        width: 56px;
-                        height: 56px;
-                        border-radius: 16px;
-                        display: flex;
-                        align-items: center;
-                        justify-content: center;
-                    }
-                    .treatment-name {
-                        font-size: 1.125rem;
-                        font-weight: 700;
-                        color: #152132;
-                        margin: 0;
-                    }
-                    .treatment-desc {
-                        font-size: 0.875rem;
-                        color: #555;
-                        margin: 0;
-                        line-height: 1.5;
-                    }
-                    .treatment-cta {
-                        margin-top: auto;
-                        font-size: 0.875rem;
-                        font-weight: 600;
-                        color: #152132;
-                    }
-                `}</style>
             </section>
 
             {/* 7. Testimonios al final */}

@@ -1165,6 +1165,22 @@
     color: var(--color-text-secondary);
 }
 
+.features-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 1rem 2rem;
+    margin-top: 1.5rem;
+    max-width: 900px;
+    margin-left: auto;
+    margin-right: auto;
+}
+
+@media (max-width: 768px) {
+    .features-grid {
+        grid-template-columns: repeat(2, 1fr);
+    }
+}
+
 .booking-step {
     margin-bottom: var(--space-2xl);
     padding-bottom: var(--space-2xl);
@@ -1364,6 +1380,8 @@
 .legal-header h1,
 .faq-header h1 {
     margin: 0 0 var(--space-sm);
+    font-size: clamp(2rem, 5vw, 3.25rem);
+    font-weight: 700;
 }
 
 .legal-updated {
@@ -1397,9 +1415,13 @@
 
 .guarantee-cards {
     display: grid;
-    grid-template-columns: repeat(3, 1fr);
+    grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
     gap: var(--space-md);
     margin-top: var(--space-lg);
+    justify-content: center;
+    max-width: 900px;
+    margin-left: auto;
+    margin-right: auto;
 }
 
 .guarantee-card {
@@ -2733,6 +2755,7 @@
     text-decoration: none;
     color: inherit;
     transition: all var(--transition-normal);
+    position: relative;
 }
 
 .brand-card-large:hover {
@@ -2759,6 +2782,9 @@
     border-radius: var(--radius-full);
     font-size: var(--font-size-xs);
     font-weight: 600;
+    position: absolute;
+    top: var(--space-md);
+    right: var(--space-md);
 }
 
 .brand-content p {
@@ -3142,8 +3168,9 @@
 /* Products Grid - Clean */
 .products-grid-clean {
     display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
     gap: var(--space-xl);
+    justify-content: center;
 }
 
 /* Product Card - Clean */
@@ -3473,6 +3500,13 @@
     }
 
     .filter-dropdowns {
+        overflow-x: auto;
+        padding-bottom: var(--space-sm);
+        flex-wrap: nowrap;
+        -webkit-overflow-scrolling: touch;
+    }
+
+    .filter-links {
         overflow-x: auto;
         padding-bottom: var(--space-sm);
         flex-wrap: nowrap;
