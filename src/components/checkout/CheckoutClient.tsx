@@ -116,12 +116,7 @@ export default function CheckoutClient({ initialItem }: CheckoutClientProps) {
         );
     }
 
-    const mpItems = items.map(item => ({
-        id: item.slug,
-        title: `${item.brand || ''} ${item.name} (${item.variant})`.trim(),
-        quantity: item.quantity,
-        price: item.price
-    }));
+    const orderDescription = items.map(item => `${item.brand || ''} ${item.name}`.trim()).join(', ');
 
     return (
         <div className="checkout-page">
@@ -339,7 +334,10 @@ export default function CheckoutClient({ initialItem }: CheckoutClientProps) {
                                 </div>
 
                                 <div className="mp-button-wrapper">
-                                    <MercadoPagoButton items={mpItems} />
+                                    <MercadoPagoButton
+                                        amount={total}
+                                        description={orderDescription || 'Compra en Mexilux'}
+                                    />
                                 </div>
 
                                 <p className="payment-secure-text">
