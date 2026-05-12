@@ -95,14 +95,14 @@ export async function GET(request: NextRequest) {
     }
 }
 
-// POST: Create order from cart
+// POST: Create order from cart or checkout items
 export async function POST(request: NextRequest) {
     try {
         const sessionId = await getSessionId();
         const userId = request.headers.get('x-user-id') || undefined;
 
         const body = await request.json();
-        const { shippingAddress, billingAddress, paymentMethod, paymentReference } = body;
+        const { shippingAddress, billingAddress, paymentMethod, paymentReference, items: checkoutItems, totals } = body;
 
         if (!shippingAddress) {
             return NextResponse.json(
@@ -111,52 +111,79 @@ export async function POST(request: NextRequest) {
             );
         }
 
-        // Get user's cart
-        const cart = await prisma.carts.findFirst({
-            where: userId
-                ? { user_id: userId }
-                : { session_id: sessionId, user_id: null },
-            include: {
-                cart_items: {
-                    include: {
-                        frame: {
-                            include: {
-                                brand: true,
-                            }
-                        },
-                        color_variant: {
-                            include: {
-                                frame_images: true,
-                            }
-                        },
-                        lens_configuration: {
-                            include: {
-                                material: true,
-                            }
-                        },
+        let cartItems: any[] = [];
+        let orderSubtotal = 0;
+        let orderDiscount = 0;
+        let orderShipping = 0;
+        let orderTax = 0;
+        let orderTotal = 0;
+        let couponCode: string | null = null;
+
+        // If checkout items are provided (direct buy), use them
+        if (checkoutItems && Array.isArray(checkoutItems) && checkoutItems.length > 0) {
+            cartItems = checkoutItems;
+            orderSubtotal = totals?.subtotal || checkoutItems.reduce((sum: number, item: any) => sum + (item.price * item.quantity), 0);
+            orderDiscount = totals?.discount || 0;
+            orderShipping = totals?.shipping || 0;
+            orderTax = totals?.tax || 0;
+            orderTotal = totals?.total || (orderSubtotal + orderShipping - orderDiscount);
+        } else {
+            // Get user's cart from DB
+            const cart = await prisma.carts.findFirst({
+                where: userId
+                    ? { user_id: userId }
+                    : { session_id: sessionId, user_id: null },
+                include: {
+                    cart_items: {
+                        include: {
+                            frame: {
+                                include: {
+                                    brand: true,
+                                }
+                            },
+                            color_variant: {
+                                include: {
+                                    frame_images: true,
+                                }
+                            },
+                            lens_configuration: {
+                                include: {
+                                    material: true,
+                                }
+                            },
+                        }
                     }
                 }
-            }
-        });
+            });
 
-        if (!cart || cart.cart_items.length === 0) {
-            return NextResponse.json(
-                { error: 'El carrito está vacío' },
-                { status: 400 }
-            );
+            if (!cart || cart.cart_items.length === 0) {
+                return NextResponse.json(
+                    { error: 'El carrito está vacío' },
+                    { status: 400 }
+                );
+            }
+
+            cartItems = cart.cart_items;
+            orderSubtotal = Number(cart.subtotal);
+            orderDiscount = Number(cart.discount);
+            orderShipping = Number(cart.shipping);
+            orderTax = Number(cart.tax);
+            orderTotal = Number(cart.total);
+            couponCode = cart.coupon_code;
         }
 
         // Verify stock availability for all items
-        for (const item of cart.cart_items) {
+        for (const item of cartItems) {
+            const variantId = item.color_variant_id || item.variantId;
             const currentStock = await prisma.frame_color_variants.findUnique({
-                where: { id: item.color_variant_id },
+                where: { id: variantId },
                 select: { stock_quantity: true }
             });
 
             if (!currentStock || currentStock.stock_quantity < item.quantity) {
                 return NextResponse.json(
                     {
-                        error: `Stock insuficiente para ${item.frame.name}`,
+                        error: `Stock insuficiente para ${item.frame?.name || item.name || 'producto'}`,
                         itemId: item.id
                     },
                     { status: 400 }
@@ -174,21 +201,30 @@ export async function POST(request: NextRequest) {
                     status: 'pending_payment',
                     shipping_address: shippingAddress,
                     billing_address: billingAddress || shippingAddress,
-                    subtotal: cart.subtotal,
-                    discount: cart.discount,
-                    shipping: cart.shipping,
-                    tax: cart.tax,
-                    total: cart.total,
-                    coupon_code: cart.coupon_code,
+                    subtotal: orderSubtotal,
+                    discount: orderDiscount,
+                    shipping: orderShipping,
+                    tax: orderTax,
+                    total: orderTotal,
+                    coupon_code: couponCode,
                     payment_method: paymentMethod || null,
                     payment_reference: paymentReference || null,
                 }
             });
 
             // Create order items with snapshots
-            for (const cartItem of cart.cart_items) {
+            for (const cartItem of cartItems) {
+                // Handle both DB cart items and checkout items
+                const isCheckoutItem = !!cartItem.slug;
+                
                 // Create snapshot of frame data
-                const frameSnapshot = {
+                const frameSnapshot = isCheckoutItem ? {
+                    id: cartItem.id || cartItem.slug,
+                    name: cartItem.name,
+                    slug: cartItem.slug,
+                    brand: cartItem.brand || '',
+                    basePrice: cartItem.price,
+                } : {
                     id: cartItem.frame.id,
                     name: cartItem.frame.name,
                     slug: cartItem.frame.slug,
@@ -197,12 +233,18 @@ export async function POST(request: NextRequest) {
                 };
 
                 // Create snapshot of color variant
-                const colorVariantSnapshot = {
+                const colorVariantSnapshot = isCheckoutItem ? {
+                    id: cartItem.variantId || cartItem.id,
+                    colorName: cartItem.variant || 'Estándar',
+                    colorHex: null,
+                    sku: null,
+                    images: cartItem.image ? [{ url: cartItem.image, type: 'front' }] : [],
+                } : {
                     id: cartItem.color_variant.id,
                     colorName: cartItem.color_variant.color_name,
                     colorHex: cartItem.color_variant.color_hex,
                     sku: cartItem.color_variant.sku,
-                    images: cartItem.color_variant.frame_images.map(img => ({
+                    images: cartItem.color_variant.frame_images.map((img: any) => ({
                         url: img.url,
                         type: img.image_type,
                     })),
@@ -217,47 +259,59 @@ export async function POST(request: NextRequest) {
                     pricing: cartItem.lens_configuration.pricing,
                 } : undefined;
 
+                const unitPrice = isCheckoutItem ? cartItem.price : Number(cartItem.unit_price);
+                const quantity = cartItem.quantity;
+
                 await tx.order_items.create({
                     data: {
                         order_id: newOrder.id,
                         frame_snapshot: frameSnapshot,
                         color_variant_snapshot: colorVariantSnapshot,
                         ...(lensConfigSnapshot && { lens_configuration_snapshot: lensConfigSnapshot }),
-                        quantity: cartItem.quantity,
-                        unit_price: cartItem.unit_price,
-                        total_price: cartItem.total_price,
+                        quantity: quantity,
+                        unit_price: unitPrice,
+                        total_price: unitPrice * quantity,
                         production_status: 'pending',
                     }
                 });
 
                 // Update stock
+                const variantId = isCheckoutItem ? cartItem.variantId : cartItem.color_variant_id;
                 await tx.frame_color_variants.update({
-                    where: { id: cartItem.color_variant_id },
+                    where: { id: variantId },
                     data: {
                         stock_quantity: {
-                            decrement: cartItem.quantity
+                            decrement: quantity
                         }
                     }
                 });
             }
 
-            // Clear the cart
-            await tx.cart_items.deleteMany({
-                where: { cart_id: cart.id }
-            });
-
-            await tx.carts.update({
-                where: { id: cart.id },
-                data: {
-                    subtotal: 0,
-                    discount: 0,
-                    shipping: 0,
-                    tax: 0,
-                    total: 0,
-                    coupon_code: null,
-                    updated_at: new Date(),
+            // Only clear DB cart if we used it
+            if (!checkoutItems) {
+                const cart = await prisma.carts.findFirst({
+                    where: userId
+                        ? { user_id: userId }
+                        : { session_id: sessionId, user_id: null },
+                });
+                if (cart) {
+                    await tx.cart_items.deleteMany({
+                        where: { cart_id: cart.id }
+                    });
+                    await tx.carts.update({
+                        where: { id: cart.id },
+                        data: {
+                            subtotal: 0,
+                            discount: 0,
+                            shipping: 0,
+                            tax: 0,
+                            total: 0,
+                            coupon_code: null,
+                            updated_at: new Date(),
+                        }
+                    });
                 }
-            });
+            }
 
             return newOrder;
         });

@@ -10,6 +10,7 @@ initMercadoPago(process.env.NEXT_PUBLIC_MP_PUBLIC_KEY!, {
 interface MercadoPagoButtonProps {
     amount: number;
     description?: string;
+    orderId?: string;
     onSuccess?: (paymentId: string) => void;
     onError?: (message: string) => void;
 }
@@ -17,6 +18,7 @@ interface MercadoPagoButtonProps {
 export default function MercadoPagoButton({
     amount,
     description = 'Compra en Mexilux',
+    orderId,
     onSuccess,
     onError,
 }: MercadoPagoButtonProps) {
@@ -34,6 +36,7 @@ export default function MercadoPagoButton({
                     ...formData,
                     transaction_amount: amount,
                     description,
+                    external_reference: orderId,
                 }),
             });
 

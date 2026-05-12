@@ -40,11 +40,45 @@ type CheckoutMode = 'guest' | 'register';
 const FREE_SHIPPING_THRESHOLD = 1690;
 const FIRST_PURCHASE_DISCOUNT = 200;
 
+interface ShippingData {
+    firstName: string;
+    lastName: string;
+    email: string;
+    phone: string;
+    street: string;
+    streetNumber: string;
+    apartment: string;
+    neighborhood: string;
+    city: string;
+    state: string;
+    postalCode: string;
+    notes: string;
+}
+
+const INITIAL_SHIPPING: ShippingData = {
+    firstName: '',
+    lastName: '',
+    email: '',
+    phone: '',
+    street: '',
+    streetNumber: '',
+    apartment: '',
+    neighborhood: '',
+    city: '',
+    state: '',
+    postalCode: '',
+    notes: '',
+};
+
 export default function CheckoutClient({ initialItem }: CheckoutClientProps) {
     const [items, setItems] = useState<CheckoutItem[]>([]);
     const [loading, setLoading] = useState(true);
     const [mode, setMode] = useState<CheckoutMode>('guest');
     const [registerData, setRegisterData] = useState({ name: '', email: '', password: '' });
+    const [shipping, setShipping] = useState<ShippingData>(INITIAL_SHIPPING);
+    const [order, setOrder] = useState<{ id: string; orderNumber: string } | null>(null);
+    const [creatingOrder, setCreatingOrder] = useState(false);
+    const [shippingErrors, setShippingErrors] = useState<Partial<Record<keyof ShippingData, string>>>({});
 
     useEffect(() => {
         if (initialItem) {
@@ -83,6 +117,91 @@ export default function CheckoutClient({ initialItem }: CheckoutClientProps) {
     const remainingForFreeShipping = Math.max(0, FREE_SHIPPING_THRESHOLD - subtotal);
 
     const formatPrice = (price: number) => `$${price.toLocaleString('es-MX')}`;
+
+    const validateShipping = (): boolean => {
+        const errors: Partial<Record<keyof ShippingData, string>> = {};
+        if (!shipping.firstName.trim()) errors.firstName = 'Nombre requerido';
+        if (!shipping.lastName.trim()) errors.lastName = 'Apellido requerido';
+        if (!shipping.email.trim() || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(shipping.email)) errors.email = 'Correo válido requerido';
+        if (!shipping.phone.trim()) errors.phone = 'Teléfono requerido';
+        if (!shipping.street.trim()) errors.street = 'Calle requerida';
+        if (!shipping.streetNumber.trim()) errors.streetNumber = 'Número requerido';
+        if (!shipping.neighborhood.trim()) errors.neighborhood = 'Colonia requerida';
+        if (!shipping.city.trim()) errors.city = 'Ciudad requerida';
+        if (!shipping.state.trim()) errors.state = 'Estado requerido';
+        if (!shipping.postalCode.trim() || shipping.postalCode.length < 5) errors.postalCode = 'CP válido requerido';
+        setShippingErrors(errors);
+        return Object.keys(errors).length === 0;
+    };
+
+    const handleCreateOrder = async () => {
+        if (!validateShipping()) return;
+        setCreatingOrder(true);
+        try {
+            const shippingAddress = {
+                name: `${shipping.firstName} ${shipping.lastName}`.trim(),
+                email: shipping.email,
+                phone: shipping.phone,
+                street: shipping.street,
+                streetNumber: shipping.streetNumber,
+                apartment: shipping.apartment || undefined,
+                neighborhood: shipping.neighborhood,
+                city: shipping.city,
+                state: shipping.state,
+                postalCode: shipping.postalCode,
+                country: 'México',
+                notes: shipping.notes || undefined,
+            };
+
+            const response = await fetch('/api/orders', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    shippingAddress,
+                    items: items.map(item => ({
+                        id: item.id,
+                        slug: item.slug,
+                        name: item.name,
+                        brand: item.brand,
+                        variant: item.variant,
+                        variantId: item.id,
+                        image: item.image,
+                        price: item.price,
+                        quantity: item.quantity,
+                        lensConfiguration: item.lensConfiguration,
+                    })),
+                    totals: {
+                        subtotal,
+                        shipping: shippingCost,
+                        discount: registerDiscount,
+                        tax: 0,
+                        total,
+                    },
+                }),
+            });
+
+            const data = await response.json();
+            if (data.success && data.order) {
+                setOrder(data.order);
+                // Clear cart from localStorage after order creation
+                localStorage.removeItem('mexilux_cart');
+                window.dispatchEvent(new CustomEvent('cart-updated', { detail: 0 }));
+            } else {
+                alert(data.error || 'Error al crear el pedido');
+            }
+        } catch (err) {
+            alert('Error de conexión al crear el pedido');
+        } finally {
+            setCreatingOrder(false);
+        }
+    };
+
+    const handleInputChange = (field: keyof ShippingData, value: string) => {
+        setShipping(prev => ({ ...prev, [field]: value }));
+        if (shippingErrors[field]) {
+            setShippingErrors(prev => ({ ...prev, [field]: undefined }));
+        }
+    };
 
     if (loading) {
         return (
@@ -257,71 +376,186 @@ export default function CheckoutClient({ initialItem }: CheckoutClientProps) {
                             </div>
                         </div>
 
-                        {/* Payment methods */}
-                        <div className="payment-section">
-                            <h2>
-                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                                    <path strokeLinecap="round" strokeLinejoin="round" d="M2.25 8.25h19.5M2.25 9h19.5m-16.5 5.25h6m-6 2.25h3m-3.75 3h15a2.25 2.25 0 002.25-2.25V6.75A2.25 2.25 0 0019.5 4.5h-15a2.25 2.25 0 00-2.25 2.25v10.5A2.25 2.25 0 004.5 19.5z" />
-                                </svg>
-                                Método de Pago
-                            </h2>
+                        {/* Shipping Form */}
+                        {!order ? (
+                            <div className="payment-section">
+                                <h2>
+                                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                                        <path strokeLinecap="round" strokeLinejoin="round" d="M15 10.5a3 3 0 11-6 0 3 3 0 016 0z" />
+                                        <path strokeLinecap="round" strokeLinejoin="round" d="M19.5 10.5c0 7.142-7.5 11.25-7.5 11.25S4.5 17.642 4.5 10.5a7.5 7.5 0 1115 0z" />
+                                    </svg>
+                                    Datos de Envío
+                                </h2>
+                                <p style={{ color: '#64748b', fontSize: '0.875rem', marginBottom: '1.5rem' }}>
+                                    Necesitamos tu dirección para enviar tus lentes. Todos los campos son obligatorios.
+                                </p>
 
-                            {/* Mercado Pago Option */}
-                            <div className="payment-option payment-option--primary">
-                                <div className="payment-badge">Recomendado</div>
-                                <div className="payment-header">
-                                    <div className="payment-logo">
-                                        <svg viewBox="0 0 24 24" fill="currentColor" className="mp-logo">
-                                            <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 15l-5-5 1.41-1.41L10 14.17l7.59-7.59L19 8l-9 9z" />
-                                        </svg>
-                                    </div>
-                                    <div className="payment-info">
-                                        <h3>Mercado Pago</h3>
-                                        <div className="payment-cards">
-                                            <span>Visa</span>
-                                            <span>Mastercard</span>
-                                            <span>Amex</span>
-                                            <span>OXXO</span>
-                                            <span>SPEI</span>
+                                <div className="shipping-form">
+                                    <div className="shipping-row">
+                                        <div className="shipping-field">
+                                            <label>Nombre</label>
+                                            <input type="text" placeholder="Juan" value={shipping.firstName} onChange={(e) => handleInputChange('firstName', e.target.value)} />
+                                            {shippingErrors.firstName && <span className="shipping-error">{shippingErrors.firstName}</span>}
+                                        </div>
+                                        <div className="shipping-field">
+                                            <label>Apellido</label>
+                                            <input type="text" placeholder="Pérez" value={shipping.lastName} onChange={(e) => handleInputChange('lastName', e.target.value)} />
+                                            {shippingErrors.lastName && <span className="shipping-error">{shippingErrors.lastName}</span>}
                                         </div>
                                     </div>
+                                    <div className="shipping-row">
+                                        <div className="shipping-field">
+                                            <label>Correo electrónico</label>
+                                            <input type="email" placeholder="juan@ejemplo.com" value={shipping.email} onChange={(e) => handleInputChange('email', e.target.value)} />
+                                            {shippingErrors.email && <span className="shipping-error">{shippingErrors.email}</span>}
+                                        </div>
+                                        <div className="shipping-field">
+                                            <label>Teléfono</label>
+                                            <input type="tel" placeholder="55 1234 5678" value={shipping.phone} onChange={(e) => handleInputChange('phone', e.target.value)} />
+                                            {shippingErrors.phone && <span className="shipping-error">{shippingErrors.phone}</span>}
+                                        </div>
+                                    </div>
+                                    <div className="shipping-row">
+                                        <div className="shipping-field" style={{ flex: 2 }}>
+                                            <label>Calle</label>
+                                            <input type="text" placeholder="Av. Insurgentes" value={shipping.street} onChange={(e) => handleInputChange('street', e.target.value)} />
+                                            {shippingErrors.street && <span className="shipping-error">{shippingErrors.street}</span>}
+                                        </div>
+                                        <div className="shipping-field" style={{ flex: 1 }}>
+                                            <label>Número</label>
+                                            <input type="text" placeholder="123" value={shipping.streetNumber} onChange={(e) => handleInputChange('streetNumber', e.target.value)} />
+                                            {shippingErrors.streetNumber && <span className="shipping-error">{shippingErrors.streetNumber}</span>}
+                                        </div>
+                                    </div>
+                                    <div className="shipping-field">
+                                        <label>Departamento / Interior (opcional)</label>
+                                        <input type="text" placeholder="Apto 4B, Piso 2" value={shipping.apartment} onChange={(e) => handleInputChange('apartment', e.target.value)} />
+                                    </div>
+                                    <div className="shipping-row">
+                                        <div className="shipping-field">
+                                            <label>Colonia</label>
+                                            <input type="text" placeholder="Roma Norte" value={shipping.neighborhood} onChange={(e) => handleInputChange('neighborhood', e.target.value)} />
+                                            {shippingErrors.neighborhood && <span className="shipping-error">{shippingErrors.neighborhood}</span>}
+                                        </div>
+                                        <div className="shipping-field">
+                                            <label>Código Postal</label>
+                                            <input type="text" placeholder="06700" maxLength={6} value={shipping.postalCode} onChange={(e) => handleInputChange('postalCode', e.target.value)} />
+                                            {shippingErrors.postalCode && <span className="shipping-error">{shippingErrors.postalCode}</span>}
+                                        </div>
+                                    </div>
+                                    <div className="shipping-row">
+                                        <div className="shipping-field">
+                                            <label>Ciudad</label>
+                                            <input type="text" placeholder="Ciudad de México" value={shipping.city} onChange={(e) => handleInputChange('city', e.target.value)} />
+                                            {shippingErrors.city && <span className="shipping-error">{shippingErrors.city}</span>}
+                                        </div>
+                                        <div className="shipping-field">
+                                            <label>Estado</label>
+                                            <input type="text" placeholder="CDMX" value={shipping.state} onChange={(e) => handleInputChange('state', e.target.value)} />
+                                            {shippingErrors.state && <span className="shipping-error">{shippingErrors.state}</span>}
+                                        </div>
+                                    </div>
+                                    <div className="shipping-field">
+                                        <label>Notas adicionales (opcional)</label>
+                                        <textarea placeholder="Instrucciones de entrega, referencias, etc." rows={2} value={shipping.notes} onChange={(e) => handleInputChange('notes', e.target.value)} />
+                                    </div>
                                 </div>
 
-                                <div className="payment-features">
-                                    <div className="feature">
-                                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                                            <path strokeLinecap="round" strokeLinejoin="round" d="M4.5 12.75l6 6 9-13.5" />
-                                        </svg>
-                                        <span>MSI disponibles</span>
-                                    </div>
-                                    <div className="feature">
-                                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                                            <path strokeLinecap="round" strokeLinejoin="round" d="M4.5 12.75l6 6 9-13.5" />
-                                        </svg>
-                                        <span>Pago seguro</span>
-                                    </div>
-                                    <div className="feature">
-                                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                                            <path strokeLinecap="round" strokeLinejoin="round" d="M4.5 12.75l6 6 9-13.5" />
-                                        </svg>
-                                        <span>Protección al comprador</span>
-                                    </div>
-                                </div>
-
-                                <div className="mp-button-wrapper">
-                                    <MercadoPagoButton
-                                        amount={total}
-                                        description={orderDescription || 'Compra en Mexilux'}
-                                    />
-                                </div>
-
-                                <p className="payment-secure-text">
-                                    <span className="secure-dot"></span>
-                                    Procesado de forma segura por Mercado Pago
-                                </p>
+                                <button
+                                    type="button"
+                                    onClick={handleCreateOrder}
+                                    disabled={creatingOrder}
+                                    className="btn-create-order"
+                                >
+                                    {creatingOrder ? (
+                                        <>
+                                            <span className="btn-spinner" />
+                                            Creando pedido...
+                                        </>
+                                    ) : (
+                                        <>
+                                            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                                                <path strokeLinecap="round" strokeLinejoin="round" d="M9 12.75L11.25 15 15 9.75M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                                            </svg>
+                                            Confirmar datos y proceder al pago
+                                        </>
+                                    )}
+                                </button>
                             </div>
+                        ) : (
+                            <div className="payment-section">
+                                <div style={{ padding: '1rem', background: '#f0fdf4', border: '1px solid #86efac', borderRadius: '12px', marginBottom: '1.5rem' }}>
+                                    <p style={{ color: '#166534', fontWeight: 600, margin: 0, fontSize: '0.9375rem' }}>
+                                        Pedido #{order.orderNumber} creado
+                                    </p>
+                                    <p style={{ color: '#15803d', fontSize: '0.8125rem', margin: '0.25rem 0 0' }}>
+                                        Completa tu pago para confirmar el envío.
+                                    </p>
+                                </div>
 
-                        </div>
+                                <h2>
+                                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                                        <path strokeLinecap="round" strokeLinejoin="round" d="M2.25 8.25h19.5M2.25 9h19.5m-16.5 5.25h6m-6 2.25h3m-3.75 3h15a2.25 2.25 0 002.25-2.25V6.75A2.25 2.25 0 0019.5 4.5h-15a2.25 2.25 0 00-2.25 2.25v10.5A2.25 2.25 0 004.5 19.5z" />
+                                    </svg>
+                                    Método de Pago
+                                </h2>
+
+                                <div className="payment-option payment-option--primary">
+                                    <div className="payment-badge">Recomendado</div>
+                                    <div className="payment-header">
+                                        <div className="payment-logo">
+                                            <svg viewBox="0 0 24 24" fill="currentColor" className="mp-logo">
+                                                <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 15l-5-5 1.41-1.41L10 14.17l7.59-7.59L19 8l-9 9z" />
+                                            </svg>
+                                        </div>
+                                        <div className="payment-info">
+                                            <h3>Mercado Pago</h3>
+                                            <div className="payment-cards">
+                                                <span>Visa</span>
+                                                <span>Mastercard</span>
+                                                <span>Amex</span>
+                                                <span>OXXO</span>
+                                                <span>SPEI</span>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <div className="payment-features">
+                                        <div className="feature">
+                                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                                                <path strokeLinecap="round" strokeLinejoin="round" d="M4.5 12.75l6 6 9-13.5" />
+                                            </svg>
+                                            <span>MSI disponibles</span>
+                                        </div>
+                                        <div className="feature">
+                                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                                                <path strokeLinecap="round" strokeLinejoin="round" d="M4.5 12.75l6 6 9-13.5" />
+                                            </svg>
+                                            <span>Pago seguro</span>
+                                        </div>
+                                        <div className="feature">
+                                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                                                <path strokeLinecap="round" strokeLinejoin="round" d="M4.5 12.75l6 6 9-13.5" />
+                                            </svg>
+                                            <span>Protección al comprador</span>
+                                        </div>
+                                    </div>
+
+                                    <div className="mp-button-wrapper">
+                                        <MercadoPagoButton
+                                            amount={total}
+                                            description={orderDescription || 'Compra en Mexilux'}
+                                            orderId={order.id}
+                                        />
+                                    </div>
+
+                                    <p className="payment-secure-text">
+                                        <span className="secure-dot"></span>
+                                        Procesado de forma segura por Mercado Pago
+                                    </p>
+                                </div>
+                            </div>
+                        )}
                     </div>
 
                     {/* Columna derecha - Resumen */}
