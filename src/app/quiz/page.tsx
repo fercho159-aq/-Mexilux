@@ -424,7 +424,7 @@ export default function QuizPage() {
             : [];
 
         return (
-            <main className="quiz-results-wrapped" style={{ paddingTop: '100px', minHeight: '100vh' }}>
+            <main className="quiz-results-wrapped" style={{ paddingTop: '1.5rem', minHeight: '100vh' }}>
                 <div className="wrapped-background">
                     <div className="wrapped-gradient" />
                     <div className="wrapped-particles" />

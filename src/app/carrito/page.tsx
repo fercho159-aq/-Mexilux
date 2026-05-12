@@ -136,7 +136,7 @@ function CartContent() {
 
     if (loading) {
         return (
-            <main className="cart-page" style={{ paddingTop: '100px', minHeight: '100vh' }}>
+            <main className="cart-page" style={{ paddingTop: '1.5rem', minHeight: '100vh' }}>
                 <div style={{ maxWidth: '1100px', margin: '0 auto', padding: '0 1.5rem', textAlign: 'center', paddingTop: '4rem' }}>
                     <p style={{ color: '#94a3b8' }}>Cargando carrito...</p>
                 </div>
@@ -146,7 +146,7 @@ function CartContent() {
 
     if (cartItems.length === 0) {
         return (
-            <main style={{ paddingTop: '100px', minHeight: '100vh', background: '#fafbfc' }}>
+            <main style={{ paddingTop: '1.5rem', minHeight: '100vh', background: '#fafbfc' }}>
                 <div style={{
                     maxWidth: '480px',
                     margin: '0 auto',
@@ -209,7 +209,7 @@ function CartContent() {
     }
 
     return (
-        <main style={{ paddingTop: '100px', minHeight: '100vh', background: '#fafbfc', paddingBottom: '4rem' }}>
+        <main style={{ paddingTop: '1.5rem', minHeight: '100vh', background: '#fafbfc', paddingBottom: '4rem' }}>
             {/* Breadcrumb */}
             <nav style={{
                 maxWidth: '1100px',

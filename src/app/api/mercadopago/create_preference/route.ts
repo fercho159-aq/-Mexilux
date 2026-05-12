@@ -84,7 +84,11 @@ export async function POST(request: NextRequest) {
             },
         });
 
-        return NextResponse.json({ id: result.id });
+        return NextResponse.json({
+            id: result.id,
+            init_point: result.init_point,
+            sandbox_init_point: result.sandbox_init_point,
+        });
     } catch (error: any) {
         console.error('Error creating MercadoPago preference:', {
             message: error?.message,

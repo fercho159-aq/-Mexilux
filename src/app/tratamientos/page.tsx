@@ -170,7 +170,7 @@ const formatPrice = (price: number) => `$${price.toLocaleString('es-MX')}`;
 
 export default function TratamientosPage() {
     return (
-        <main style={{ paddingTop: '80px', minHeight: '100vh', background: '#fafbfc' }}>
+        <main style={{ paddingTop: '1.5rem', minHeight: '100vh', background: '#fafbfc' }}>
             {/* Hero */}
             <section style={{
                 textAlign: 'center',

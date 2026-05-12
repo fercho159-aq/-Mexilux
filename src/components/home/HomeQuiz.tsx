@@ -409,7 +409,7 @@ export default function HomeQuiz({ isOpen, onClose, initialStep = 0, embedded = 
 
     const contentStyle: React.CSSProperties = embedded
         ? { width: '100%', height: '100%', display: 'flex', flexDirection: 'column' }
-        : { paddingTop: '80px', minHeight: '100vh', width: '100%', backgroundColor: '#fff' };
+        : { paddingTop: '1.5rem', minHeight: '100vh', width: '100%', backgroundColor: '#fff' };
 
     // ═══════════════════════════════════════════════════════════════════════════
     // CAMERA MODE

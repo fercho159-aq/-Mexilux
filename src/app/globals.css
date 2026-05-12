@@ -588,7 +588,6 @@ button {
 
 @media (max-width: 768px) {
   .hero-carousel {
-    margin-top: 86px;
     height: calc(100dvh - 86px);
     min-height: 480px;
     max-height: 780px;
@@ -1210,7 +1209,7 @@ button {
    ═══════════════════════════════════════════════════════════════════════════ */
 
 .site-header {
-  position: fixed;
+  position: sticky;
   top: 0;
   left: 0;
   right: 0;

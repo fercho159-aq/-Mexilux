@@ -19,12 +19,13 @@ export default function ProductActions({ slug, variantId, basePrice }: ProductAc
                 <Link
                     href={`/configurador/${slug}?variant=${variantId}`}
                     className={buttonClassNames({ variant: 'primary', size: 'lg', fullWidth: true })}
+                    style={{ padding: '0.875rem 1.5rem', gap: '0.75rem' }}
                 >
-                    <ShoppingBag size={20} />
-                    <span style={{ display: 'flex', flexDirection: 'column', textAlign: 'left' }}>
-                        <strong>Lo compro, quiero el flow mexa</strong>
-                        <small style={{ fontWeight: 400, opacity: 0.75 }}>
-                            Configura tus lentes · desde {formatPrice(basePrice)}
+                    <ShoppingBag size={22} strokeWidth={1.5} style={{ flexShrink: 0 }} />
+                    <span style={{ display: 'flex', flexDirection: 'column', textAlign: 'left', lineHeight: 1.3 }}>
+                        <strong style={{ fontSize: '1rem' }}>Comprar con flow mexa</strong>
+                        <small style={{ fontWeight: 400, opacity: 0.7, fontSize: '0.8125rem' }}>
+                            Desde {formatPrice(basePrice)}
                         </small>
                     </span>
                 </Link>

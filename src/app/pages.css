@@ -1367,7 +1367,7 @@
 
 .legal-page,
 .faq-page {
-    padding-top: 100px;
+    padding-top: 1.5rem;
     padding-bottom: var(--space-4xl);
 }
 
@@ -1667,7 +1667,7 @@
    ═══════════════════════════════════════════════════════════════════════════ */
 
 .quiz-page {
-    padding-top: 100px;
+    padding-top: 1.5rem;
     padding-bottom: var(--space-4xl);
 }
 
@@ -2256,7 +2256,7 @@
    ═══════════════════════════════════════════════════════════════════════════ */
 
 .search-page {
-    padding-top: 100px;
+    padding-top: 1.5rem;
     min-height: 80vh;
 }
 
@@ -4219,7 +4219,7 @@
    ═══════════════════════════════════════════════════════════════════════════ */
 
 .checkout-page {
-    padding-top: 100px;
+    padding-top: 1.5rem;
     padding-bottom: var(--space-4xl);
     min-height: 100vh;
     background: var(--color-bg-secondary);
